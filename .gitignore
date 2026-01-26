@@ -1,3 +1,6 @@
 .env
 __pycache__/
 .vscode/
+household_power_consumption.txt
+household_power_consumption.csv
+seed_uci.py

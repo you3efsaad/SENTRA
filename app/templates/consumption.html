@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumption</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="consumption-page nav-page">
+  <div class="layout-wrapper">
+
+    {% include "navbar.html" %}
+
+    <div class="page">
+      <div class="card">
+
+        <div class="card-header">
+          <h1><i class="fa-solid fa-chart-line fa-beat" style="color: #74C0FC; margin-right: 10px;"></i> Consumption
+            Analysis</h1>
+          <p class="subtitle">Monitor live usage and analyze historical trends.</p>
+        </div>
+
+        <div class="tabs-container">
+          <div class="tabs">
+            <button class="tab active" data-tab="live">Live Monitor</button>
+            <button class="tab" data-tab="historical">Historical Data</button>
+          </div>
+          <div class="tabs-underline" id="tabUnderline"></div>
+        </div>
+
+        <div class="card-content">
+
+          <div id="live-tab" class="tab-content" style="display: block;">
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                  <h3>Live Power</h3>
+                  <p id="livePowerValue" class="value">0 W</p>
+                </div>
+              </div>
+              <div class="metric-box">
+                <div class="icon"><i class="fa-solid fa-plug"></i></div>
+                <div>
+                  <h3>Session Energy</h3>
+                  <p id="liveEnergyValue" class="value">0 kWh</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="charts-grid">
+              <div class="chart-wrapper">
+                <h3>Power (Real-time)</h3>
+                <canvas id="powerChart"></canvas>
+              </div>
+              <div class="chart-wrapper">
+                <h3>Energy Accumulation</h3>
+                <canvas id="energyChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div id="historical-tab" class="tab-content" style="display: none;">
+
+            <div class="filters-bar">
+              <div class="input-group">
+                <label>Start Date</label>
+                <input type="date" id="start-date" class="date-input">
+              </div>
+              <div class="input-group">
+                <label>End Date</label>
+                <input type="date" id="end-date" class="date-input">
+              </div>
+              <button id="hist-btn" class="search-btn" onclick="generateHistoricalData()">
+                <i class="fa-solid fa-search"></i> Search
+              </button>
+            </div>
+
+            <div class="chart-wrapper full-width" style="margin-top: 20px; height: 400px;">
+              <canvas id="historicalChart"></canvas>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
