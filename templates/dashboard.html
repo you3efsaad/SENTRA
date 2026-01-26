@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Power</title>
+    <!-- إضافة Font Awesome -->
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page nav-page">
+    <div class="layout-wrapper">
+
+        {% include "navbar.html" %}
+        <div class="page">
+            <div class="card">
+
+                <div class="dashboard">
+
+                    <h1>
+                        <i class="fas fa-lightbulb glowing-bulb"></i>
+                        Real-Time Dashboard
+                    </h1>
+
+
+                    <!-- Voltage Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="metric-title"><i class="fas fa-bolt"></i> Voltage</div>
+                        <div class="metric-value" id="voltage-value">V</div>
+                    </div>
+
+                    <!-- Current Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
+                        <div class="metric-title"><i class="fa-solid fa-arrows-turn-to-dots"></i> Current</div>
+                        <div class="metric-value" id="current-value">A</div>
+                    </div>
+
+                    <!-- Power Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fa-solid fa-plug"></i></div>
+                        <div class="metric-title"><i class="fa-solid fa-plug"></i> Power</div>
+                        <div class="metric-value" id="power-value">W</div>
+                    </div>
+
+                    <!-- Voltage Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-bolt"></i> Voltage Trend</div>
+                        <div class="metric-value" id="voltage-trend-value">V</div>
+                        <div class="trend-container" id="voltage-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-up">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="voltage-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <!-- Current Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fa-solid fa-arrows-turn-to-dots"></i> Current Trend</div>
+                        <div class="metric-value" id="current-trend-value">0A</div>
+                        <div class="trend-container" id="current-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-down">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="current-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <!-- Power Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fa-solid fa-plug"></i> Power Trend</div>
+                        <div class="metric-value" id="power-trend-value">W</div>
+                        <div class="trend-container" id="power-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-up">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="power-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <!-- Energy Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="metric-title"><i class="fa-solid fa-chart-line"></i> Energy</div>
+                        <div class="metric-value" id="energy-value">kWh</div>
+                    </div>
+
+                    <!-- Frequency Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fas fa-wave-square"></i></div>
+                        <div class="metric-title"><i class="fas fa-wave-square"></i> Frequency</div>
+                        <div class="metric-value" id="frequency-value">Hz</div>
+                    </div>
+
+                    <!-- Power Factor Card -->
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="metric-title"><i class="fas fa-percentage"></i> Power Factor</div>
+                        <div class="metric-value" id="power-factor-value"></div>
+                    </div>
+
+                    <!-- Energy Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fa-solid fa-chart-line"></i> Energy Trend</div>
+                        <div class="metric-value" id="energy-trend-value">kWh</div>
+                        <div class="trend-container" id="energy-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-up">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="energy-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <!-- Frequency Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-wave-square"></i> Frequency Trend</div>
+                        <div class="metric-value" id="frequency-trend-value">Hz</div>
+                        <div class="trend-container" id="frequency-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-down">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="frequency-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <!-- Power Factor Trend Card -->
+                    <div class="metric-card">
+                        <div class="metric-title"><i class="fas fa-percentage"></i> Power Factor Trend</div>
+                        <div class="metric-value" id="power-factor-trend-value"></div>
+                        <div class="trend-container" id="power-factor-trend">
+                            <span class="trend-icon"></span>
+                            <span class="trend-up">Last 24 Hours </span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="power-factor-chart"></canvas>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

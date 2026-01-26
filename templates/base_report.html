@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Reports</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body class="reports-page nav-page">
+  <div class="layout-wrapper">
+    {% include "navbar.html" %}
+
+
+
+    <div class="container">
+      <div class="cards">
+
+
+        <h1>
+          <img src="{{ url_for('static', filename='images/report-icon.png') }}" alt="Reports Icon" class="icon-animated"
+            style="width: 40px; vertical-align: middle; margin-right: 8px;"> Reports
+        </h1>
+
+        <p class="subtext">Analyze your energy usage patterns over different time periods.</p>
+
+        <div class="tabs-container">
+          <div class="tabs">
+            <div class="tab active" onclick="generateReport('daily', this)">Daily</div>
+            <div class="tab" onclick="generateReport('weekly', this)">Weekly</div>
+            <div class="tab" onclick="generateReport('monthly', this)">Monthly</div>
+          </div>
+          <div class="tabs-underline" id="tabUnderline"></div>
+        </div>
+
+        <h2 id="reportTitle">Daily Summary</h2>
+
+        <div class="summary-cards">
+          <div class="card">
+            <h3>Total Consumption</h3>
+            <p id="totalConsumption">--</p>
+          </div>
+          <div class="card">
+            <h3>Average Consumption</h3>
+            <p id="avgConsumption">--</p>
+          </div>
+          <div class="card">
+            <h3>Peak Consumption</h3>
+            <p id="peakConsumption">--</p>
+          </div>
+        </div>
+
+
+
+        <h2 class="consumption-chart">Consumption Chart</h2>
+
+
+        <div id="chart-container">
+          <canvas id="reportChart"></canvas>
+        </div>
+
+
+        <h2>Per Device Consumption</h2>
+
+
+        <table id="deviceTableDaily" class="device-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Consumption</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBodyDaily"></tbody>
+        </table>
+
+
+        <table id="deviceTableWeekly" class="device-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Consumption</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBodyWeekly"></tbody>
+        </table>
+
+
+        <table id="deviceTableMonthly" class="device-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Consumption</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBodyMonthly"></tbody>
+        </table>
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+
+
+</body>
+
+</html>

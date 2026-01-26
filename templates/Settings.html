@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Settings</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+<body class="settings-page nav-page">
+    <div class="layout-wrapper">
+        {% include "navbar.html" %}
+
+        <div class="page">
+            <div class="card">
+
+                <div class="card-header">
+                    <h1>
+                        <img src="{{ url_for('static', filename='images/Settings.png') }}" alt="Reports Icon"
+                            class="icon-animated" style="width: 40px; vertical-align: middle; margin-right: 8px;">
+                        Settings
+                    </h1>
+                </div>
+
+                <div class="card-content">
+                    <!-- Power Limits -->
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-bolt fa-shake fa-lg" style="color: #74C0FC;"></i>
+                            <h3>Power Limits</h3>
+                        </div>
+
+                        <label for="power-limit">Enter Power Limit (W)</label>
+                        <div class="input-group">
+                            <input type="text" id="power-limit" placeholder="Enter power limit" />
+                            <button onclick="submitPowerLimit()">Submit</button>
+                        </div>
+
+                        <p class="info">
+                            <strong>Current Power Limit: <span class="value" id="ww">{{ power_limit }}</span> </strong>
+
+                        </p>
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <!-- Timer Durations -->
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-regular fa-clock fa-spin fa-lg" style="color: #74C0FC;"></i>
+                            <h3>Timer Durations</h3>
+                        </div>
+
+                        <label for="timer-duration">Set Timer Duration (in minutes)</label>
+                        <div class="input-group">
+                            <input type="text" id="timer-duration" placeholder="Enter duration" />
+                            <button id="set-time-btn" onclick="onSetTimeClick()">Set Time</button>
+                            <button id="pause-btn" style="display:none" onclick="onPauseClick()">Pause</button>
+                            <button id="cancel-btn" style="display:none" onclick="onCancelClick()">Cancel</button>
+                        </div>
+
+                        <div id="timer" class="time-row">
+                            <div class="time-col">
+                                <input type="text" id="hours" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Hours</p>
+                            </div>
+                            <div class="time-col">
+                                <input type="text" id="minutes" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Minutes</p>
+                            </div>
+                            <div class="time-col">
+                                <input type="text" id="seconds" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Seconds</p>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <!-- Remote Control -->
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-satellite-dish fa-flip" style="color: #74C0FC;"></i>
+                            <h3>Remote Control</h3>
+                        </div>
+
+                        <div class="remote-buttons">
+
+                            <button id="on-btn" class="state-btn" onclick="sendCommand('on')">
+                                <i class="fa-solid fa-power-off fa-fade"></i>
+                                On</button>
+                            <button id="off-btn" class="state-btn" onclick="sendCommand('off')">
+                                <i class="fa-solid fa-power-off fa-fade"></i> Off</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

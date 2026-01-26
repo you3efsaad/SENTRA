@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safe Power</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+</head>
+
+<body class="nav-page">
+  <div class="navbar-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+      <nav class="sidebar-links">
+        <a href="/" class="{{ 'active' if request.path == '/' else '' }}">Dashboard</a>
+        <a href="/consumption" class="{{ 'active' if request.path == '/consumption' else '' }}">Consumption</a>
+        <a href="/reports" class="{{ 'active' if request.path == '/reports' else '' }}">Reports</a>
+        <a href="/settings" class="{{ 'active' if request.path == '/settings' else '' }}">Settings</a>
+        <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}">About Us</a>
+        <a href="/contact" class="{{ 'active' if request.path == '/contact' else '' }}">Contact Us</a>
+
+      </nav>
+    </aside>
+
+
+    <nav class="navbar">
+
+      <!-- Toggle Button -->
+      <button id="sidebarToggle" class="sidebar-toggle">
+        <i class="fas fa-align-left"></i>
+      </button>
+
+      <div class="main-logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Electricity Icon"
+          style="width: 29px; vertical-align: middle; ">
+        Safe Power
+      </div>
+
+      <div class="nav-links">
+        <a href="/" class="{{ 'active' if request.path == '/' else '' }}">Dashboard</a>
+        <a href="/consumption" class="{{ 'active' if request.path == '/consumption' else '' }}">Consumption</a>
+        <a href="/reports" class="{{ 'active' if request.path == '/reports' else '' }}">Reports</a>
+        <a href="/settings" class="{{ 'active' if request.path == '/settings' else '' }}">Settings</a>
+        <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}">About Us</a>
+        <a href="/contact" class="{{ 'active' if request.path == '/contact' else '' }}">Contact Us</a>
+      </div>
+      <div class="notification-container">
+        <i class="fas fa-bell" onclick="toggleNotificationPopup()"></i>
+        <div id="notification-popup" class="notification-popup" style="display: none;">
+          <ul id="notification-list"></ul>
+        </div>
+      </div>
+
+
+    </nav>
+
+  </div>
+
+
+</body>
+
+</html>
