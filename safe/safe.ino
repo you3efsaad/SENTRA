@@ -4,10 +4,9 @@
 #include <ArduinoJson.h>
 #include <WiFiManager.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <LiquidCrystal_I2C.h>
 
-const char *baseURL = "https://safe-power.up.railway.app";
+const char *baseURL = "https://safepower.up.railway.app";
 
 String deviceName = "";
 String command = "";
@@ -16,24 +15,29 @@ unsigned long countdownStart = 0;
 unsigned long countdownDuration = 0;
 bool countdownActive = false;
 bool relayOpened = false;
+bool hasTripped = false;
 
 #define PZEM_RX_PIN 16
 #define PZEM_TX_PIN 17
 #define RELAY_PIN 5
 #define BUZZER_PIN 14
-
 #define LED_PIN 14
-#define RESET_BUTTON_PIN 4 // تم تغييره إلى D2 (GPIO4)
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+#define RESET_BUTTON_PIN 4
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 PZEM004Tv30 pzem(Serial2, PZEM_RX_PIN, PZEM_TX_PIN);
+LiquidCrystal_I2C lcd(0x27, 16, 2); // تأكد من العنوان (0x27 أو 0x3F)
 
 void setup()
 {
     Serial.begin(115200);
     delay(100);
+
+    lcd.init();
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+    lcd.print("System Booting...");
+    delay(2000);
+    lcd.clear();
 
     pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
     if (digitalRead(RESET_BUTTON_PIN) == LOW)
@@ -45,20 +49,6 @@ void setup()
         ESP.restart();
     }
 
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-    {
-        Serial.println(F("SSD1306 allocation failed"));
-        for (;;)
-            ;
-    }
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println("Booting...");
-    display.display();
-    delay(1000);
-
     Serial2.begin(9600, SERIAL_8N1, PZEM_RX_PIN, PZEM_TX_PIN);
     pinMode(RELAY_PIN, OUTPUT);
     pinMode(BUZZER_PIN, OUTPUT);
@@ -68,7 +58,7 @@ void setup()
     digitalWrite(LED_PIN, LOW);
 
     WiFiManager wm;
-    bool res = wm.autoConnect("\xe2\x9c\x8c\xef\xb8\x8f y & m \xe2\x9c\x8c\xef\xb8\x8f");
+    bool res = wm.autoConnect("Y & M Setup");
     if (!res)
     {
         Serial.println("Failed to connect to WiFi.");
@@ -205,7 +195,36 @@ void checkCountdown()
             digitalWrite(RELAY_PIN, LOW);
             relayOpened = true;
             countdownActive = false;
+
             Serial.println("Timer ended, relay off");
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Timer ended");
+            lcd.setCursor(0, 1);
+            lcd.print("Relay OFF");
+
+            if (WiFi.status() == WL_CONNECTED)
+            {
+                Serial.println("Sending OFF to server...");
+                HTTPClient http;
+                http.begin(String(baseURL) + "/control");
+                http.addHeader("Content-Type", "application/json");
+                String cmdPayload = "{\"command\":\"off\"}";
+                int code = http.POST(cmdPayload);
+
+                Serial.print("Server response code: ");
+                Serial.println(code);
+                http.end();
+
+                if (code == 200)
+                {
+                    command = "off";
+                }
+                else
+                {
+                    Serial.println("Failed to send OFF command.");
+                }
+            }
         }
     }
 }
@@ -221,58 +240,96 @@ void loop()
     float frequency = pzem.frequency();
     float pf = pzem.pf();
 
-    if (isnan(voltage) || isnan(current) || isnan(power))
+    if (isnan(voltage))
+        voltage = 0.0;
+    if (isnan(current))
+        current = 0.0;
+    if (isnan(power))
+        power = 0.0;
+    if (isnan(frequency))
+        frequency = 0.0;
+    if (isnan(pf))
+        pf = 0.0;
+
+    lcd.clear();
+
+    if (hasTripped)
     {
-        Serial.println("Sensor read error");
-        delay(2000);
-        return;
+        lcd.setCursor(0, 0);
+        lcd.print("LIMIT EXCEEDED");
+        lcd.setCursor(0, 1);
+        lcd.print("Relay OFF");
+    }
+    else
+    {
+        if (countdownActive)
+        {
+            unsigned long now = millis();
+            unsigned long elapsed = now - countdownStart;
+            unsigned long remaining = (countdownDuration - elapsed) / 1000;
+
+            if (remaining > 0)
+            {
+                lcd.setCursor(0, 0);
+                lcd.print("V:");
+                lcd.print(voltage, 1);
+                lcd.print(" P:");
+                lcd.print(power, 1); // طباعة الجهد بدون فاصلة عشرية
+
+                lcd.setCursor(0, 1); // السطر الثاني
+                lcd.print("T:");
+                lcd.print(remaining);
+                lcd.print("s ");
+                lcd.print(" R:");
+
+                lcd.print(digitalRead(RELAY_PIN) ? "  ON " : "  OFF");
+            }
+            else
+            {
+                checkCountdown();
+            }
+        }
+        else
+        {
+            // عرض التيار والجهد في السطر الأول
+            lcd.setCursor(0, 0);
+            lcd.print("V:");
+            lcd.print(voltage, 1);
+            lcd.print(" P:");
+            lcd.print(power, 1);
+
+            lcd.setCursor(0, 1);
+            lcd.print("C:");
+            lcd.print(current, 2);
+            lcd.print(" R:");
+            lcd.print(digitalRead(RELAY_PIN) ? "ON " : "OFF");
+        }
     }
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-
-    display.print("Volt: ");
-    display.print(voltage);
-    display.println(" V");
-
-    display.print("Curr: ");
-    display.print(current);
-    display.println(" A");
-
-    display.print("Power: ");
-    display.print(power);
-    display.println(" W");
-
-    if (countdownActive)
-    {
-        unsigned long remaining = (countdownDuration - (millis() - countdownStart)) / 1000;
-        display.print("Timer: ");
-        display.print(remaining);
-        display.println("s");
-    }
-
-    display.print("Relay: ");
-    display.println(digitalRead(RELAY_PIN) ? "ON" : "OFF");
-    display.display();
-
-    if (power > powerLimit)
+    if (power > powerLimit && !hasTripped)
     {
         digitalWrite(RELAY_PIN, LOW);
         digitalWrite(BUZZER_PIN, HIGH);
         digitalWrite(LED_PIN, HIGH);
-        delay(3000);
+        delay(5000);
         digitalWrite(BUZZER_PIN, LOW);
         digitalWrite(LED_PIN, LOW);
+        hasTripped = true;
 
         if (WiFi.status() == WL_CONNECTED)
         {
             HTTPClient http;
-            http.begin(String(baseURL) + "/esp_command");
+            http.begin(String(baseURL) + "/control");
             http.addHeader("Content-Type", "application/json");
             String cmdPayload = "{\"command\":\"off\"}";
-            http.POST(cmdPayload);
+            int code = http.POST(cmdPayload);
             http.end();
         }
+    }
+
+    if (power <= powerLimit && hasTripped)
+    {
+        hasTripped = false;
     }
 
     if (WiFi.status() == WL_CONNECTED)
