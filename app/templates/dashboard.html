@@ -206,44 +206,7 @@
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-    <script>
-        const modal = document.getElementById("renameModal");
 
-        function openRenameModal() {
-            // جلب رقم الكلاستر الحالي
-            const clusterId = document.getElementById("current-cluster-id").value;
-            document.getElementById("modal-cluster-id").textContent = clusterId;
-            document.getElementById("new-device-name-input").value = ""; // تنظيف الحقل
-            modal.style.display = "block";
-        }
-
-        function closeRenameModal() {
-            modal.style.display = "none";
-        }
-
-        // إغلاق النافذة لو ضغطت بره
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        async function submitRename() {
-            const clusterId = document.getElementById("current-cluster-id").value;
-            const newName = document.getElementById("new-device-name-input").value;
-
-            if (!newName) return alert("Please enter a name!");
-
-            // استدعاء الدالة الموجودة في script.js اللي هتبعت للسيرفر
-            // تأكد إنك ضفت دالة userRenamesDevice في script.js زي ما اتفقنا
-            if (window.userRenamesDevice) {
-                await window.userRenamesDevice(clusterId, newName);
-                closeRenameModal();
-            } else {
-                console.error("Function userRenamesDevice not found in script.js");
-            }
-        }
-    </script>
 </body>
 
 </html>
