@@ -458,3 +458,87 @@ function safeTxt(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
 }
+
+
+
+// ==================================================
+// 8. AI RENAMING LOGIC (تسمية الأجهزة الجديدة)
+// ==================================================
+
+// الدالة دي مربوطة بـ dashboard.html عشان تسمي الجهاز
+window.userRenamesDevice = async function (clusterId, newName) {
+    console.log(`📝 Renaming Cluster ${clusterId} to "${newName}"...`);
+
+    try {
+        const response = await fetch('/rename_device', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cluster_id: parseInt(clusterId), // لازم نتأكد إنه رقم
+                new_name: newName
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert(`✅ Done! System now knows this device as "${newName}".`);
+
+            // تحديث الاسم فوراً في الصفحة عشان اليوزر يشوف النتيجة
+            const nameEl = document.getElementById('ai-device-name');
+            if (nameEl) nameEl.textContent = newName;
+
+            // إخفاء زرار التسمية لأنه خلاص بقى معروف
+            const btn = document.getElementById('rename-btn');
+            if (btn) btn.style.display = 'none';
+
+        } else {
+            alert("❌ Error: " + result.message);
+        }
+    } catch (error) {
+        console.error("Renaming Error:", error);
+        alert("⚠️ Network Error. Check console.");
+    }
+};
+
+// تحديث بيانات كارت الـ AI في الداشبورد
+async function updateAICard() {
+    const nameEl = document.getElementById('ai-device-name');
+    const statusEl = document.getElementById('ai-device-status');
+    const renameBtn = document.getElementById('rename-btn');
+    const clusterInput = document.getElementById('current-cluster-id');
+
+    if (!nameEl) return; // لو إحنا مش في الداشبورد، اخرج
+
+    try {
+        // بنجيب القراءة العادية، وهنفترض إن الـ API هيرجع لنا اسم الجهاز وكود الكلاستر
+        // ملحوظة: لازم نعدل api.py عشان يرجع المعلومات دي، أو نعمل endpoint جديد
+        // حالياً هنستخدم /latest وهنفترض إننا ضفنا البيانات دي فيه
+        const res = await fetch('/latest');
+        const data = await res.json();
+
+        // بيانات تجريبية (لحد ما نحدث الـ api.py)
+        // data.ai_device_name = "Unknown Device #3"; 
+        // data.ai_cluster_id = 3;
+
+        if (data.ai_device_name) {
+            nameEl.textContent = data.ai_device_name;
+
+            if (clusterInput) clusterInput.value = data.ai_cluster_id;
+
+            // لو الجهاز غير معروف، اظهر زرار التسمية
+            if (data.ai_device_name.includes("Unknown")) {
+                statusEl.textContent = "New Pattern";
+                statusEl.style.background = "#fef08a"; // أصفر
+                if (renameBtn) renameBtn.style.display = "inline-block";
+            } else {
+                statusEl.textContent = "Identified";
+                statusEl.style.background = "#bbf7d0"; // أخضر
+                if (renameBtn) renameBtn.style.display = "none";
+            }
+        }
+    } catch (e) { console.error("AI Update Error", e); }
+}
+
+// ضيف السطر ده جوه دالة initDashboard عشان يشتغل أوتوماتيك
+// setInterval(updateAICard, 2000);

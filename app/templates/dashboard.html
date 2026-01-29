@@ -5,18 +5,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safe Power</title>
-    <!-- إضافة Font Awesome -->
     <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        /* ستايل خاص بكارت الذكاء الاصطناعي */
+        .ai-card {
+            border-left: 4px solid #8b5cf6 !important;
+            /* لون بنفسجي مميز */
+            position: relative;
+        }
+
+        .ai-status-badge {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #eee;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .rename-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: 0.3s;
+        }
+
+        .rename-btn:hover {
+            background: #7c3aed;
+        }
+
+        /* نافذة التسمية المنبثقة (Modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .save-btn {
+            background-color: #10b981;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #ef4444;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="dashboard-page nav-page">
     <div class="layout-wrapper">
 
         {% include "navbar.html" %}
+
         <div class="page">
             <div class="card">
 
@@ -28,137 +117,133 @@
                     </h1>
 
 
-                    <!-- Voltage Card -->
+                    <div class="metric-card ai-card">
+                        <div class="metric-icon" style="background-color: #f3e8ff; color: #8b5cf6;">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="metric-title">Active Device (AI)</div>
+
+                        <div class="metric-value" id="ai-device-name">Scanning...</div>
+
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
+                            <span id="ai-device-status" class="ai-status-badge">Idle</span>
+                            <button id="rename-btn" class="rename-btn" style="display: none;"
+                                onclick="openRenameModal()">
+                                <i class="fa-solid fa-pen"></i> Name It
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="current-cluster-id">
+                    </div>
                     <div class="metric-card blue-card">
                         <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
                         <div class="metric-title"><i class="fas fa-bolt"></i> Voltage</div>
                         <div class="metric-value" id="voltage-value">V</div>
                     </div>
 
-                    <!-- Current Card -->
                     <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
-                        <div class="metric-title"><i class="fa-solid fa-arrows-turn-to-dots"></i> Current</div>
+                        <div class="metric-icon"><i class="fa-solid fa-flux-capacitor"></i></div>
+                        <div class="metric-title"><i class="fas fa-wave-square"></i> Current</div>
                         <div class="metric-value" id="current-value">A</div>
                     </div>
 
-                    <!-- Power Card -->
                     <div class="metric-card blue-card">
                         <div class="metric-icon"><i class="fa-solid fa-plug"></i></div>
-                        <div class="metric-title"><i class="fa-solid fa-plug"></i> Power</div>
+                        <div class="metric-title"><i class="fas fa-plug"></i> Power</div>
                         <div class="metric-value" id="power-value">W</div>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="status-dot"></span>
+                            <span class="status-text" id="status-text">Standby</span>
+                        </div>
                     </div>
 
-                    <!-- Voltage Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fas fa-bolt"></i> Voltage Trend</div>
-                        <div class="metric-value" id="voltage-trend-value">V</div>
-                        <div class="trend-container" id="voltage-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-up">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="voltage-chart"></canvas>
-                        </div>
-
-                    </div>
-
-                    <!-- Current Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fa-solid fa-arrows-turn-to-dots"></i> Current Trend</div>
-                        <div class="metric-value" id="current-trend-value">0A</div>
-                        <div class="trend-container" id="current-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-down">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="current-chart"></canvas>
-                        </div>
-
-                    </div>
-
-                    <!-- Power Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fa-solid fa-plug"></i> Power Trend</div>
-                        <div class="metric-value" id="power-trend-value">W</div>
-                        <div class="trend-container" id="power-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-up">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="power-chart"></canvas>
-                        </div>
-
-                    </div>
-
-                    <!-- Energy Card -->
                     <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
-                        <div class="metric-title"><i class="fa-solid fa-chart-line"></i> Energy</div>
+                        <div class="metric-icon"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="metric-title"><i class="fas fa-leaf"></i> Energy</div>
                         <div class="metric-value" id="energy-value">kWh</div>
                     </div>
 
-                    <!-- Frequency Card -->
                     <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fas fa-wave-square"></i></div>
-                        <div class="metric-title"><i class="fas fa-wave-square"></i> Frequency</div>
+                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
+                        <div class="metric-title"><i class="fas fa-dollar-sign"></i> Est. Cost</div>
+                        <div class="metric-value" id="cost-value">EGP</div>
+                    </div>
+
+                    <div class="metric-card blue-card">
+                        <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
+                        <div class="metric-title"><i class="fas fa-broadcast-tower"></i> Frequency</div>
                         <div class="metric-value" id="frequency-value">Hz</div>
                     </div>
-
-                    <!-- Power Factor Card -->
                     <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="metric-title"><i class="fas fa-percentage"></i> Power Factor</div>
-                        <div class="metric-value" id="power-factor-value"></div>
+                        <div class="metric-icon"><i class="fa-solid fa-percent"></i></div>
+                        <div class="metric-title">Power Factor</div>
+                        <div class="metric-value" id="pf-value">--</div>
                     </div>
 
-                    <!-- Energy Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fa-solid fa-chart-line"></i> Energy Trend</div>
-                        <div class="metric-value" id="energy-trend-value">kWh</div>
-                        <div class="trend-container" id="energy-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-up">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="energy-chart"></canvas>
-                        </div>
-
-                    </div>
-
-                    <!-- Frequency Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fas fa-wave-square"></i> Frequency Trend</div>
-                        <div class="metric-value" id="frequency-trend-value">Hz</div>
-                        <div class="trend-container" id="frequency-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-down">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="frequency-chart"></canvas>
-                        </div>
-
-                    </div>
-
-                    <!-- Power Factor Trend Card -->
-                    <div class="metric-card">
-                        <div class="metric-title"><i class="fas fa-percentage"></i> Power Factor Trend</div>
-                        <div class="metric-value" id="power-factor-trend-value"></div>
-                        <div class="trend-container" id="power-factor-trend">
-                            <span class="trend-icon"></span>
-                            <span class="trend-up">Last 24 Hours </span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="power-factor-chart"></canvas>
-                        </div>
-
+                </div>
+                <div class="charts-grid" style="margin-top: 30px;">
+                    <div class="chart-wrapper" style="height: 300px;">
+                        <h3>Power Consumption (Live)</h3>
+                        <canvas id="mainChart"></canvas>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
+    <div id="renameModal" class="modal">
+        <div class="modal-content">
+            <h3>Name New Device</h3>
+            <p>The AI detected a new pattern (Cluster #<span id="modal-cluster-id"></span>).</p>
+            <input type="text" id="new-device-name-input" class="modal-input" placeholder="e.g., Microwave, Iron...">
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeRenameModal()">Cancel</button>
+                <button class="save-btn" onclick="submitRename()">Save Name</button>
+            </div>
+        </div>
+    </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script>
+        const modal = document.getElementById("renameModal");
+
+        function openRenameModal() {
+            // جلب رقم الكلاستر الحالي
+            const clusterId = document.getElementById("current-cluster-id").value;
+            document.getElementById("modal-cluster-id").textContent = clusterId;
+            document.getElementById("new-device-name-input").value = ""; // تنظيف الحقل
+            modal.style.display = "block";
+        }
+
+        function closeRenameModal() {
+            modal.style.display = "none";
+        }
+
+        // إغلاق النافذة لو ضغطت بره
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        async function submitRename() {
+            const clusterId = document.getElementById("current-cluster-id").value;
+            const newName = document.getElementById("new-device-name-input").value;
+
+            if (!newName) return alert("Please enter a name!");
+
+            // استدعاء الدالة الموجودة في script.js اللي هتبعت للسيرفر
+            // تأكد إنك ضفت دالة userRenamesDevice في script.js زي ما اتفقنا
+            if (window.userRenamesDevice) {
+                await window.userRenamesDevice(clusterId, newName);
+                closeRenameModal();
+            } else {
+                console.error("Function userRenamesDevice not found in script.js");
+            }
+        }
+    </script>
 </body>
 
 </html>

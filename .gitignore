@@ -4,3 +4,4 @@ __pycache__/
 household_power_consumption.txt
 household_power_consumption.csv
 seed_uci.py
+CSV_files/

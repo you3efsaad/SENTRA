@@ -27,17 +27,16 @@ def calculate_cost(kwh):
 @website_bp.route('/')
 def dashboard():
     return render_template('dashboard.html')
-
 @website_bp.route('/latest')
 @website_bp.route('/get_readings')
 def get_latest_readings():
-    # Update last connection time
+    # 1. تحديث وقت آخر اتصال
     g.last_update_time = datetime.now()
     
-    # Safely get data from globals
+    # 2. تجهيز البيانات بأمان (عشان لو فيه قيم None تتحول لـ 0)
     safe_data = {k: (v if v is not None else 0) for k, v in g.latest_data.items()}
     
-    # Support old graph format if needed
+    # 3. دعم الفورمات القديم للجرافات (لو مطلوب)
     if request.args.get('format') == 'full': 
         return jsonify({
             "voltage": {"current": safe_data.get('voltage', 0), "trend": 0, "history": []},
@@ -47,7 +46,32 @@ def get_latest_readings():
             "frequency": {"current": safe_data.get('frequency', 0), "trend": 0, "history": []},
             "powerFactor": {"current": safe_data.get('pf', 0), "trend": 0, "history": []}
         })
-    return jsonify(safe_data)
+
+    # 4. منطق الذكاء الاصطناعي (AI Logic)
+    ai_device_name = "Analyzing..."
+    ai_cluster_id = -1
+    
+    # لو المحرك شغال، خليه يتوقع بناءً على آخر قراءة باور
+    if g.ai_engine and safe_data['power'] > 5:
+        # تجهيز المدخلات للموديل
+        x = {'power': safe_data['power'], 'pf': safe_data['pf']}
+        
+        # التوقع
+        cluster_id = g.ai_engine.model.predict_one(x)
+        
+        # جلب الاسم
+        ai_device_name = g.ai_engine.cluster_names.get(cluster_id, f"Unknown Device #{cluster_id}")
+        ai_cluster_id = cluster_id
+
+    elif safe_data['power'] <= 5:
+        ai_device_name = "Idle"
+
+    # 5. الرد النهائي (دمجنا الداتا العادية مع داتا الـ AI في رد واحد)
+    return jsonify({
+        **safe_data,                # الداتا القديمة (فولت، تيار...) بس نضيفة
+        "ai_device_name": ai_device_name, # الاسم الجديد من الـ AI
+        "ai_cluster_id": ai_cluster_id    # رقم الكلاستر للتسمية
+    })
 
 # --- 2. Control (ON/OFF) ---
 
@@ -295,3 +319,24 @@ def contact_message():
 @website_bp.route('/consumption')
 def consumption():
     return render_template('consumption.html')
+
+
+@website_bp.route('/rename_device', methods=['POST'])
+def rename_device():
+    try:
+        data = request.json
+        cluster_id = data.get('cluster_id')
+        new_name = data.get('new_name')
+
+        if cluster_id is None or not new_name:
+            return jsonify({"status": "error", "message": "Missing data"}), 400
+
+        # استدعاء الموديل لتحديث الاسم
+        if g.ai_engine:
+            g.ai_engine.update_label(cluster_id, new_name)
+            return jsonify({"status": "success", "message": f"Device renamed to {new_name}"})
+        else:
+            return jsonify({"status": "error", "message": "AI Engine not ready"}), 500
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
