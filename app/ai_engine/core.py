@@ -30,7 +30,7 @@ class NILMEngine:
             self.create_new_model()
 
     def create_new_model(self):
-        self.model = cluster.KMeans(n_clusters=4, halflife=0.5, sigma=10)
+        self.model = cluster.KMeans(n_clusters=14, halflife=0.5, sigma=10)
         self.cluster_names = {}
 
     def save_model(self):

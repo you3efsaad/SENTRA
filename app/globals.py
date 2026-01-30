@@ -23,3 +23,5 @@ last_update_time = datetime.now()  # <-- ده كان ناقص
 
 # 5. كائن قاعدة البيانات
 supabase = None
+
+ai_engine = None
