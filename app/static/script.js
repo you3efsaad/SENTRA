@@ -1,55 +1,376 @@
+// document.addEventListener('DOMContentLoaded', function () {
+//     console.log("🚀 Safe Power System Loaded");
+
+//     // ==================================================
+//     // 1. تحديد الصفحة الحالية وتشغيل الكود الخاص بها فقط
+//     // ==================================================
+//     const body = document.body;
+
+//     if (body.classList.contains('dashboard-page')) initDashboard();
+//     if (body.classList.contains('reports-page')) initReports();
+//     if (body.classList.contains('consumption-page')) initConsumption();
+//     if (body.classList.contains('settings-page')) initSettings();
+//     if (body.classList.contains('contact-page')) initContact();
+
+//     // تشغيل الـ Sidebar (موجود في كل الصفحات)
+//     initSidebar();
+
+//     // تشغيل الإشعارات (Global Notifications)
+//     initNotifications();
+// });
+
+// // ==================================================
+// // 2. DASHBOARD LOGIC (الصفحة الرئيسية)
+// // ==================================================
+// // function initDashboard() {
+// //     console.log("🔹 Initializing Dashboard...");
+
+// //     // دالة تحديث البيانات
+// //     const updateDashboardData = async () => {
+// //         try {
+// //             const res = await fetch('/latest');
+// //             const data = await res.json();
+
+// //             // تحديث الكروت (مع فحص الأمان)
+// //             safeTxt('voltage-value', data.voltage + ' V');
+// //             safeTxt('current-value', data.current + ' A');
+// //             safeTxt('power-value', data.power + ' W');
+// //             safeTxt('energy-value', data.energy + ' kWh');
+// //             safeTxt('frequency-value', data.frequency + ' Hz');
+// //             safeTxt('power-factor-value', data.pf);
+
+// //             // تحديث الجرافات الصغيرة (Sparklines) لو موجودة
+// //             // (ممكن نضيف كود Chart.js هنا لو حابب تفعل الجرافات الصغيرة اللي في HTML)
+
+// //         } catch (e) { console.error("Dashboard Sync Error:", e); }
+// //     };
+
+// //     // تحديث كل 2 ثانية
+// //     setInterval(updateDashboardData, 2000);
+// //     updateDashboardData(); // تحديث فوري عند التحميل
+// // }
+// // ==================================================
+// // 2. DASHBOARD LOGIC (الصفحة الرئيسية)
+// // ==================================================
+// function initDashboard() {
+//     console.log("🔹 Initializing Dashboard...");
+
+//     // دالة تحديث الأرقام (فولت، تيار، باور...)
+//     const updateDashboardData = async () => {
+//         try {
+//             const res = await fetch('/latest');
+//             const data = await res.json();
+
+//             safeTxt('voltage-value', data.voltage + ' V');
+//             safeTxt('current-value', data.current + ' A');
+//             safeTxt('power-value', data.power + ' W');
+//             safeTxt('energy-value', data.energy + ' kWh');
+//             safeTxt('frequency-value', data.frequency + ' Hz');
+
+//             // تحديث حالة الجهاز (Standby / Active)
+//             const dot = document.getElementById('status-dot');
+//             const txt = document.getElementById('status-text');
+//             if (dot && txt) {
+//                 if (data.power > 5) {
+//                     dot.className = "status-dot status-on";
+//                     txt.innerText = "Active";
+//                     txt.style.color = "#4ade80";
+//                 } else {
+//                     dot.className = "status-dot status-off";
+//                     txt.innerText = "Standby";
+//                     txt.style.color = "#f87171";
+//                 }
+//             }
+
+//         } catch (e) { console.error("Dashboard Sync Error:", e); }
+//     };
+
+//     // تشغيل تحديث الأرقام كل 2 ثانية
+//     setInterval(updateDashboardData, 2000);
+//     updateDashboardData();
+
+//     // ✅✅✅ هام جداً: تشغيل تحديث كارت الذكاء الاصطناعي (AI) ✅✅✅
+//     // تأكد إن السطر ده موجود عشان الاسم يتغير!
+//     if (typeof updateAICard === "function") {
+//         setInterval(updateAICard, 2000);
+//         updateAICard(); // تشغيل فوري
+//     } else {
+//         console.error("⚠️ updateAICard function is missing!");
+//     }
+// }
+// async function updateAICard() {
+//     const nameEl = document.getElementById('ai-device-name');
+//     const statusEl = document.getElementById('ai-device-status');
+//     const renameBtn = document.getElementById('rename-btn');
+//     const clusterInput = document.getElementById('current-cluster-id');
+
+//     if (!nameEl) return; // لو مش في صفحة الداشبورد اخرج
+
+//     try {
+//         const res = await fetch('/latest');
+//         const data = await res.json();
+
+//         // تحديث الاسم
+//         if (data.ai_device_name) {
+//             nameEl.textContent = data.ai_device_name;
+//             if (clusterInput) clusterInput.value = data.ai_cluster_id;
+
+//             // تغيير لون الحالة وشكل الزرار
+//             if (data.ai_device_name.includes("Unknown")) {
+//                 // جهاز جديد
+//                 statusEl.textContent = "New Pattern";
+//                 statusEl.style.background = "#fef08a"; // أصفر
+//                 statusEl.style.color = "#854d0e";
+
+//                 if (renameBtn) {
+//                     renameBtn.style.display = "inline-block";
+//                     renameBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Name It';
+//                 }
+//             } else if (data.ai_device_name === "Idle") {
+//                 // وضع خمول
+//                 statusEl.textContent = "Standby";
+//                 statusEl.style.background = "#e2e8f0"; // رصاصي
+//                 statusEl.style.color = "#475569";
+//                 if (renameBtn) renameBtn.style.display = "none";
+//             } else {
+//                 // جهاز معروف
+//                 statusEl.textContent = "Identified";
+//                 statusEl.style.background = "#bbf7d0"; // أخضر
+//                 statusEl.style.color = "#166534";
+
+//                 // زرار تعديل (اختياري)
+//                 if (renameBtn) {
+//                     renameBtn.style.display = "inline-block";
+//                     renameBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+//                 }
+//             }
+//         }
+//     } catch (e) { console.error("AI Update Error", e); }
+// }
+
+// // 3. دالة إرسال التسمية للسيرفر (مربوطة بالزرار في HTML)
+// window.userRenamesDevice = async function (clusterId, newName) {
+//     try {
+//         const response = await fetch('/rename_device', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({
+//                 cluster_id: parseInt(clusterId),
+//                 new_name: newName
+//             })
+//         });
+
+//         const result = await response.json();
+//         if (result.status === 'success') {
+//             alert(`✅ Saved! This device is now: "${newName}"`);
+//             // تحديث فوري للاسم في الصفحة
+//             const nameEl = document.getElementById('ai-device-name');
+//             if (nameEl) nameEl.textContent = newName;
+
+//             // إخفاء الـ Modal
+//             if (typeof closeRenameModal === 'function') closeRenameModal();
+//         } else {
+//             alert("❌ Error: " + result.message);
+//         }
+//     } catch (error) {
+//         console.error("Renaming Error:", error);
+//     }
+// };
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log("🚀 Safe Power System Loaded");
 
-    // ==================================================
-    // 1. تحديد الصفحة الحالية وتشغيل الكود الخاص بها فقط
-    // ==================================================
+    // 1. تحديد الصفحة وتشغيل الكود المناسب
     const body = document.body;
+    if (body.classList.contains('dashboard-page')) {
+        initDashboard();
+    }
 
-    if (body.classList.contains('dashboard-page')) initDashboard();
-    if (body.classList.contains('reports-page')) initReports();
-    if (body.classList.contains('consumption-page')) initConsumption();
-    if (body.classList.contains('settings-page')) initSettings();
-    if (body.classList.contains('contact-page')) initContact();
-
-    // تشغيل الـ Sidebar (موجود في كل الصفحات)
-    initSidebar();
-
-    // تشغيل الإشعارات (Global Notifications)
-    initNotifications();
+    // (يمكنك إضافة باقي الصفحات هنا)
 });
 
 // ==================================================
-// 2. DASHBOARD LOGIC (الصفحة الرئيسية)
+// 🛠️ HELPER FUNCTIONS (دوال مساعدة)
+// ==================================================
+function safeTxt(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = val;
+}
+
+// ==================================================
+// 📊 DASHBOARD LOGIC (الداشبورد)
 // ==================================================
 function initDashboard() {
     console.log("🔹 Initializing Dashboard...");
 
-    // دالة تحديث البيانات
-    const updateDashboardData = async () => {
-        try {
-            const res = await fetch('/latest');
-            const data = await res.json();
+    // 1. تشغيل التحديث التلقائي
+    setInterval(updateDashboardData, 2000); // كل 2 ثانية للأرقام
+    setInterval(updateAICard, 2000);      // كل 2 ثانية للذكاء الاصطناعي
 
-            // تحديث الكروت (مع فحص الأمان)
-            safeTxt('voltage-value', data.voltage + ' V');
-            safeTxt('current-value', data.current + ' A');
-            safeTxt('power-value', data.power + ' W');
-            safeTxt('energy-value', data.energy + ' kWh');
-            safeTxt('frequency-value', data.frequency + ' Hz');
-            safeTxt('power-factor-value', data.pf);
+    updateDashboardData();
+    updateAICard();
 
-            // تحديث الجرافات الصغيرة (Sparklines) لو موجودة
-            // (ممكن نضيف كود Chart.js هنا لو حابب تفعل الجرافات الصغيرة اللي في HTML)
-
-        } catch (e) { console.error("Dashboard Sync Error:", e); }
-    };
-
-    // تحديث كل 2 ثانية
-    setInterval(updateDashboardData, 2000);
-    updateDashboardData(); // تحديث فوري عند التحميل
+    // 2. تشغيل زرار التسمية (ده اللي بيحل المشكلة)
+    setupRenameModal();
 }
 
+// تحديث الأرقام (فولت، تيار، باور...)
+async function updateDashboardData() {
+    try {
+        const res = await fetch('/latest');
+        const data = await res.json();
+
+        safeTxt('voltage-value', data.voltage + ' V');
+        safeTxt('current-value', data.current + ' A');
+        safeTxt('power-value', data.power + ' W');
+        safeTxt('energy-value', data.energy + ' kWh');
+        safeTxt('frequency-value', data.frequency + ' Hz');
+        safeTxt('pf-value', data.pf);
+
+        // تحديث حالة اللمبة (Active/Standby)
+        const dot = document.getElementById('status-dot');
+        const txt = document.getElementById('status-text');
+        if (dot && txt) {
+            if (data.power > 5) {
+                dot.className = "status-dot status-on";
+                txt.innerText = "Active";
+                txt.style.color = "#4ade80";
+            } else {
+                dot.className = "status-dot status-off";
+                txt.innerText = "Standby";
+                txt.style.color = "#f87171";
+            }
+        }
+    } catch (e) { console.error("Data Sync Error:", e); }
+}
+
+// ==================================================
+// 🤖 AI ENGINE LOGIC (كارت الذكاء الاصطناعي)
+// ==================================================
+
+// 1. تحديث الكارت (بيجيب الاسم من السيرفر)
+async function updateAICard() {
+    const nameEl = document.getElementById('ai-device-name');
+    const statusEl = document.getElementById('ai-device-status');
+    const renameBtn = document.getElementById('rename-btn');
+    const clusterInput = document.getElementById('current-cluster-id');
+
+    if (!nameEl) return;
+
+    try {
+        const res = await fetch('/latest');
+        const data = await res.json();
+
+        if (data.ai_device_name) {
+            nameEl.textContent = data.ai_device_name;
+
+            // تخزين رقم الكلاستر عشان نستخدمه في التسمية
+            if (clusterInput) clusterInput.value = data.ai_cluster_id;
+
+            // تغيير الألوان والزرار حسب الحالة
+            if (data.ai_device_name.includes("Unknown")) {
+                // جهاز جديد -> اظهر زرار "Name It"
+                statusEl.textContent = "New Pattern";
+                statusEl.style.background = "#fef08a";
+                statusEl.style.color = "#854d0e";
+                if (renameBtn) {
+                    renameBtn.style.display = "inline-block";
+                    renameBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Name It';
+                }
+            } else if (data.ai_device_name === "Idle") {
+                // وضع خمول
+                statusEl.textContent = "Standby";
+                statusEl.style.background = "#e2e8f0";
+                statusEl.style.color = "#475569";
+                if (renameBtn) renameBtn.style.display = "none";
+            } else {
+                // جهاز معروف -> اظهر زرار "Edit"
+                statusEl.textContent = "Identified";
+                statusEl.style.background = "#bbf7d0";
+                statusEl.style.color = "#166534";
+                if (renameBtn) {
+                    renameBtn.style.display = "inline-block";
+                    renameBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+                }
+            }
+        }
+    } catch (e) { console.error("AI Update Error:", e); }
+}
+
+// 2. إرسال الاسم الجديد للسيرفر
+window.userRenamesDevice = async function (clusterId, newName) {
+    try {
+        const response = await fetch('/rename_device', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cluster_id: parseInt(clusterId),
+                new_name: newName
+            })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            alert(`✅ Saved! Device is now: "${newName}"`);
+            // تحديث فوري للاسم في الصفحة
+            const nameEl = document.getElementById('ai-device-name');
+            if (nameEl) nameEl.textContent = newName;
+            return true;
+        } else {
+            alert("❌ Error: " + result.message);
+            return false;
+        }
+    } catch (error) {
+        console.error("Renaming Error:", error);
+        alert("⚠️ Connection Error");
+        return false;
+    }
+};
+
+// ==================================================
+// 🪟 MODAL LOGIC (النافذة المنبثقة)
+// ==================================================
+function setupRenameModal() {
+    const modal = document.getElementById("renameModal");
+    if (!modal) return;
+
+    // تعريف دالة الفتح عشان الـ HTML يشوفها
+    window.openRenameModal = function () {
+        const clusterId = document.getElementById("current-cluster-id").value;
+        const modalIdSpan = document.getElementById("modal-cluster-id");
+
+        if (modalIdSpan) modalIdSpan.textContent = clusterId;
+
+        // تنظيف الخانة
+        const input = document.getElementById("new-device-name-input");
+        if (input) input.value = "";
+
+        modal.style.display = "block";
+    };
+
+    // دالة الغلق
+    window.closeRenameModal = function () {
+        modal.style.display = "none";
+    };
+
+    // دالة الحفظ (لما تدوس Save في النافذة)
+    window.submitRename = async function () {
+        const clusterId = document.getElementById("current-cluster-id").value;
+        const newName = document.getElementById("new-device-name-input").value;
+
+        if (!newName) return alert("Please enter a name!");
+
+        const success = await window.userRenamesDevice(clusterId, newName);
+        if (success) {
+            window.closeRenameModal();
+        }
+    };
+
+    // إغلاق لو ضغطت بره الصندوق
+    window.onclick = function (event) {
+        if (event.target == modal) window.closeRenameModal();
+    };
+}
 // ==================================================
 // 3. CONSUMPTION LOGIC (صفحة الاستهلاك)
 // ==================================================
@@ -465,80 +786,136 @@ function safeTxt(id, val) {
 // 8. AI RENAMING LOGIC (تسمية الأجهزة الجديدة)
 // ==================================================
 
-// الدالة دي مربوطة بـ dashboard.html عشان تسمي الجهاز
-window.userRenamesDevice = async function (clusterId, newName) {
-    console.log(`📝 Renaming Cluster ${clusterId} to "${newName}"...`);
+// // الدالة دي مربوطة بـ dashboard.html عشان تسمي الجهاز
+// window.userRenamesDevice = async function (clusterId, newName) {
+//     console.log(`📝 Renaming Cluster ${clusterId} to "${newName}"...`);
 
-    try {
-        const response = await fetch('/rename_device', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                cluster_id: parseInt(clusterId), // لازم نتأكد إنه رقم
-                new_name: newName
-            })
-        });
+//     try {
+//         const response = await fetch('/rename_device', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({
+//                 cluster_id: parseInt(clusterId), // لازم نتأكد إنه رقم
+//                 new_name: newName
+//             })
+//         });
 
-        const result = await response.json();
+//         const result = await response.json();
 
-        if (result.status === 'success') {
-            alert(`✅ Done! System now knows this device as "${newName}".`);
+//         if (result.status === 'success') {
+//             alert(`✅ Done! System now knows this device as "${newName}".`);
 
-            // تحديث الاسم فوراً في الصفحة عشان اليوزر يشوف النتيجة
-            const nameEl = document.getElementById('ai-device-name');
-            if (nameEl) nameEl.textContent = newName;
+//             // تحديث الاسم فوراً في الصفحة عشان اليوزر يشوف النتيجة
+//             const nameEl = document.getElementById('ai-device-name');
+//             if (nameEl) nameEl.textContent = newName;
 
-            // إخفاء زرار التسمية لأنه خلاص بقى معروف
-            const btn = document.getElementById('rename-btn');
-            if (btn) btn.style.display = 'none';
+//             // إخفاء زرار التسمية لأنه خلاص بقى معروف
+//             const btn = document.getElementById('rename-btn');
+//             if (btn) btn.style.display = 'none';
 
-        } else {
-            alert("❌ Error: " + result.message);
-        }
-    } catch (error) {
-        console.error("Renaming Error:", error);
-        alert("⚠️ Network Error. Check console.");
-    }
-};
+//         } else {
+//             alert("❌ Error: " + result.message);
+//         }
+//     } catch (error) {
+//         console.error("Renaming Error:", error);
+//         alert("⚠️ Network Error. Check console.");
+//     }
+// };
 
-// تحديث بيانات كارت الـ AI في الداشبورد
-async function updateAICard() {
-    const nameEl = document.getElementById('ai-device-name');
-    const statusEl = document.getElementById('ai-device-status');
-    const renameBtn = document.getElementById('rename-btn');
-    const clusterInput = document.getElementById('current-cluster-id');
+// // // تحديث بيانات كارت الـ AI في الداشبورد
+// // async function updateAICard() {
+//     const nameEl = document.getElementById('ai-device-name');
+//     const statusEl = document.getElementById('ai-device-status');
+//     const renameBtn = document.getElementById('rename-btn');
+//     const clusterInput = document.getElementById('current-cluster-id');
 
-    if (!nameEl) return; // لو إحنا مش في الداشبورد، اخرج
+//     if (!nameEl) return; // لو إحنا مش في الداشبورد، اخرج
 
-    try {
-        // بنجيب القراءة العادية، وهنفترض إن الـ API هيرجع لنا اسم الجهاز وكود الكلاستر
-        // ملحوظة: لازم نعدل api.py عشان يرجع المعلومات دي، أو نعمل endpoint جديد
-        // حالياً هنستخدم /latest وهنفترض إننا ضفنا البيانات دي فيه
-        const res = await fetch('/latest');
-        const data = await res.json();
+//     try {
+//         // بنجيب القراءة العادية، وهنفترض إن الـ API هيرجع لنا اسم الجهاز وكود الكلاستر
+//         // ملحوظة: لازم نعدل api.py عشان يرجع المعلومات دي، أو نعمل endpoint جديد
+//         // حالياً هنستخدم /latest وهنفترض إننا ضفنا البيانات دي فيه
+//         const res = await fetch('/latest');
+//         const data = await res.json();
 
-        // بيانات تجريبية (لحد ما نحدث الـ api.py)
-        // data.ai_device_name = "Unknown Device #3"; 
-        // data.ai_cluster_id = 3;
+//         // بيانات تجريبية (لحد ما نحدث الـ api.py)
+//         // data.ai_device_name = "Unknown Device #3"; 
+//         // data.ai_cluster_id = 3;
 
-        if (data.ai_device_name) {
-            nameEl.textContent = data.ai_device_name;
+//         if (data.ai_device_name) {
+//             nameEl.textContent = data.ai_device_name;
 
-            if (clusterInput) clusterInput.value = data.ai_cluster_id;
+//             if (clusterInput) clusterInput.value = data.ai_cluster_id;
 
-            // لو الجهاز غير معروف، اظهر زرار التسمية
-            if (data.ai_device_name.includes("Unknown")) {
-                statusEl.textContent = "New Pattern";
-                statusEl.style.background = "#fef08a"; // أصفر
-                if (renameBtn) renameBtn.style.display = "inline-block";
-            } else {
-                statusEl.textContent = "Identified";
-                statusEl.style.background = "#bbf7d0"; // أخضر
-                if (renameBtn) renameBtn.style.display = "none";
-            }
-        }
-    } catch (e) { console.error("AI Update Error", e); }
-}
+//             // لو الجهاز غير معروف، اظهر زرار التسمية
+//             if (data.ai_device_name.includes("Unknown")) {
+//                 statusEl.textContent = "New Pattern";
+//                 statusEl.style.background = "#fef08a"; // أصفر
+//                 if (renameBtn) renameBtn.style.display = "inline-block";
+//             } else {
+//                 statusEl.textContent = "Identified";
+//                 statusEl.style.background = "#bbf7d0"; // أخضر
+//                 if (renameBtn) renameBtn.style.display = "none";
+//             }
+//         }
+//     } catch (e) { console.error("AI Update Error", e); }
+// }
 
-// ضيف السطر ده جوه دالة initDashboard عشان يشتغل أوتوماتيك
-// setInterval(updateAICard, 2000);
+// // ضيف السطر ده جوه دالة initDashboard عشان يشتغل أوتوماتيك
+// // setInterval(updateAICard, 2000);
+
+
+
+
+
+// ==================================================
+// 9. MODAL LOGIC (نقلنا كود النافذة هنا)
+// ==================================================
+
+// function setupRenameModal() {
+//     const modal = document.getElementById("renameModal");
+//     const renameBtn = document.getElementById("rename-btn"); // زرار "Name It"
+//     const cancelBtn = document.getElementById("modal-cancel-btn");
+//     const saveBtn = document.getElementById("modal-save-btn");
+
+//     if (!modal) return; // لو مش في الداشبورد اخرج
+
+//     // 1. فتح النافذة
+//     window.openRenameModal = function () { // خليناها global عشان لو لسه مستخدمة في onclick
+//         const clusterId = document.getElementById("current-cluster-id").value;
+//         document.getElementById("modal-cluster-id").textContent = clusterId;
+//         document.getElementById("new-device-name-input").value = "";
+//         modal.style.display = "block";
+//     };
+
+//     // 2. غلق النافذة
+//     window.closeRenameModal = function () {
+//         modal.style.display = "none";
+//     };
+
+//     // ربط زرار الإغلاق
+//     if (cancelBtn) cancelBtn.onclick = window.closeRenameModal;
+
+//     // 3. تنفيذ الحفظ
+//     if (saveBtn) {
+//         saveBtn.onclick = async function () {
+//             const clusterId = document.getElementById("current-cluster-id").value;
+//             const newName = document.getElementById("new-device-name-input").value;
+
+//             if (!newName) return alert("Please enter a name!");
+
+//             if (window.userRenamesDevice) {
+//                 await window.userRenamesDevice(clusterId, newName);
+//                 window.closeRenameModal();
+//             }
+//         };
+//     }
+
+//     // 4. إغلاق عند الضغط خارج الصندوق
+//     window.onclick = function (event) {
+//         if (event.target == modal) window.closeRenameModal();
+//     };
+// }
+
+// // استدعي الدالة دي جوه initDashboard
+// // initDashboard() { ... setupRenameModal(); ... }
