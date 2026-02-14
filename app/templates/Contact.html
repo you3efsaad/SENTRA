@@ -6,8 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Us</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
   <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
-
+  <style>
+     /* تثبيت الخلفية */
+     body {
+        background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+     }
+  </style>
 </head>
 
 <body class="contact-page nav-page">
@@ -16,97 +25,81 @@
     {% include "navbar.html" %}
 
     <div class="container">
-      <div class="form-wrapper">
+      <div class="glass-card">
+        
+        <div class="grid-layout">
+            
+            <div class="left-section">
+                <div class="header-text">
+                    <h1>
+                        <img src="{{ url_for('static', filename='images/contact.webp') }}" alt="Icon" class="icon-title"> 
+                        Contact Us
+                    </h1>
+                    <p class="subtitle">We're here to help! Reach out to us with any questions or feedback.</p>
+                </div>
 
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter your name" required />
+                    </div>
 
-        <div class="header">
-          <div class="mobile-logos">
-            <img src="{{ url_for('static', filename='images/FCAI.png') }}" alt="FCAI Logo" class="logo-img">
-            <img src="{{ url_for('static', filename='images/DU.png') }}" alt="Damietta Logo" class="logo-img">
-          </div>
-          <h1>
-            <img src="{{ url_for('static', filename='images/contact.webp') }}" alt="Reports Icon" class="icon-animated"
-              style="width: 40px; vertical-align: middle; margin-right: 8px;"> Contact Us
-          </h1>
-          <p class="subtitle">
-            We're here to help! Reach out to us with any questions or feedback.
-          </p>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required />
+                    </div>
 
-        </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" placeholder="Enter the subject" required />
+                    </div>
 
-        <div class="grid">
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Enter your message..." required></textarea>
+                    </div>
 
-          <div>
-
-            <form id="contactForm">
-              <div class="form-group">
-                <label for="name" class="label">Your Name</label>
-                <input type="text" id="name" name="name" class="input" placeholder="Enter your name" required />
-              </div>
-
-              <div class="form-group">
-                <label for="email" class="label">Email Address</label>
-                <input type="email" id="email" name="email" class="input" placeholder="Enter your email" required />
-              </div>
-
-              <div class="form-group">
-                <label for="subject" class="label">Subject</label>
-                <input type="text" id="subject" name="subject" class="input" placeholder="Enter the subject" required />
-              </div>
-
-
-              <div class="form-group">
-                <label for="message" class="label">Message</label>
-                <textarea id="message" name="message" rows="6" class="textarea" placeholder="Enter your message..."
-                  required></textarea>
-              </div>
-
-              <div class="submit-container">
-                <button type="submit" class="submit-btn">Send Message</button>
-              </div>
-            </form>
-          </div>
-
-          <div class="contact-info">
-            <div class="responsive-logos">
-              <img src="{{ url_for('static', filename='images/FCAI.png') }}" alt="FCAI Logo" class="logo-img">
-              <img src="{{ url_for('static', filename='images/DU.png') }}" alt="Damietta Logo" class="logo-img">
+                    <div class="submit-container">
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </div>
+                </form>
             </div>
 
+            <div class="right-section">
+                <div class="logos-container">
+                    <img src="{{ url_for('static', filename='images/FCAI.png') }}" alt="FCAI Logo" class="logo-circle">
+                    <img src="{{ url_for('static', filename='images/DU.png') }}" alt="Damietta Logo" class="logo-triangle">
+                </div>
 
-            <h2>Contact Information</h2>
+                <div class="info-content">
+                    <h2>Contact Information</h2>
+                    
+                    <div class="info-item">
+                        <p class="label">Email:</p>
+                        <div class="value-box">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:youseft.k12@gmail.com">youseft.k12@gmail.com</a>
+                        </div>
+                    </div>
 
+                    <div class="info-item">
+                        <p class="label">Phone:</p>
+                        <div class="value-box">
+                            <i class="fas fa-phone-alt"></i>
+                            <a href="tel:+2001069020342">+20 01069020342</a>
+                        </div>
+                    </div>
 
-            <p class="contact-label">Email:</p>
-            <p class="contact-value email">
-              <a href="mailto:youseft.k12@gmail.com" style="text-decoration: none; color: inherit;">
-                youseft.k12@gmail.com
-              </a>
-            </p>
-
-
-            <div class="contact-item">
-              <p class="contact-label">Phone:</p>
-              <a class="contact-value" href="https://wa.me/qr/N3PMM6RSXWTMP1" target="_blank"
-                style="text-decoration: none; color: rgb(0, 0, 0); font-weight: bold;">
-                +20 01069020342
-              </a>
-
+                    <div class="footer-note">
+                        <p>© Tech Nova 2025. All rights reserved.</p>
+                        <p>Designed & Developed by Tech Nova Team.</p>
+                    </div>
+                </div>
             </div>
 
-            <footer style="text-align: center; padding: 20px; font-size: 14px; color: #666;">
-              © Safe Power 2025. All rights reserved. <br>
-              Designed & Developed by Safe Power Team. <br>
-
-            </footer>
-          </div>
-        </div>
-      </div>
-    </div>
+        </div> </div> </div>
   </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
-
 </body>
-
 </html>

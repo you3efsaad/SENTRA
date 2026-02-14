@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>About Us</title>
     <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+    <style>
+        body{
+            background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+        }
+    </style>
 
 </head>
 
@@ -20,16 +25,14 @@
 
             <div class="about-container" style="position:relative;">
                 <!-- Faculty Logo: top left -->
-                <img src="static/images/FCAI.png" alt="Faculty Logo"
-                    style="position: absolute; top: 18px; left: 18px; width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 2px 8px rgba(30,64,175,0.10); z-index: 10;">
-                <!-- University Logo: top right -->
-                <img src="static/images/DU.png" alt="University Logo"
-                    style="position: absolute; top: 18px; right: 18px; width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 2px 8px rgba(30,64,175,0.10); z-index: 10;">
+                <img src="static/images/FCAI.png" alt="Faculty Logo" class="header-logo logo-left">
+
+                <img src="static/images/DU.png" alt="University Logo" class="header-logo logo-right">
                 <h1 class="about-title">About Us</h1>
                 <h3>
                     <p class="about-subtitle">Meet our supervisors and team members who drive our success:</p>
                 </h3>
-                <div class="about-top-team-row" style="gap:1px;">
+                <div class="about-top-team-row" >
                     <div class="about-top-frame">
                         <img src="static/images/tamer.jpg" alt="Supervisor">
                         <div class="about-top-name">Dr. Tamer Zakaria</div>
@@ -41,13 +44,9 @@
                         <div class="about-top-title">Faculty Dean</div>
                     </div>
                 </div>
-                <h2 class="about-section" style="text-align:center; margin-top:48px;">Team Members</h2>
+                <h2 class="about-section"><span>Team Members</span></h2>
                 <div class="about-members-grid">
-                    <div class="about-member-card">
-                        <img src="static/images/monya.jpg" alt="Monya ElSerry">
-                        <div class="about-member-name">Monya ElSerry</div>
-                        <div class="about-member-role">Embedded Systems <br>3D Modeling</div>
-                    </div>
+                    
                     <div class="about-member-card">
                         <img src="static/images/yousef.jpg" alt="Yousef Saad">
                         <div class="about-member-name">Yousef Saad</div>
@@ -64,15 +63,16 @@
                         <div class="about-member-role">Full Stack Development</div>
                     </div>
                     <div class="about-member-card">
+                        <img src="static/images/monya.jpg" alt="Monya ElSerry">
+                        <div class="about-member-name">Monya ElSerry</div>
+                        <div class="about-member-role">Embedded Systems <br>3D Modeling</div>
+                    </div>
+                    <div class="about-member-card">
                         <img src="static/images/eissa.jpg" alt="Norhan Eissa">
                         <div class="about-member-name">Norhan Eissa</div>
                         <div class="about-member-role">Full Stack Development</div>
                     </div>
-                    <div class="about-member-card">
-                        <img src="static/images/ibrahim.jpg" alt="Ibrahim Moharam">
-                        <div class="about-member-name">Ibrahim Moharam</div>
-                        <div class="about-member-role">UI/UX Designer</div>
-                    </div>
+                    
                 </div>
             </div>
         </div>

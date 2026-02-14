@@ -1,23 +1,162 @@
-// document.addEventListener('DOMContentLoaded', function () {
-//     console.log("🚀 Safe Power System Loaded");
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("🚀 Safe Power System Loaded");
+    
+    // أي كود آخر يحتاج للتشغيل عند بداية التحميل ضعيه هنا
+    // لكن الدوال التي يتم استدعاؤها من الـ HTML (مثل onclick) يجب أن تكون خارج هذا البلوك
+});
 
-//     // ==================================================
-//     // 1. تحديد الصفحة الحالية وتشغيل الكود الخاص بها فقط
-//     // ==================================================
-//     const body = document.body;
+// ==================================================
+// دالة الـ Sidebar (يجب أن تكون خارج الـ EventListener)
+// ==================================================
+function toggleSidebar() {
+    // 1. الإمساك بالعناصر
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    // تأكدنا أن العناصر موجودة قبل العمل عليها لتجنب الأخطاء
+    if (sidebar && overlay) {
+        // 2. التبديل: إضافة أو إزالة كلاس "open"
+        sidebar.classList.toggle('open');
+        
+        // 3. التحكم في ظهور الخلفية المظلمة (Overlay)
+        if (sidebar.classList.contains('open')) {
+            overlay.style.display = 'block';
+        } else {
+            overlay.style.display = 'none';
+        }
+    } else {
+        console.error("Sidebar or Overlay element not found!");
+    }
+}
 
-//     if (body.classList.contains('dashboard-page')) initDashboard();
-//     if (body.classList.contains('reports-page')) initReports();
-//     if (body.classList.contains('consumption-page')) initConsumption();
-//     if (body.classList.contains('settings-page')) initSettings();
-//     if (body.classList.contains('contact-page')) initContact();
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==========================================
+    // 1. حل مشكلة الأسهم (Scroll Logic)
+    // ==========================================
+    const scrollContainer = document.querySelector('.devices-scroll-container');
+    const btnLeft = document.getElementById('scrollLeft');
+    const btnRight = document.getElementById('scrollRight');
 
-//     // تشغيل الـ Sidebar (موجود في كل الصفحات)
-//     initSidebar();
+    if (scrollContainer && btnLeft && btnRight) {
+        // عند الضغط يمين
+        btnRight.addEventListener('click', () => {
+            scrollContainer.scrollBy({ left: 250, behavior: 'smooth' });
+        });
 
-//     // تشغيل الإشعارات (Global Notifications)
-//     initNotifications();
-// });
+        // عند الضغط يسار
+        btnLeft.addEventListener('click', () => {
+            scrollContainer.scrollBy({ left: -250, behavior: 'smooth' });
+        });
+    } else {
+        console.error("Scroll elements not found!");
+    }
+
+});
+
+// ==========================================
+// 2. حل مشكلة الأيقونات (Smart Icons)
+// ==========================================
+function getDeviceIcon(name) {
+    const n = name.toLowerCase();
+
+    // --- أجهزة المطبخ (Kitchen) ---
+    if (n.includes("fridge") || n.includes("refrigerator")) return "fa-snowflake"; // ثلاجة
+    if (n.includes("microwave") || n.includes("oven")) return "fa-fire-burner";    // ميكروويف/فرن
+    if (n.includes("kettle") || n.includes("coffee") || n.includes("tea")) return "fa-mug-hot"; // كاتل
+    if (n.includes("toaster") || n.includes("grill")) return "fa-bread-slice";     // توستر
+    if (n.includes("blender") || n.includes("mixer")) return "fa-lemon";           // خلاط
+    if (n.includes("dish")) return "fa-soap"; // غسالة أطباق
+
+    // --- أجهزة المنزل (Home Appliances) ---
+    if (n.includes("iron")) return "fa-shirt";  // مكواة (رمز قميص لأنه أوضح شيء للمكواة)
+    if (n.includes("wash") || n.includes("laundry")) return "fa-jug-detergent"; // غسالة ملابس
+    if (n.includes("heater") || n.includes("boiler")) return "fa-temperature-arrow-up"; // سخان
+    if (n.includes("fan")) return "fa-fan"; // مروحة
+    if (n.includes("ac") || n.includes("conditioner") || n.includes("cool")) return "fa-wind"; // تكييف
+    if (n.includes("vacuum")) return "fa-broom"; // مكنسة (رمز مقشة لعدم توفر مكنسة)
+
+    // --- إلكترونيات (Electronics) ---
+    if (n.includes("tv") || n.includes("screen")) return "fa-tv"; // تلفزيون
+    if (n.includes("pc") || n.includes("computer") || n.includes("laptop")) return "fa-laptop"; // كمبيوتر
+    if (n.includes("router") || n.includes("wifi")) return "fa-wifi"; // راوتر
+    if (n.includes("playstation") || n.includes("xbox") || n.includes("game")) return "fa-gamepad"; // ألعاب
+    if (n.includes("phone") || n.includes("charger")) return "fa-mobile-screen"; // شاحن موبايل
+
+    // --- إضاءة (Lights) ---
+    if (n.includes("lamp") || n.includes("light") || n.includes("bulb") || n.includes("led")) return "fa-lightbulb";
+
+    // --- افتراضي (Default) ---
+    return "fa-plug-circle-bolt"; // شكل فيشة شيك للأجهزة غير المعروفة
+}
+
+// ==========================================
+// 3. دالة إضافة الكارت الجديد
+// ==========================================
+// فتح النافذة
+// دالة لفتح النافذة عند الضغط على كارت Add Device
+function addNewDeviceUI() {
+    const modal = document.getElementById('deviceModal');
+    modal.style.display = 'flex';
+    document.getElementById('newDeviceName').focus();
+}
+
+// دالة لإغلاق النافذة
+function closeDeviceModal() {
+    document.getElementById('deviceModal').style.display = 'none';
+    document.getElementById('newDeviceName').value = '';
+}
+
+// دالة تأكيد الإضافة
+function confirmAddDevice() {
+    const nameInput = document.getElementById('newDeviceName');
+    const deviceName = nameInput.value.trim();
+
+    if (deviceName) {
+        // تنفيذ عملية الإضافة (نفس الكود الخاص بكِ سابقاً)
+        const iconClass = getDeviceIcon(deviceName); 
+        
+        const newCardHTML = `
+        <div class="cyber-card">
+            <div class="cyber-card-inner">
+                <div class="card-header">
+                    <span class="device-name">${deviceName}</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <i class="fa-solid ${iconClass} device-icon"></i>
+                </div>
+                <div class="card-footer">
+                    <span class="power-value">0W</span>
+                </div>
+            </div>
+        </div>`;
+
+        const addBtn = document.querySelector('.add-new-card');
+        addBtn.insertAdjacentHTML('beforebegin', newCardHTML);
+        
+        // إغلاق النافذة وتنظيفها
+        closeDeviceModal();
+
+        // تحريك السكرول للجهاز الجديد
+        const scrollContainer = document.querySelector('.devices-scroll-container');
+        setTimeout(() => {
+            scrollContainer.scrollTo({ left: scrollContainer.scrollWidth, behavior: 'smooth' });
+        }, 100);
+    }
+}
+
+// إغلاق النافذة عند الضغط خارجها
+window.onclick = function(event) {
+    const modal = document.getElementById('deviceModal');
+    if (event.target == modal) {
+        closeDeviceModal();
+    }
+}
+
 
 // // ==================================================
 // // 2. DASHBOARD LOGIC (الصفحة الرئيسية)
@@ -336,17 +475,20 @@ function setupRenameModal() {
 
     // تعريف دالة الفتح عشان الـ HTML يشوفها
     window.openRenameModal = function () {
-        const clusterId = document.getElementById("current-cluster-id").value;
-        const modalIdSpan = document.getElementById("modal-cluster-id");
+    const clusterIdInput = document.getElementById("current-cluster-id");
+    const modalIdSpan = document.getElementById("modal-cluster-id");
+    
+    const clusterId = clusterIdInput ? clusterIdInput.value : "?";
+    if (modalIdSpan) modalIdSpan.textContent = clusterId;
 
-        if (modalIdSpan) modalIdSpan.textContent = clusterId;
+    // تنظيف الخانة
+    const input = document.getElementById("new-device-name-input");
+    if (input) input.value = "";
 
-        // تنظيف الخانة
-        const input = document.getElementById("new-device-name-input");
-        if (input) input.value = "";
-
-        modal.style.display = "block";
-    };
+    // --- التغيير الجوهري هنا ---
+    // نستخدم flex بدلاً من block ليعمل التوسيط العمودي والأفقي
+    modal.style.display = "flex"; 
+};
 
     // دالة الغلق
     window.closeRenameModal = function () {
@@ -374,77 +516,185 @@ function setupRenameModal() {
 // ==================================================
 // 3. CONSUMPTION LOGIC (صفحة الاستهلاك)
 // ==================================================
-let livePowerChart, liveEnergyChart;
+// let livePowerChart, liveEnergyChart;
 
-function initConsumption() {
-    console.log("🔹 Initializing Consumption Page...");
+// function initConsumption() {
+//     console.log("🔹 Initializing Consumption Page...");
 
-    // 1. التعامل مع التبويبات (Tabs)
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // إخفاء كل المحتوى
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+//     // 1. التعامل مع التبويبات (Tabs)
+//     const tabs = document.querySelectorAll('.tab');
+//     tabs.forEach(tab => {
+//         tab.addEventListener('click', () => {
+//             // إخفاء كل المحتوى
+//             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+//             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
-            // إظهار المحتوى المختار
-            const targetId = tab.getAttribute('data-tab') + '-tab'; // live-tab or historical-tab
-            const targetContent = document.getElementById(targetId);
-            if (targetContent) {
-                targetContent.style.display = 'block';
-                tab.classList.add('active');
+//             // إظهار المحتوى المختار
+//             const targetId = tab.getAttribute('data-tab') + '-tab'; // live-tab or historical-tab
+//             const targetContent = document.getElementById(targetId);
+//             if (targetContent) {
+//                 targetContent.style.display = 'block';
+//                 tab.classList.add('active');
+//             }
+//         });
+//     });
+
+//     // 2. تهيئة الجرافات اللايف (Live Charts)
+//     const pCtx = document.getElementById('powerChart');
+//     const eCtx = document.getElementById('energyChart');
+
+//     if (pCtx && eCtx) {
+//         // إعدادات مشتركة للجرافات
+//         const commonOptions = {
+//             responsive: true,
+//             maintainAspectRatio: false,
+//             scales: { x: { display: false }, y: { beginAtZero: true } },
+//             animation: { duration: 0 } // إلغاء الانيميشن عشان الأداء
+//         };
+
+//         livePowerChart = new Chart(pCtx.getContext('2d'), {
+//             type: 'line',
+//             data: { labels: [], datasets: [{ label: 'Power (W)', data: [], borderColor: '#3b82f6', tension: 0.4 }] },
+//             options: commonOptions
+//         });
+
+//         liveEnergyChart = new Chart(eCtx.getContext('2d'), {
+//             type: 'bar',
+//             data: { labels: [], datasets: [{ label: 'Energy (kWh)', data: [], backgroundColor: '#10b981' }] },
+//             options: commonOptions
+//         });
+
+//         // 3. تحديث البيانات اللايف
+//         setInterval(async () => {
+//             // نحدث بس لو التبويب اللايف مفتوح
+//             if (document.getElementById('live-tab').style.display !== 'none') {
+//                 try {
+//                     const res = await fetch('/latest');
+//                     const data = await res.json();
+
+//                     const now = new Date().toLocaleTimeString();
+
+//                     // تحديث الأرقام
+//                     safeTxt('livePowerValue', data.power + ' kW'); // أو W حسب رغبتك
+//                     safeTxt('liveEnergyValue', data.energy + ' kWh');
+
+//                     // تحديث الجرافات
+//                     updateChart(livePowerChart, now, data.power);
+//                     updateChart(liveEnergyChart, now, data.energy);
+
+//                 } catch (e) { console.error("Live Data Error:", e); }
+//             }
+//         }, 2000);
+//     }
+// }
+
+let powerMiniChart;
+function initPowerMiniChart() {
+    const ctx = document.getElementById('powerMiniChart').getContext('2d');
+    
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(236, 72, 153, 0.4)');
+    gradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
+
+    powerMiniChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Power (W)',
+                data: [],
+                borderColor: '#ec4899',
+                borderWidth: 3,
+                pointRadius: 4,           // كبرنا النقطة عشان تبان
+                pointBackgroundColor: '#fff', // لون النقطة أبيض عشان تبرز
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4
+            }]
+        },
+        options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    
+    // هذا الجزء هو المسؤول عن كيفية التقاط الماوس للنقطة
+    interaction: {
+        mode: 'index',
+        intersect: false, // يجعل الرقم يظهر حتى لو لم تلمسي النقطة بالضبط (بمجرد القرب منها)
+    },
+
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            enabled: true,         // تفعيل ظهور المربع الأسود (التول تيب)
+            backgroundColor: 'rgba(0, 0, 0, 0.8)', // لون خلفية المربع
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            padding: 10,
+            displayColors: false,  // إخفاء مربعات الألوان الصغيرة داخل التول تيب
+            callbacks: {
+                label: function(context) {
+                    return `Power: ${context.parsed.y} W`;
+                }
             }
-        });
-    });
+        }
+    },
 
-    // 2. تهيئة الجرافات اللايف (Live Charts)
-    const pCtx = document.getElementById('powerChart');
-    const eCtx = document.getElementById('energyChart');
+    // ابحثي عن جزء الـ scales في الكود الخاص بكِ وقومي بتعديله كالتالي:
 
-    if (pCtx && eCtx) {
-        // إعدادات مشتركة للجرافات
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { x: { display: false }, y: { beginAtZero: true } },
-            animation: { duration: 0 } // إلغاء الانيميشن عشان الأداء
-        };
-
-        livePowerChart = new Chart(pCtx.getContext('2d'), {
-            type: 'line',
-            data: { labels: [], datasets: [{ label: 'Power (W)', data: [], borderColor: '#3b82f6', tension: 0.4 }] },
-            options: commonOptions
-        });
-
-        liveEnergyChart = new Chart(eCtx.getContext('2d'), {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: 'Energy (kWh)', data: [], backgroundColor: '#10b981' }] },
-            options: commonOptions
-        });
-
-        // 3. تحديث البيانات اللايف
-        setInterval(async () => {
-            // نحدث بس لو التبويب اللايف مفتوح
-            if (document.getElementById('live-tab').style.display !== 'none') {
-                try {
-                    const res = await fetch('/latest');
-                    const data = await res.json();
-
-                    const now = new Date().toLocaleTimeString();
-
-                    // تحديث الأرقام
-                    safeTxt('livePowerValue', data.power + ' kW'); // أو W حسب رغبتك
-                    safeTxt('liveEnergyValue', data.energy + ' kWh');
-
-                    // تحديث الجرافات
-                    updateChart(livePowerChart, now, data.power);
-                    updateChart(liveEnergyChart, now, data.energy);
-
-                } catch (e) { console.error("Live Data Error:", e); }
+    scales: {
+        x: { 
+            display: true, 
+            grid: { display: false },
+            ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
+        },
+        y: { 
+            display: true, 
+            position: 'left', // تم التغيير من right إلى left هنا
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { 
+                color: 'rgba(255,255,255,0.7)', 
+                font: { size: 12 },
+                padding: 10 // أضفت لكِ مسافة بسيطة لتبدو الأرقام منظمة
             }
-        }, 2000);
+        }
     }
 }
+    });
+}
+// 2. تحديث التابع setInterval الأصلي لديكِ
+setInterval(async () => {
+    try {
+        const res = await fetch('/latest');
+        const data = await res.json();
+        const now = new Date().toLocaleTimeString();
+
+        // تحديث الأرقام (باستخدام IDs الكود الخاص بكِ)
+        if (document.getElementById('livePowerValue')) {
+            document.getElementById('livePowerValue').innerText = data.power + ' W';
+        }
+
+        // --- السحر هنا: رسم النقطة الجديدة في الجراف ---
+        if (powerMiniChart) {
+            powerMiniChart.data.labels.push(now);
+            powerMiniChart.data.datasets[0].data.push(data.power);
+
+            // الحفاظ على آخر 20 نقطة فقط عشان الجراف ميزحمش الشاشة
+            if (powerMiniChart.data.labels.length > 20) {
+                powerMiniChart.data.labels.shift();
+                powerMiniChart.data.datasets[0].data.shift();
+            }
+            powerMiniChart.update();
+        }
+        // ------------------------------------------
+
+    } catch (e) { 
+        console.error("خطأ في جلب البيانات:", e); 
+    }
+}, 2000); // تحديث كل ثانيتين
+
+// لا تنسي استدعاء دالة التهيئة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', initPowerMiniChart);
+
 
 // دالة مساعدة لتحديث الجرافات
 function updateChart(chart, label, value) {

@@ -10,93 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-        /* ستايل خاص بكارت الذكاء الاصطناعي */
-        .ai-card {
-            border-left: 4px solid #8b5cf6 !important;
-            /* لون بنفسجي مميز */
-            position: relative;
-        }
-
-        .ai-status-badge {
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            background: #eee;
-            color: #666;
-            margin-left: 5px;
-        }
-
-        .rename-btn {
-            background: #8b5cf6;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 5px;
-            transition: 0.3s;
-        }
-
-        .rename-btn:hover {
-            background: #7c3aed;
-        }
-
-        /* نافذة التسمية المنبثقة (Modal) */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 300px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-
-        .save-btn {
-            background-color: #10b981;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .cancel-btn {
-            background-color: #ef4444;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+   <style>
+        body{
+            background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
         }
     </style>
 </head>
@@ -111,102 +27,311 @@
 
                 <div class="dashboard">
 
-                    <h1>
-                        <i class="fas fa-lightbulb glowing-bulb"></i>
-                        Real-Time Dashboard
-                    </h1>
-
-
-                    <div class="metric-card ai-card">
-                        <div class="metric-icon" style="background-color: #f3e8ff; color: #8b5cf6;">
-                            <i class="fa-solid fa-robot"></i>
-                        </div>
-                        <div class="metric-title">Active Device (AI)</div>
-
-                        <div class="metric-value" id="ai-device-name">Scanning...</div>
-
-                        <div
-                            style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
-                            <span id="ai-device-status" class="ai-status-badge">Idle</span>
-                            <button id="rename-btn" class="rename-btn" style="display: none;"
-                                onclick="openRenameModal()">
-                                <i class="fa-solid fa-pen"></i> Name It
-                            </button>
-                        </div>
-
-                        <input type="hidden" id="current-cluster-id">
+                    <div class="header-section">
+                        <h1>
+                            <i class="fas fa-chart-pie glowing-icon"></i>
+                            Real-Time Dashboard
+                        </h1>
                     </div>
-                    <div class="metric-card blue-card">
+                    
+   <div class="ai-card-wrapper small-card">
+    <div class="ai-card-border">
+        <svg class="ai-border-beam" viewBox="0 0 1000 500" preserveAspectRatio="none">
+    <defs>
+        <!-- Gradient متغير اللون -->
+        <linearGradient id="beamGradient" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00eaff"/>
+            <stop offset="50%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#ec4899"/>
+
+            <animateTransform
+                attributeName="gradientTransform"
+                type="rotate"
+                from="0 500 250"
+                to="360 500 250"
+                dur="4s"
+                repeatCount="indefinite"/>
+        </linearGradient>
+    </defs>
+
+    <!-- مسار الإطار (نفس شكل الكارد) -->
+    <path
+        d="
+        M 0 60
+        L 60 0
+        L 420 0
+        L 460 30
+        L 540 30
+        L 580 0
+        L 940 0
+        L 1000 60
+        L 1000 440
+        L 940 500
+        L 580 500
+        L 540 470
+        L 460 470
+        L 420 500
+        L 60 500
+        L 0 440
+        Z
+        "
+        fill="none"
+        stroke="url(#beamGradient)"
+        stroke-width="10"
+        stroke-linecap="round"
+        pathLength="1"
+        stroke-dasharray="0.18 0.82"
+        class="ai-beam-path"
+    />
+</svg>
+
+        
+        <div class="ai-card-inner">
+            
+            <div class="ai-text-content">
+                <h3 class="ai-label">Active Device (AI)</h3>
+                <div class="ticker-mask">
+    <h1 class="ai-status" id="ai-device-name">Idle</h1>
+</div>
+
+<div class="ai-badge-container">
+    <span id="ai-device-status" class="status-badge">Standby</span>
+</div>
+            </div>
+
+           <div class="ai-visual-content">
+        <img src="{{ url_for('static', filename='images/brain-glow.png') }}" 
+            alt="AI Brain" 
+            class="brain-img">
+            <button id="rename-btn" class="edit-btn" onclick="openRenameModal()" style="display: none;">
+                <i class="fa-solid fa-pen"></i> Edit
+            </button>
+    </div>
+
+        </div>
+        <input type="hidden" id="current-cluster-id">
+    </div>
+</div>
+        
+
+
+                    <div class="metric-card voltage-card small-card">
                         <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
-                        <div class="metric-title"><i class="fas fa-bolt"></i> Voltage</div>
-                        <div class="metric-value" id="voltage-value">V</div>
-                    </div>
-
-                    <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-flux-capacitor"></i></div>
-                        <div class="metric-title"><i class="fas fa-wave-square"></i> Current</div>
-                        <div class="metric-value" id="current-value">A</div>
-                    </div>
-
-                    <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-plug"></i></div>
-                        <div class="metric-title"><i class="fas fa-plug"></i> Power</div>
-                        <div class="metric-value" id="power-value">W</div>
-                        <div class="status-indicator">
-                            <span class="status-dot" id="status-dot"></span>
-                            <span class="status-text" id="status-text">Standby</span>
+                        <div class="metric-info">
+                            <div class="metric-title">Voltage</div>
+                            <div class="metric-value" id="voltage-value">220 V</div>
                         </div>
                     </div>
 
-                    <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-leaf"></i></div>
-                        <div class="metric-title"><i class="fas fa-leaf"></i> Energy</div>
-                        <div class="metric-value" id="energy-value">kWh</div>
-                    </div>
-
-                    <div class="metric-card blue-card">
-                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
-                        <div class="metric-title"><i class="fas fa-dollar-sign"></i> Est. Cost</div>
-                        <div class="metric-value" id="cost-value">EGP</div>
-                    </div>
-
-                    <div class="metric-card blue-card">
+                    <div class="metric-card current-card small-card">
                         <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
-                        <div class="metric-title"><i class="fas fa-broadcast-tower"></i> Frequency</div>
-                        <div class="metric-value" id="frequency-value">Hz</div>
+                        <div class="metric-info">
+                            <div class="metric-title">Current</div>
+                            <div class="metric-value" id="current-value">0.0 A</div>
+                        </div>
                     </div>
-                    <div class="metric-card blue-card">
+
+                   <div class="power-card">
+    <div class="metric-info">
+        
+        <div class="header-with-icon" style="display: flex; align-items: center; justify-content: space-between;">
+            <i class="fas fa-plug metric-icon-small" style="color: #f472b6; font-size: 1.5rem; filter: drop-shadow(0 0 5px #f472b6);"></i>
+            <span class="metric-label">POWER</span>
+        </div>
+        
+        <h2 id="livePowerValue" class="metric-value">0 W</h2>
+        <span class="status-subtext" style="color: #10b981;">● Active</span>
+    </div>
+
+    <div class="mini-chart-container">
+        <canvas id="powerMiniChart"></canvas>
+    </div>
+</div>
+
+
+                    <div class="metric-card energy-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Energy</div>
+                            <div class="metric-value" id="energy-value">0 kWh</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card cost-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Est. Cost</div>
+                            <div class="metric-value" id="cost-value">0 EGP</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card frequency-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-broadcast-tower"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Frequency</div>
+                            <div class="metric-value" id="frequency-value">50 Hz</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card pf-card small-card">
                         <div class="metric-icon"><i class="fa-solid fa-percent"></i></div>
-                        <div class="metric-title">Power Factor</div>
-                        <div class="metric-value" id="pf-value">--</div>
+                        <div class="metric-info">
+                            <div class="metric-title">Power Factor</div>
+                            <div class="metric-value" id="pf-value">--</div>
+                        </div>
                     </div>
 
-                </div>
-                <div class="charts-grid" style="margin-top: 30px;">
-                    <div class="chart-wrapper" style="height: 300px;">
-                        <h3>Power Consumption (Live)</h3>
-                        <canvas id="mainChart"></canvas>
-                    </div>
-                </div>
-
+                    <div class="devices-section-wrapper">
+                        <div class="section-header-row">
+                            <h2 class="section-title">AI Device Monitoring</h2>
+                            <div class="scroll-controls">
+                                <button class="scroll-btn" id="scrollLeft"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button class="scroll-btn" id="scrollRight"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="devices-scroll-container" id="devicesContainer">
+    
+    <div class="cyber-card">
+        <div class="cyber-card-inner">
+            <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+            </svg>
+            <div class="card-header">
+                <span class="device-name">Air Conditioner</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
+            <div class="card-body">
+                <i class="fa-solid fa-wind device-icon"></i>
+            </div>
+            <div class="card-footer">
+                <span class="power-value">850W</span>
+            </div>
+            <div class="holo-shine"></div>
         </div>
     </div>
 
+    <div class="cyber-card">
+        <div class="cyber-card-inner">
+            <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+            </svg>
+            <div class="card-header">
+                <span class="device-name">Refrigerator</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="card-body">
+                <i class="fa-solid fa-snowflake device-icon"></i>
+            </div>
+            <div class="card-footer">
+                <span class="power-value">120W</span>
+            </div>
+            <div class="holo-shine"></div>
+        </div>
+    </div>
+
+    <div class="cyber-card">
+        <div class="cyber-card-inner">
+            <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+            </svg>
+            <div class="card-header">
+                <span class="device-name">TV</span>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="card-body">
+                <i class="fa-solid fa-tv device-icon"></i>
+            </div>
+            <div class="card-footer">
+                <span class="power-value">0W</span>
+            </div>
+            <div class="holo-shine"></div>
+        </div>
+    </div>
+
+    <div class="cyber-card">
+        <div class="cyber-card-inner">
+            <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+            </svg>
+            <div class="card-header">
+                <span class="device-name">Lights</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="card-body">
+                <i class="fa-regular fa-lightbulb device-icon"></i>
+            </div>
+            <div class="card-footer">
+                <span class="power-value">60W</span>
+            </div>
+            <div class="holo-shine"></div>
+        </div>
+    </div>
+
+    <div class="cyber-card add-new-card" onclick="addNewDeviceUI()" style="cursor: pointer; opacity: 0.7;">
+        <div class="cyber-card-inner" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-plus" style="font-size: 2.5rem; color: #fff; margin-bottom: 10px;"></i>
+            <span style="color: #fff; font-weight: bold;">Add Device</span>
+        </div>
+    </div>
+
+</div>
+        </div>
+    </div>
+
+    
+    </div>
     <div id="renameModal" class="modal">
-        <div class="modal-content">
-            <h3>Name New Device</h3>
-            <p>The AI detected a new pattern (Cluster #<span id="modal-cluster-id"></span>).</p>
-            <input type="text" id="new-device-name-input" class="modal-input" placeholder="e.g., Microwave, Iron...">
-            <div class="modal-actions">
-                <button class="cancel-btn" onclick="closeRenameModal()">Cancel</button>
-                <button class="save-btn" onclick="submitRename()">Save Name</button>
-            </div>
+        <div class="modal-content">
+            <h3>Name New Device</h3>
+            <p>The AI detected a new pattern (Cluster #<span id="modal-cluster-id"></span>).</p>
+            <input type="text" id="new-device-name-input" class="modal-input" placeholder="e.g., Microwave, Iron...">
+            <input type="hidden" id="modal-hidden-cluster-id">
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeRenameModal()">Cancel</button>
+                <button class="save-btn" onclick="submitRename()">Save Name</button>
+            </div>
+        </div>
+    </div>
+<div id="deviceModal" class="custom-modal">
+    <div class="modal-content">
+        <div class="modal-icon-top">
+            <i class="fa-solid fa-plus-glow"></i>
+        </div>
+        
+        <h2 class="modal-title">ADD NEW DEVICE</h2>
+        <p class="modal-subtitle">Integrate a new smart component to your system</p>
+
+        <div class="input-container">
+            <input type="text" id="newDeviceName" placeholder="e.g., Microwave, Iron, TV..." autocomplete="off">
+            <div class="input-glow"></div>
+        </div>
+
+        <div class="modal-buttons">
+            <button onclick="closeDeviceModal()" class="btn-cancel">
+                <span>CANCEL</span>
+            </button>
+            <button onclick="confirmAddDevice()" class="btn-confirm">
+                <span>ADD DEVICE</span>
+            </button>
         </div>
     </div>
+</div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-
 
 </body>
 
 </html>
+

@@ -11,6 +11,14 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body{
+            background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+        }
+       
+    </style>
 
 
 </head>
@@ -23,11 +31,8 @@
             <div class="card">
 
                 <div class="card-header">
-                    <h1>
-                        <img src="{{ url_for('static', filename='images/Settings.png') }}" alt="Reports Icon"
-                            class="icon-animated" style="width: 40px; vertical-align: middle; margin-right: 8px;">
-                        Settings
-                    </h1>
+                    <h1 class="card-title">
+                        <img src="{{ url_for('static', filename='images/Settings.png') }}" alt="Reports Icon" class="icon-animated">Settings</h1>
                 </div>
 
                 <div class="card-content">
@@ -41,13 +46,16 @@
                         <label for="power-limit">Enter Power Limit (W)</label>
                         <div class="input-group">
                             <input type="text" id="power-limit" placeholder="Enter power limit" />
-                            <button onclick="submitPowerLimit()">Submit</button>
+                            <button class="btn-submit" onclick="submitPowerLimit()">Submit</button>
                         </div>
 
-                        <p class="info">
-                            <strong>Current Power Limit: <span class="value" id="ww">{{ power_limit }}</span> </strong>
-
-                        </p>
+                        <div class="info-row">
+                            <span class="info-label">Current Power Limit:</span>
+                            
+                            <div class="info-value-box">
+                                <span id="ww">{{ power_limit }}</span> W
+                            </div>
+                        </div>
                     </section>
 
                     <div class="separator"></div>
@@ -62,9 +70,9 @@
                         <label for="timer-duration">Set Timer Duration (in minutes)</label>
                         <div class="input-group">
                             <input type="text" id="timer-duration" placeholder="Enter duration" />
-                            <button id="set-time-btn" onclick="onSetTimeClick()">Set Time</button>
-                            <button id="pause-btn" style="display:none" onclick="onPauseClick()">Pause</button>
-                            <button id="cancel-btn" style="display:none" onclick="onCancelClick()">Cancel</button>
+                            <button class="btn-submit" id="set-time-btn" onclick="onSetTimeClick()">Set Time</button>
+                            <button class="btn-submit" id="pause-btn" style="display:none" onclick="onPauseClick()">Pause</button>
+                            <button class="btn-submit" id="cancel-btn" style="display:none" onclick="onCancelClick()">Cancel</button>
                         </div>
 
                         <div id="timer" class="time-row">
