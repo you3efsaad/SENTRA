@@ -34,85 +34,55 @@
                         </h1>
                     </div>
                     
-   <div class="ai-card-wrapper small-card">
-    <div class="ai-card-border">
-        <svg class="ai-border-beam" viewBox="0 0 1000 500" preserveAspectRatio="none">
-    <defs>
-        <!-- Gradient متغير اللون -->
-        <linearGradient id="beamGradient" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#00eaff"/>
-            <stop offset="50%" stop-color="#6366f1"/>
-            <stop offset="100%" stop-color="#ec4899"/>
+                    <div class="ai-card-wrapper small-card">
+                        <div class="ai-card-border">
+                            
+                            <svg class="ai-border-beam" width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="none">
+                        <defs>
+                        <linearGradient id="beamGradient" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#00eaff" />
+                            
+                            <stop offset="33%" stop-color="#4338ca" />
+                            
+                            <stop offset="66%" stop-color="#8b5cf6" />
+                            
+                            <stop offset="100%" stop-color="#ec4899" />
+                            
+                            <animateTransform attributeName="gradientTransform" type="rotate" from="0 500 250" to="360 500 250" dur="2s" repeatCount="indefinite" />
+                        </linearGradient>
+                    </defs>
 
-            <animateTransform
-                attributeName="gradientTransform"
-                type="rotate"
-                from="0 500 250"
-                to="360 500 250"
-                dur="4s"
-                repeatCount="indefinite"/>
-        </linearGradient>
-    </defs>
+                        <path d="M 0 60 L 60 0 L 420 0 L 460 30 L 540 30 L 580 0 L 940 0 L 1000 60 L 1000 440 L 940 500 L 580 500 L 540 470 L 460 470 L 420 500 L 60 500 L 0 440 Z" 
+                            fill="none" 
+                            stroke="url(#beamGradient)" 
+                            stroke-width="12" 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round"
+                            pathLength="1"
+                            class="ai-beam-path" />
+                    </svg>
 
-    <!-- مسار الإطار (نفس شكل الكارد) -->
-    <path
-        d="
-        M 0 60
-        L 60 0
-        L 420 0
-        L 460 30
-        L 540 30
-        L 580 0
-        L 940 0
-        L 1000 60
-        L 1000 440
-        L 940 500
-        L 580 500
-        L 540 470
-        L 460 470
-        L 420 500
-        L 60 500
-        L 0 440
-        Z
-        "
-        fill="none"
-        stroke="url(#beamGradient)"
-        stroke-width="10"
-        stroke-linecap="round"
-        pathLength="1"
-        stroke-dasharray="0.18 0.82"
-        class="ai-beam-path"
-    />
-</svg>
+                            <div class="ai-card-inner">
+                                <div class="ai-text-content">
+                                    <h3 class="ai-label">Active Device (AI)</h3>
+                                    <div class="ticker-mask">
+                                        <h1 class="ai-status" id="ai-device-name">Idle</h1>
+                                    </div>
+                                    <div class="ai-badge-container">
+                                        <span id="ai-device-status" class="status-badge">Standby</span>
+                                    </div>
+                                </div>
 
-        
-        <div class="ai-card-inner">
-            
-            <div class="ai-text-content">
-                <h3 class="ai-label">Active Device (AI)</h3>
-                <div class="ticker-mask">
-    <h1 class="ai-status" id="ai-device-name">Idle</h1>
-</div>
-
-<div class="ai-badge-container">
-    <span id="ai-device-status" class="status-badge">Standby</span>
-</div>
-            </div>
-
-           <div class="ai-visual-content">
-        <img src="{{ url_for('static', filename='images/brain-glow.png') }}" 
-            alt="AI Brain" 
-            class="brain-img">
-            <button id="rename-btn" class="edit-btn" onclick="openRenameModal()" style="display: none;">
-                <i class="fa-solid fa-pen"></i> Edit
-            </button>
-    </div>
-
-        </div>
-        <input type="hidden" id="current-cluster-id">
-    </div>
-</div>
-        
+                                <div class="ai-visual-content">
+                                    <img src="{{ url_for('static', filename='images/brain-glow.png') }}" alt="AI Brain" class="brain-img">
+                                    <button id="rename-btn" class="edit-btn" onclick="openRenameModal()" style="display: none;">
+                                        <i class="fa-solid fa-pen"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="current-cluster-id">
+                        </div>
+                    </div>
 
 
                     <div class="metric-card voltage-card small-card">
@@ -131,22 +101,22 @@
                         </div>
                     </div>
 
-                   <div class="power-card">
-    <div class="metric-info">
-        
-        <div class="header-with-icon" style="display: flex; align-items: center; justify-content: space-between;">
-            <i class="fas fa-plug metric-icon-small" style="color: #f472b6; font-size: 1.5rem; filter: drop-shadow(0 0 5px #f472b6);"></i>
-            <span class="metric-label">POWER</span>
-        </div>
-        
-        <h2 id="livePowerValue" class="metric-value">0 W</h2>
-        <span class="status-subtext" style="color: #10b981;">● Active</span>
-    </div>
+                    <div class="power-card">
+                        <div class="metric-info">
+                            
+                            <div class="header-with-icon" style="display: flex; align-items: center; justify-content: space-between;">
+                                <i class="fas fa-plug metric-icon-small" style="color: #f472b6; font-size: 1.5rem; filter: drop-shadow(0 0 5px #f472b6);"></i>
+                                <span class="metric-label">POWER</span>
+                            </div>
+                            
+                            <h2 id="livePowerValue" class="metric-value">0 W</h2>
+                            <span class="status-subtext" style="color: #10b981;">● Active</span>
+                        </div>
 
-    <div class="mini-chart-container">
-        <canvas id="powerMiniChart"></canvas>
-    </div>
-</div>
+                        <div class="mini-chart-container">
+                            <canvas id="powerMiniChart"></canvas>
+                        </div>
+                    </div>
 
 
                     <div class="metric-card energy-card small-card">

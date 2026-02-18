@@ -1,9 +1,52 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log("🚀 Safe Power System Loaded");
-    
-    // أي كود آخر يحتاج للتشغيل عند بداية التحميل ضعيه هنا
-    // لكن الدوال التي يتم استدعاؤها من الـ HTML (مثل onclick) يجب أن تكون خارج هذا البلوك
+
+    const body = document.body;
+
+    // 1. لو إحنا في صفحة الداشبورد
+    if (body.classList.contains('dashboard-page')) {
+        initDashboard();
+    }
+
+    // 👇👇👇 ضيفي الجزء ده 👇👇👇
+    // 2. لو إحنا في صفحة الأناليتكس (الصفحة الجديدة)
+    if (body.classList.contains('analytics-page')) {
+        initAnalytics();
+    }
+    // 👆👆👆👆👆👆👆👆👆👆👆👆
 });
+
+
+function initAnalytics() {
+    console.log("🔹 Initializing Analytics Page...");
+
+    // 1. تحديد زرار "Daily" (أول زرار في التابات)
+    // بنختار أول عنصر واخد كلاس tab لأنه هو الديلي
+    const dailyTab = document.querySelector('.tabs .tab'); 
+
+    // 2. تشغيل التقرير كأننا دوسنا عليه
+    if (dailyTab) {
+        // نتأكد إنه واخد كلاس active
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        dailyTab.classList.add('active');
+        
+        // نستدعي الدالة اللي بتجيب البيانات
+        window.generateReport('daily', dailyTab);
+    }
+
+    // 3. (اختياري) ضبط تواريخ البحث التاريخي على آخر أسبوع
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7);
+
+    const startInput = document.getElementById('start-date');
+    const endInput = document.getElementById('end-date');
+
+    if (startInput && endInput) {
+        startInput.value = lastWeek.toISOString().split('T')[0];
+        endInput.value = today.toISOString().split('T')[0];
+    }
+}
 
 // ==================================================
 // دالة الـ Sidebar (يجب أن تكون خارج الـ EventListener)
@@ -697,81 +740,94 @@ document.addEventListener('DOMContentLoaded', initPowerMiniChart);
 
 
 // دالة مساعدة لتحديث الجرافات
-function updateChart(chart, label, value) {
-    if (!chart) return;
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(value);
 
-    if (chart.data.labels.length > 20) { // عرض آخر 20 قراءة بس
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
+// ==================================================
+// 📊 ANALYTICS PAGE LOGIC (Historical + Reports)
+// ==================================================
+
+let historicalChartInstance = null;
+let reportChartInstance = null;
+
+function initAnalytics() {
+    console.log("🔹 Initializing Analytics Page...");
+    
+    // 1. تشغيل التقرير اليومي افتراضياً عند فتح الصفحة
+    // نمرر null لأننا بنناديها أوتوماتيك مش من زرار
+    window.generateReport('daily', document.querySelector('.tab.active'));
+
+    // 2. وضع تاريخ افتراضي (اليوم وقبل 7 أيام) في خانات البحث
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7);
+
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+
+    if (startDateInput && endDateInput) {
+        startDateInput.value = lastWeek.toISOString().split('T')[0];
+        endDateInput.value = today.toISOString().split('T')[0];
     }
-    chart.update();
 }
 
-// دالة توليد الداتا التاريخية (مربوطة بالزرار في HTML)
-let historicalChartInstance = null;
-
+// --------------------------------------------------
+// 1. دالة البحث التاريخي (Historical Data)
+// --------------------------------------------------
 window.generateHistoricalData = async function () {
     const start = document.getElementById('start-date').value;
     const end = document.getElementById('end-date').value;
+    const btn = document.getElementById('hist-btn');
 
     if (!start) return alert("Please select a start date!");
 
-    // تغيير نص الزرار لـ "Loading..."
-    const btn = document.getElementById('hist-btn');
+    // تغيير شكل الزرار أثناء التحميل
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
     btn.disabled = true;
 
     try {
+        // استدعاء الـ API
         const res = await fetch(`/historical?start=${start}&end=${end}`);
         const data = await res.json();
 
-        if (data.values.length === 0) {
-            alert("No data found for this date range.");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+        if (!data.values || data.values.length === 0) {
+            alert("No data found for this range.");
             return;
         }
 
-        // === رسم الجراف (The Magic Part) ===
+        // رسم الجراف
         const ctx = document.getElementById('historicalChart');
         if (ctx) {
-            // لو فيه جراف قديم، دمره الأول عشان ميركبوش فوق بعض
             if (historicalChartInstance) historicalChartInstance.destroy();
 
             historicalChartInstance = new Chart(ctx.getContext('2d'), {
-                type: 'bar', // نوع الجراف: أعمدة
+                type: 'bar',
                 data: {
-                    labels: data.labels, // التواريخ والساعات
+                    labels: data.labels,
                     datasets: [
                         {
-                            label: 'Energy Consumption (kWh)',
-                            data: data.values, // قيم الاستهلاك
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 4,
-                            order: 1
+                            label: 'Energy (kWh)',
+                            data: data.values,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // أزرق
+                            yAxisID: 'y',
+                            order: 2
                         },
                         {
-                            label: 'Average Power (W)', // خط إضافي للباور
-                            data: data.power, // قيم الباور
+                            label: 'Avg Power (W)',
+                            data: data.power,
                             type: 'line',
-                            borderColor: '#ef4444',
+                            borderColor: '#ef4444', // أحمر
                             borderWidth: 2,
+                            tension: 0.4,
                             pointRadius: 0,
-                            yAxisID: 'y1', // محور Y منفصل
-                            order: 0
+                            yAxisID: 'y1',
+                            order: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
+                    interaction: { mode: 'index', intersect: false },
                     scales: {
                         y: {
                             type: 'linear',
@@ -783,7 +839,7 @@ window.generateHistoricalData = async function () {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            grid: { drawOnChartArea: false }, // عشان الخطوط متدخلش في بعض
+                            grid: { drawOnChartArea: false },
                             title: { display: true, text: 'Power (W)' }
                         }
                     }
@@ -793,68 +849,147 @@ window.generateHistoricalData = async function () {
 
     } catch (e) {
         console.error("History Error:", e);
-        alert("Failed to load data.");
+        alert("Failed to load historical data.");
     } finally {
-        // إرجاع الزرار لحالته الأصلية
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 };
-// ==================================================
-// 4. REPORTS LOGIC (صفحة التقارير)
-// ==================================================
-let reportChartInstance;
 
-function initReports() {
-    console.log("🔹 Initializing Reports Page...");
-    // تحميل التقرير اليومي افتراضياً
-    window.generateReport('daily');
-}
-
+// --------------------------------------------------
+// 2. دالة التقارير (Reports: Daily/Weekly/Monthly)
+// --------------------------------------------------
 window.generateReport = async function (type, btnElement) {
-    // 1. تنسيق الأزرار
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    if (btnElement) btnElement.classList.add('active');
+    // 1. تنسيق التابات (UI Updates)
+    if (btnElement) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btnElement.classList.add('active');
+        
+        const underline = document.getElementById('tabUnderline');
+        if (underline) {
+            underline.style.width = btnElement.offsetWidth + "px";
+            underline.style.left = btnElement.offsetLeft + "px";
+        }
+    }
+
+    // إظهار علامة تحميل (اختياري)
+    const titleEl = document.getElementById('reportTitle');
+    if(titleEl) titleEl.innerText = "Loading...";
 
     try {
-        const res = await fetch(`/report/${type}`);
-        const data = await res.json();
+        // 2. طلب البيانات من الباك إند (Real Data Fetch)
+        const response = await fetch(`/report/${type}`);
+        
+        if (!response.ok) {
+            throw new Error(`Server Error: ${response.status}`);
+        }
 
-        // 2. تحديث الكروت
-        // ملاحظة: HTML بتاعك فيه id="avgConsumption" بس إحنا هنعرض التكلفة مكانه
+        const data = await response.json();
+
+        // 3. تحديث الكروت (Summary Cards)
         safeTxt('totalConsumption', data.total_consumption + ' kWh');
-        safeTxt('avgConsumption', data.total_cost + ' EGP'); // عرضنا التكلفة في خانة المتوسط
-        safeTxt('peakConsumption', data.peak_consumption + ' kWh');
-
-        // تحديث العنوان
+        safeTxt('totalCost', data.total_cost + ' EGP');
+        safeTxt('peakConsumption', data.peak_consumption + ' W'); // لاحظي الوحدة هنا (وات للبيك)
         safeTxt('reportTitle', type.charAt(0).toUpperCase() + type.slice(1) + ' Summary');
 
-        // 3. رسم الجراف
-        const ctx = document.getElementById('reportChart');
-        if (ctx) {
+        // 4. رسم الجراف (Chart)
+        const canvas = document.getElementById('reportChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+
             if (reportChartInstance) reportChartInstance.destroy();
 
-            reportChartInstance = new Chart(ctx.getContext('2d'), {
-                type: 'bar',
+            // --- إعداد التدرجات اللونية (Neon Gradients) ---
+            let gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientBlue.addColorStop(0, 'rgba(0, 255, 255, 0.5)');
+            gradientBlue.addColorStop(1, 'rgba(0, 255, 255, 0.0)');
+
+            let gradientPink = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientPink.addColorStop(0, 'rgba(255, 0, 255, 0.5)'); 
+            gradientPink.addColorStop(1, 'rgba(255, 0, 255, 0.0)'); 
+
+            reportChartInstance = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: 'Consumption (kWh)',
-                        data: data.values,
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 5
-                    }]
+                    labels: data.labels, // التواريخ/الأيام القادمة من الباك إند
+                    datasets: [
+                        {
+                            label: 'Total Consumption (kWh)',
+                            data: data.values_total, // مصفوفة الاستهلاك
+                            borderColor: '#00ffff',
+                            backgroundColor: gradientBlue,
+                            fill: true,
+                            tension: 0, // ⚡ خطوط حادة
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#00ffff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Peak Power (W)',
+                            data: data.values_peak, // مصفوفة أقصى حمل
+                            borderColor: '#ff00ff',
+                            backgroundColor: gradientPink,
+                            fill: true,
+                            tension: 0, // ⚡ خطوط حادة
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#ff00ff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            borderWidth: 2
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            labels: { color: '#fff' }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255,255,255,0.2)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ccc' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ccc' }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
                 }
             });
         }
 
-    } catch (e) { console.error("Report Fetch Error:", e); }
+    } catch (e) {
+        console.error("Report Error:", e);
+        safeTxt('reportTitle', "Error Loading Data");
+    }
 };
+
+// دالة مساعدة لتجنب الأخطاء
+function safeTxt(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
 
 // ==================================================
 // 5. SETTINGS & TIMER LOGIC (صفحة الإعدادات)

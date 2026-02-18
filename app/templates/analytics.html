@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics</title>
+
+  <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    body {
+      background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+    }
+  </style>
+</head>
+
+<body class="analytics-page nav-page">
+  <div class="layout-wrapper">
+
+    {% include "navbar.html" %}
+
+    <div class="page">
+      <div class="card">
+
+        <!-- ================================================= -->
+        <!-- 🔹 1. HISTORICAL SECTION -->
+        <!-- ================================================= -->
+
+        <div class="card-header">
+        <h1 class="neon-header">
+          <img src="{{ url_for('static', filename='images/historical.png') }}" alt="icon" class="title-icon">
+          Historical Analysis
+        </h1>
+        <p class="subtitle">Analyze energy usage over custom date ranges.</p>
+      </div>
+
+        <div class="filters-bar">
+          <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" id="start-date" class="date-input">
+          </div>
+          <div class="input-group">
+            <label>End Date</label>
+            <input type="date" id="end-date" class="date-input">
+          </div>
+          <button id="hist-btn" class="search-btn" onclick="generateHistoricalData()">
+            <i class="fa-solid fa-search"></i> Search
+          </button>
+        </div>
+
+        <div class="chart-wrapper full-width" style="margin-top: 20px; height: 400px;">
+          <canvas id="historicalChart"></canvas>
+        </div>
+
+        <!-- ================================================= -->
+        <!-- 🔹 2. REPORTS SECTION -->
+        <!-- ================================================= -->
+
+        <hr style="margin: 50px 0; opacity: 0.2;">
+
+        <div class="card-header ">
+          <h1 class="neon-header">
+            <img src="{{ url_for('static', filename='images/reports.png') }}"
+              style="width: 105px; vertical-align: middle; margin-right:0;">
+            Reports Summary
+          </h1>
+          <p class="subtitle">Daily, weekly and monthly consumption reports.</p>
+        </div>
+
+        <div class="tabs-container">
+          <div class="tabs">
+            <div class="tab active" onclick="generateReport('daily', this)">Daily</div>
+            <div class="tab" onclick="generateReport('weekly', this)">Weekly</div>
+            <div class="tab" onclick="generateReport('monthly', this)">Monthly</div>
+            <div class="tab" onclick="generateReport('yearly', this)">Yearly</div>
+          </div>
+          <div class="tabs-underline" id="tabUnderline"></div>
+        </div>
+
+        <h2 id="reportTitle">Daily Summary</h2>
+
+        <div class="summary-cards">
+  
+  <div class="stats-container">
+
+    <div class="summary-panel panel-blue">
+        <div class="panel-left">
+            <img src="{{ url_for('static', filename='images/x.png') }}" alt="gauge" class="panel-icon icon-lg">
+        </div>
+        <div class="panel-center">
+            <h3>Total Consumption</h3>
+            <p id="totalConsumption">17.1</p>
+        </div>
+        <div class="panel-right">
+            <img src="{{ url_for('static', filename='images/y.png') }}" alt="chart" class="panel-icon icon-xl">
+        </div>
+    </div>
+
+    <div class="summary-panel panel-purple">
+        <div class="panel-left"></div>
+        <div class="panel-center">
+            <h3>Total Cost</h3>
+            <p id="totalCost">$12.00</p>
+        </div>
+        <div class="panel-right">
+            <img src="{{ url_for('static', filename='images/z.png') }}" alt="cycle" class="panel-icon icon-md">
+        </div>
+    </div>
+
+    <div class="summary-panel panel-pink">
+        <div class="panel-left">
+            <img src="{{ url_for('static', filename='images/w.png') }}" alt="gauge" class="panel-icon icon-xl">
+        </div>
+        <div class="panel-center">
+            <h3>Peak Consumption</h3>
+            <p id="peakConsumption">17.7</p>
+        </div>
+        <div class="panel-right">
+            <img src="{{ url_for('static', filename='images/v.png') }}" alt="chart" class="panel-icon icon-xl">
+        </div>
+    </div>
+
+</div>
+
+        <h2 style="margin-top:40px;">Consumption Chart</h2>
+
+        <div id="chart-container" style="height:400px;">
+          <canvas id="reportChart"></canvas>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+</body>
+
+</html>

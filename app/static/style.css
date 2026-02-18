@@ -1,5 +1,7 @@
-/* استيراد خط Digital-7 المقطع من مصدر موثوق */
+
 @import url('https://fonts.cdnfonts.com/css/digital-7-mono');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+
 
 * {
   box-sizing: border-box;
@@ -37,9 +39,7 @@ body {
     min-height: 100vh;
 }
 
-.layout-wrapper {
-    display: flex;
-}
+
 /* navbar styles */
 
 .notification-container {
@@ -85,7 +85,6 @@ body.nav-page {
   color: white;
 }
 
-/* تنسيق الناف بار "العائم" */
 .navbar {
   position: fixed !important;
   top: 20px;
@@ -94,13 +93,9 @@ body.nav-page {
   width: 95%; /* عرض أقل من 100% ليظهر كأنه عائم */
   max-width: 1500px;
   height: 65px;
-  
-  /* الخلفية والحدود الزجاجية المتوهجة */
   background: linear-gradient(180deg, rgba(20, 30, 80, 0.8) 0%, rgba(10, 15, 40, 0.9) 100%);
   border: 1px solid #00a8ff;
-  border-radius: 10px; /* حواف دائرية بالكامل */
-  
-  /* تأثير التوهج (Neon Glow) */
+  border-radius: 10px; 
   box-shadow: 
     0 0 15px rgba(0, 168, 255, 0.4), 
     inset 0 0 20px rgba(0, 168, 255, 0.2),
@@ -137,7 +132,6 @@ body.nav-page {
     max-height: none !important;
     max-width: none !important;
     flex-shrink: 0 !important;
-    /* فلتر لتحسين الشكل */
     filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
     object-fit: contain;
 }
@@ -258,8 +252,7 @@ body.nav-page {
 /* =========================================
    2. تنسيق السايد بار (ستايل الكبسولة العائمة)
    ========================================= */
-/* زر القائمة للموبايل */
-/* تنسيق زر القائمة (الهامبرغر) */
+
 .sidebar-toggle {
   background: transparent;
   border: none;
@@ -461,10 +454,6 @@ body.nav-page {
   
 }
 
-/* =========================================
-   3. مرحلة الموبايل والتابلت الصغير (Break Point) - أقل من 992px
-   ========================================= */
-/* هنا اللحظة اللي بيختفي فيها الناف بار ويظهر السايد بار */
 @media (max-width: 992px) {
 
   /* 1. إظهار زر السايد بار (الهامبرغر) */
@@ -497,9 +486,7 @@ body.nav-page {
   }
 }
 
-/* =========================================
-   4. الموبايل الصغير جداً (Extra Small) - أقل من 480px
-   ========================================= */
+
 @media (max-width: 480px) {
   .brand-name {
     font-size: 16px !important; /* تصغير الاسم أكثر */
@@ -518,7 +505,30 @@ body.nav-page {
     top: 100px; /* رفع السايد بار قليلاً */
   }
 }
+.ai-beam-path {
+    /* الرقم الأول (0.15) هو طول الشعاع */
+    /* الرقم الثاني (1) هو المسافة الفارغة */
+    stroke-dasharray: 0.15 1; 
+    
+    /* جعل الشعاع يبدأ من مكان معين */
+    stroke-dashoffset: 0;
+    
+    /* تطبيق أنيميشن الحركة */
+    animation: moveBeam 3s linear infinite;
+    
+    /* إضافة توهج قوي للشعاع فقط */
+    filter: drop-shadow(0 0 5px #00eaff) drop-shadow(0 0 15px #ec4899);
+}
 
+/* تعريف حركة الشعاع */
+@keyframes moveBeam {
+    from {
+        stroke-dashoffset: 1; /* يبدأ من نقطة */
+    }
+    to {
+        stroke-dashoffset: 0; /* ينتهي بعد دورة كاملة */
+    }
+}
 /* ========================================= */
 /* NEON / GLASS DASHBOARD STYLE (NEW)        */
 /* ========================================= */
@@ -533,9 +543,9 @@ body.nav-page {
 }
 
 .dashboard-page .page {
-    max-width: 1400px; /* عرض مناسب للشاشات الكبيرة */
-    margin: 0 auto;
-    width : 1400px;
+    max-width: 1400px;  /* الحفاظ على الحد الأقصى للعرض */
+    margin: 0 auto;     /* لضمان التوسيط */
+    width : 100%;       /* تغيير العرض ليصبح مرناً */
     padding: 2rem;
 }
 
@@ -557,12 +567,6 @@ body.nav-page {
     box-sizing: border-box;
 }
 
-
-/* --- 1. تنسيق الشبكة الأساسي (الداشبورد) --- */
-/* --- إعداد الشبكة للكمبيوتر واللابتوب والتابلت العريض --- */
-/* --- تعديل الشبكة لتوزيع الكروت حول الـ AI --- */
-/* --- تعديل الشبكة: باور يمين، AI وسط، وكروت موزعة --- */
-/* --- التصميم المصلح لشبكة الداشبورد --- */
 .dashboard-page .dashboard {
     display: grid;
     /* الأعمدة زي ما هي عشان العرض مظبوط */
@@ -584,6 +588,192 @@ body.nav-page {
     width: 100%;
     max-width: 1400px;
     margin: 20px auto;
+}
+
+/* 2. شاشات اللابتوب المتوسطة (تحت 1300px) */
+/* نتحول لـ 3 أعمدة بدلاً من 4 */
+@media (max-width: 1300px) {
+    .dashboard-page .dashboard {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+        gap: 20px;
+        
+        /* إعادة توزيع الأماكن */
+        grid-template-areas:
+            "header header header"
+            "ai     ai     ai"      /* الـ AI ياخد الصف كله */
+            "volt   curr   power"   /* الباور يبدأ يظهر هنا */
+            "freq   pf     power"
+            "engy   cost   power";
+    }
+
+    /* تعديل كارت الـ AI */
+    .ai-card-wrapper {
+        transform: none !important;
+        width: 100% !important;
+        max-width: 800px !important;
+        margin: 0 auto !important;
+    }
+
+    /* تعديل كارت الباور */
+    .power-card {
+        margin: 0 !important; /* إلغاء الهوامش السالبة */
+        height: 100% !important;
+    }
+}
+
+/* 3. التابلت واللابتوب الصغير (تحت 992px) */
+/* نتحول لعمودين (2 Columns) */
+@media (max-width: 992px) {
+    .dashboard-page .dashboard {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header header"
+            "ai     ai"
+            "volt   curr"
+            "engy   cost"
+            "freq   pf"
+            "power  power"; /* الباور ينزل تحت بعرض كامل */
+    }
+
+    /* كارت الباور يتحول لشكل أفقي عريض (Landscape) */
+    .power-card {
+        flex-direction: row !important; /* العناصر جنب بعض */
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 20px 30px !important;
+        min-height: 140px !important;
+    }
+
+    .power-card .metric-info {
+        width: 50%;
+        align-items: flex-start !important;
+        padding: 0 !important;
+    }
+    
+    .power-card .metric-value {
+        font-size: 3rem !important;
+    }
+
+    /* الشارت يروح يمين */
+    .mini-chart-container {
+        position: relative !important;
+        width: 40% !important;
+        height: 100px !important;
+        left: auto !important;
+        bottom: auto !important;
+    }
+}
+
+/* 4. الموبايل (تحت 768px) - التعديل الجذري */
+/* كل حاجة تحت بعض (1 Column) */
+@media (max-width: 768px) {
+    .dashboard-page .page {
+        padding: 10px !important;
+    }
+
+    .dashboard-page .dashboard {
+        display: flex; /* نلغي الجريد ونخليها فليكس */
+        flex-direction: column;
+        gap: 15px;
+        padding: 0 5px;
+    }
+
+    /* العنوان */
+    .dashboard-page h1 {
+        font-size: 1.8rem;
+        margin-left: 0 !important;
+        justify-content: center;
+    }
+
+    /* كارت الـ AI */
+    .ai-card-wrapper {
+        min-height: auto !important;
+    }
+    
+    .ai-card-inner {
+        flex-direction: column !important;
+        padding: 20px 10px !important;
+    }
+    
+    .ai-text-content {
+        width: 100% !important;
+        min-width: unset !important;
+        margin-top: 0 !important;
+        align-items: center !important;
+        text-align: center;
+    }
+    
+    .brain-img {
+        width: 120px;
+        transform: none !important;
+        margin: 10px 0;
+    }
+
+    /* === إصلاح كارت الباور (التصميم الخاص بالموبايل) === */
+    .power-card {
+        display: flex !important;
+        flex-direction: row !important; /* أفقي */
+        justify-content: space-between !important;
+        align-items: center !important;
+        
+        width: 100% !important;
+        height: auto !important;
+        min-height: 120px !important;
+        padding: 15px 20px !important;
+        margin: 0 !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* النصوص (يسار) */
+    .power-card .metric-info {
+        width: 55% !important; /* مساحة للنص */
+        z-index: 5;
+        align-items: flex-start !important;
+        padding: 0 !important;
+    }
+
+    .power-card .metric-value {
+        font-size: 2.2rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .power-card .metric-label {
+        font-size: 0.9rem !important;
+    }
+
+    /* الشارت (يمين - شفاف) */
+    .mini-chart-container {
+        position: absolute !important;
+        right: -10px !important;
+        bottom: 0 !important;
+        width: 50% !important;
+        height: 80% !important;
+        opacity: 0.5;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    /* إخفاء الأيقونة الكبيرة في الموبايل لتوفير مساحة */
+    .power-card .metric-icon {
+        display: none !important;
+    }
+
+    /* باقي الكروت الصغيرة */
+    .metric-card, .small-card {
+        min-height: 100px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        justify-self: stretch !important;
+    }
+    
+    /* إخفاء المسافات الجانبية الغريبة */
+    .current-card, .cost-card, .voltage-card, .energy-card, .frequency-card, .pf-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 .power-card {
   margin-left: -40px !important; /* زق الكارت ناحية اليسار */
@@ -650,7 +840,7 @@ body.nav-page {
     max-width: 680px !important; /* حجم مناسب عشان ميبقاش صغير أوي ولا كبير أوي */
     height: auto !important;     /* الارتفاع حسب المحتوى */
     min-height: 200px;           /* ارتفاع أدنى عشان يحافظ على هيبته */
-transform: translate(25px, 0px) !important;
+    transform: translate(25px, 0px) !important;
     /* 3. التمركز الإجباري داخل الخلية (الحفرة) */
     align-self: center !important;  /* توسيط رأسي */
     justify-self: center !important; /* توسيط أفقي */
@@ -666,6 +856,7 @@ transform: translate(25px, 0px) !important;
     z-index: 10;
     width: calc(100% - 30px) !important;
 }
+
 /* استهداف الكروت الـ 4 اللي فوق وتحت الـ AI */
 .voltage-card, .current-card, .energy-card, .cost-card, .frequency-card, .pf-card {
     padding: 10px 15px !important; /* تقليل المسافة الداخلية */
@@ -687,7 +878,7 @@ transform: translate(25px, 0px) !important;
     width: 100% !important; 
     /* زقي الكروت دي ناحية اليمين (نهاية الخلية) */
     justify-self: end !important; 
-    margin-right: 40px !important;
+    margin-right: 20px !important;
 }
 
 .current-card, .cost-card {
@@ -695,7 +886,7 @@ transform: translate(25px, 0px) !important;
     width: 100% !important; 
     /* زقي الكروت دي ناحية الشمال (بداية الخلية) */
     justify-self: start !important; 
-    margin-left: -50px !important;
+    margin-left: -30px !important;
 }
 .frequency-card, .pf-card{
    max-width: 200px !important; 
@@ -713,24 +904,12 @@ transform: translate(25px, 0px) !important;
 .voltage-card   { grid-area: volt; }
 .current-card   { grid-area: curr; }
 
-
-/* 4. كارت الـ AI (الملك في النص) */
-/* تعديل على كود الـ CSS الخاص بكارت الـ AI */
-
-
-
 /* 5. الكروت اللي تحت الـ AI */
 .energy-card    { grid-area: engy; }
 .cost-card      { grid-area: cost; }
 
 /* 6. كارت الباور (العمود اليمين الطويل) */
 .power-card     { grid-area: power; }
-
-/* --- 3. تنسيق خاص لكارت الباور الطويل --- */
-/* عشان يبان بشكل طولي ومظبوط */
-/* --- إلغاء التصميم الطولي لكارت الباور ليكون مثل الباقين --- */
-/* --- كارت الباور الكبير (الوحش) --- */
-
 
 /* تكبير الأيقونة والرقم عشان الكارت كبير */
 .power-card .metric-icon {
@@ -784,6 +963,10 @@ transform: translate(25px, 0px) !important;
     align-items: center;
     gap: 15px;
 
+    /* --- التعديل هنا --- */
+    margin-left: 30px !important; /* غيري الرقم ده (50) لتحديد مسافة التحريك */
+    /* ------------------ */
+
     text-shadow:
         0 0 8px rgba(255,255,255,0.6),
         0 0 18px rgba(0,200,255,0.7),
@@ -791,7 +974,6 @@ transform: translate(25px, 0px) !important;
 
     letter-spacing: 2px;
 }
-
 /* اجعلي قسم العنوان يمتد بعرض الصفحة بالكامل */
 .dashboard-page .header-section {
     grid-column: 1 / -1;  /* دي السحر! معناها خد العرض من أول عمود لآخر عمود */
@@ -799,7 +981,7 @@ transform: translate(25px, 0px) !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 5px !important; /* تقليل المسافة السفلية للعنوان */
+    margin-bottom: 5px !important; 
     padding-bottom: 0 !important
 }
 
@@ -837,7 +1019,7 @@ transform: translate(25px, 0px) !important;
     transition: all 0.35s ease;
 }
 
-.metric-card::after {
+.dashboard-page .metric-card::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -849,7 +1031,7 @@ transform: translate(25px, 0px) !important;
     );
     pointer-events: none;
 }
-.metric-card::before {
+.dashboard-page .metric-card::before {
     content: "";
     position: absolute;
     left: 0;
@@ -871,7 +1053,7 @@ transform: translate(25px, 0px) !important;
     to   { transform: translateY(-3px); }
 }
 
-.metric-card {
+.dashboard-page .metric-card {
     animation: floatGlow 4s ease-in-out infinite alternate;
 }
 
@@ -897,30 +1079,30 @@ transform: translate(25px, 0px) !important;
   
 }
 
-.small-card .metric-info {
+.dashboard-page .small-card .metric-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.small-card .metric-value {
+.dashboard-page .small-card .metric-value {
     font-size: 2rem; /* حجم مناسب للأرقام */
 }
 
-.metric-card,
-.small-card {
+.dashboard-page .metric-card,
+.dashboard-page .small-card {
     height: 100%;
 }
 
 /* عند الشاشات الصغيرة (الموبايل) */
 @media (max-width: 768px) {
-    .ai-card {
+    .dashboard-page .ai-card {
         grid-column: span 1;
     }
-    .ai-content-wrapper {
+    .dashboard-page .ai-content-wrapper {
         padding: 20px;
     }
-    .brain-img {
+    .dashboard-page .brain-img {
         width: 80px;
     }
 }
@@ -935,11 +1117,8 @@ transform: translate(25px, 0px) !important;
     flex: 1; /* ياخد المساحة المتبقية */
 }
 
-/* شكل جمالي إضافي للكارت (الخطوط المضيئة) */
-
-
 /* === Icons Styling === */
-.metric-icon {
+.dashboard-page .metric-icon {
     font-size: 3.8rem;
     opacity: 0.45;
     color: inherit;
@@ -993,28 +1172,7 @@ transform: translate(25px, 0px) !important;
 /* ========================================= */
 /* AI CARD - IMAGE BACKGROUND STYLE          */
 /* ========================================= */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
-/* 1. الحاوية الرئيسية - تحدد الحجم والظل الخارجي */
-/* .ai-card-wrapper {
 
-    width: 100% !important; 
-    max-width: 630px; 
-    
-    height: 350px !important;
-    margin: 20px auto !important;
-    
-    grid-column: span 2;
-    grid-row: span 2;
-    justify-self: center;
-    align-self: center;
-    
-    position: relative;
-    filter: drop-shadow(0 0 35px rgba(0, 200, 255, 0.55));
-    box-sizing: border-box;
-    z-index: 1;
-} */
-/* 2. الإطار الخارجي (اللون الأزرق المتدرج) */
-/* هذا المتغير للتحكم في عمق وعرض القطعة العلوية والسفلية بسهولة */
 :root {
     --notch-depth: 15px; /* عمق الحفرة لأسفل */
     --notch-width: 50px; /* نصف عرض الحفرة من المنتصف */
@@ -1022,7 +1180,7 @@ transform: translate(25px, 0px) !important;
 }
 
 /* 1. الإطار الخارجي */
-.ai-card-border {
+.dashboard-page .ai-card-border {
     background: transparent;
     padding: 2px;
     position: relative;
@@ -1060,7 +1218,7 @@ transform: translate(25px, 0px) !important;
     );
     
 }
-.ai-border-beam {
+.dashboard-page .ai-border-beam {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1080,12 +1238,14 @@ transform: translate(25px, 0px) !important;
 }
 
 .ai-beam-path {
-    animation: beamTravel 4.5s linear infinite;
+    stroke-dasharray: 0.15 0.85;
+    animation: beamTravel 10s linear infinite;
 
+    /* التأثيرات الجمالية */
     filter:
-        drop-shadow(0 0 10px rgba(0,230,255,0.9))
-        drop-shadow(0 0 25px rgba(99,102,241,0.8))
-        drop-shadow(0 0 40px rgba(236,72,153,0.6));
+        drop-shadow(0 0 10px rgba(0, 229, 255, 0.616))
+        /* drop-shadow(0 0 25px rgb(99, 101, 241))
+        drop-shadow(0 0 40px rgb(236, 72, 154)); */
 }
 
 
@@ -1145,6 +1305,7 @@ transform: translate(25px, 0px) !important;
     margin-bottom: 0; /* قللنا المسافة السفلية كمان */
     display: block;
     line-height: 1.2;
+    text-transform: none !important;
 }
 
 /* الشريط المتحرك (اسم الجهاز) */
@@ -1168,11 +1329,10 @@ transform: translate(25px, 0px) !important;
     padding-bottom: 0px; 
 }
 .ai-text-content {
-    /* عرض ثابت ومناسب للكارت */
     width: 300px !important;
     min-width: 300px;
     max-width: 300px;
-    
+    gap: 20px; 
     /* ضروري عشان العناصر تترتب تحت بعض */
     display: flex;
     flex-direction: column;
@@ -1180,10 +1340,10 @@ transform: translate(25px, 0px) !important;
     padding-top: 20px;
     position: relative;
     z-index: 10;
-    overflow: hidden; /* عشان لو حاجة خرجت بره */
+    overflow: visible !important;
+    margin-top: 30px !important; 
+    text-transform: none !important;
 }
-/* ملاحظة: كود الـ .ai-ticker و .ai-status يظل كما هو دون تغيير */
-
 
 /* هذا هو الصندوق الثابت الذي سنطبق عليه الفايد */
 .ticker-mask {
@@ -1191,15 +1351,12 @@ transform: translate(25px, 0px) !important;
     overflow: hidden; /* يخفي أي شيء يخرج عنه */
     position: relative;
     
-    /* كود الاختفاء التدريجي */
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
     
-    /* تحسين للأداء */
     z-index: 15; 
 }
 
-/* تأكد أن النص المتحرك إعداداته كما هي */
 .ai-status {
     /* الإعدادات القديمة */
     white-space: nowrap !important;
@@ -1217,7 +1374,6 @@ transform: translate(25px, 0px) !important;
 .ai-label, 
 .ai-status,
 .ai-ticker {
-    /* الخط الجديد المشابه للصورة */
     font-family: 'Roboto Slab', serif !important;
 }
 
@@ -1611,7 +1767,35 @@ drop-shadow(0 0 18px rgba(0,120,255,.25));
     justify-content: space-between;
     align-items: center;
     margin-top: 5px; /* عشان نبعد عن القطع العلوي */
+    
 }
+/* .card-header .h1{
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.6),
+        0 0 18px rgba(0,200,255,0.7),
+        0 0 35px rgba(99,102,241,0.8);
+} */
+
+/* تنسيق العنوان المشع */
+.analytics-page .neon-header ,
+.settings-page .neon-header ,
+.contact-page .neon-header ,
+.about-page .neon-header {
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.4rem;             /* لون النص أبيض */
+    text-transform: uppercase;  /* تحويل الحروف لكبيرة (Capital) */
+    letter-spacing: 1px; 
+    display: flex;
+    align-items: center;        /* محاذاة عمودية في المنتصف */
+    gap: 1px;                  /* مسافة بين الأيقونة والكلمة */
+    margin-bottom: 30px;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.6),
+        0 0 18px rgba(0,200,255,0.7),
+        0 0 35px rgba(99,102,241,0.8) !important;
+}
+
 
 .device-name {
     color: rgba(255, 255, 255, 0.8); /* أبيض بلمسة شفافية */
@@ -2158,557 +2342,191 @@ input:checked + .slider:after {
 .pf-card .metric-icon { color: #94a3b8; }
 .pf-card { border-color: rgba(148, 163, 184, 0.4) !important; }
 .pf-card:hover { border-color: #94a3b8 !important; box-shadow: 0 0 25px rgba(148, 163, 184, 0.4) !important; }
+
 /* ========================================= */
-/* RESPONSIVE DESIGN (All Screen Sizes)      */
+/* 📱 RESPONSIVE DASHBOARD DESIGN */
 /* ========================================= */
 
-/* --- 1. الشاشات المتوسطة (Tablets / Laptops الصغير) --- */
+/* --- 1. شاشات اللابتوب المتوسطة والتابلت الكبير (Max 1200px) --- */
 @media (max-width: 1200px) {
     .dashboard-page .dashboard {
-        grid-template-columns: 1fr 1fr 1fr; /* تحويل لـ 3 أعمدة بدل 4 */
+        /* تحويل الشبكة لـ 3 أعمدة بدلاً من 4 */
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto; /* ارتفاع تلقائي للصفوف */
+        
+        /* إعادة توزيع المناطق (Areas) */
         grid-template-areas:
             "header header header"
-            "freq volt curr"
-            "pf ai ai"
-            "engy ai ai"
-            "cost power power";
-        gap: 20px;
-        padding: 1rem;
+            "ai ai ai"       /* الـ AI يأخذ العرض كامل في صف لوحده */
+            "volt curr engy" /* صف الكروت الأولى */
+            "cost freq pf"   /* صف الكروت الثانية */
+            "power power power"; /* الباور في الآخر بعرض كامل */
+            
+        gap: 25px;
     }
 
+    /* تعديل كارت الـ AI ليملأ المساحة */
     .ai-card-wrapper {
-        max-width: 100% !important;
-        transform: none !important; /* إلغاء التزييح الجانبي */
+        width: 100% !important;
+        max-width: 600px !important; /* تحديد حد أقصى للعرض ليبقى شكله جميل */
+        margin: 0 auto !important;
+        transform: none !important;
     }
 
-    .voltage-card, .energy-card, .current-card, .cost-card {
-        margin: 0 !important; /* إلغاء الـ margins اليدوية */
-        max-width: 100% !important;
+    /* إعادة ضبط هوامش الكروت */
+    .voltage-card, .energy-card, 
+    .current-card, .cost-card, 
+    .frequency-card, .pf-card {
+        margin: 0 !important;
+        justify-self: stretch !important; /* ملء الخلية */
+        width: 100% !important;
+        max-width: none !important;
     }
 }
 
-/* --- 2. التابلت الصغير (Portrait Tablets) --- */
+/* --- 2. التابلت الصغير (Portrait Tablets) (Max 992px) --- */
 @media (max-width: 992px) {
     .dashboard-page .dashboard {
-        grid-template-columns: 1fr 1fr; /* عمودين فقط */
+        /* تحويل الشبكة لعمودين فقط */
+        grid-template-columns: repeat(2, 1fr);
+        
         grid-template-areas:
             "header header"
-            "volt curr"
-            "freq pf"
             "ai ai"
+            "volt curr"
             "engy cost"
+            "freq pf"
             "power power";
     }
-    
-    .power-card { margin: 0 !important; }
 }
 
-/* --- 3. الموبايل (Mobile Screens) --- */
+/* --- 3. الموبايل (Mobile Screens) (Max 768px) --- */
 @media (max-width: 768px) {
+    /* تعديل الحاوية الرئيسية */
     .dashboard-page .page {
-        padding: 10px;
+        padding: 15px !important;
+        width: 100% !important;
+    }
+    
+    .dashboard-page .card {
+        padding: 15px !important; /* تقليل حواف الكارد الكبير */
     }
 
     .dashboard-page .dashboard {
-        display: flex; /* تحويل لـ Flex لترتيب الكروت تحت بعضها */
+        /* تحويل الشبكة لعمود واحد (رص الكروت تحت بعض) */
+        display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
     }
 
-    /* تكبير العناوين في الموبايل */
-    .dashboard-page h1 { font-size: 1.8rem; text-align: center; }
-    
-    /* ضبط كارت الـ AI في الموبايل */
-    .ai-card-inner {
-        flex-direction: column; /* المخ تحت الكلام */
-        padding: 30px 20px !important;
+    /* تكبير العناوين قليلاً لتكون واضحة باللمس */
+    .dashboard-page h1 {
+        font-size: 1.8rem;
+        justify-content: center;
         text-align: center;
+        flex-wrap: wrap; /* للسماح بنزول الأيقونة سطر جديد لو ضاقت */
+    }
+    
+    /* تعديلات كارت الـ AI للموبايل */
+    .ai-card-wrapper {
+        min-height: auto !important; /* ارتفاع مرن */
+    }
+    
+    .ai-card-inner {
+        flex-direction: column !important; /* العناصر فوق بعض */
+        padding: 20px !important;
+        text-align: center;
+        height: auto !important;
     }
 
     .ai-text-content {
         width: 100% !important;
-        align-items: center;
+        max-width: none !important;
+        margin-bottom: 20px;
+        align-items: center; /* توسيط النصوص */
     }
-
+    
+    .ai-visual-content {
+        width: 100%;
+        height: auto;
+        justify-content: center;
+    }
+    
     .brain-img {
-        width: 150px;
-        transform: none; /* إعادة المخ للمنتصف */
-        margin-top: 20px;
+        width: 120px; /* تصغير صورة المخ */
+        transform: none !important; /* إلغاء الإزاحة */
+        margin: 0 auto;
     }
 
     #rename-btn {
-        position: static; /* يظهر بشكل طبيعي تحت المخ */
+        position: relative; /* إرجاع الزر للتدفق الطبيعي */
+        bottom: auto;
+        right: auto;
         margin-top: 15px;
     }
 
-    /* كارت الباور يتحول لشكل أفقي بسيط */
+    /* تعديل كروت القياسات (Metrics) */
+    .metric-card, .small-card {
+        min-height: 100px !important;
+        padding: 15px !important;
+        flex-direction: row-reverse !important; /* الحفاظ على الأيقونة يمين */
+        align-items: center;
+    }
+    
+    .metric-value {
+        font-size: 1.8rem !important;
+    }
+    
+    .metric-icon {
+        font-size: 2.5rem !important;
+    }
+
+    /* تعديل كارت الباور (Power) */
     .power-card {
         height: auto !important;
-        min-height: 200px;
-    }
-
-    .power-card .metric-value { font-size: 2.5rem !important; }
-
-    /* النافذة المنبثقة (Modal) */
-    .modal-content {
-        width: 95%;
-        padding: 30px 20px;
+        min-height: 180px;
+        flex-direction: column !important; /* العناصر فوق بعض */
+        align-items: center !important;
+        text-align: center;
+        padding-bottom: 20px !important;
     }
     
-    .modal-buttons {
-        flex-direction: column; /* الأزرار تحت بعضها في الموبايل */
+    .power-card .metric-info {
+        width: 100%;
+        align-items: center !important;
+    }
+    
+    .header-with-icon {
+        width: 100%;
+        justify-content: center !important; /* توسيط العنوان */
+        margin-bottom: 10px;
+    }
+    
+    .mini-chart-container {
+        position: relative; /* إرجاع الشارت للتدفق الطبيعي */
+        width: 100%;
+        height: 150px; /* ارتفاع ثابت للشارت */
     }
 }
 
-/* --- 4. الشاشات الصغيرة جداً (Small Phones) --- */
+/* --- 4. الموبايل الصغير جداً (Extra Small) (Max 480px) --- */
 @media (max-width: 480px) {
     .metric-card {
-        flex-direction: column; /* الأيقونة فوق الرقم */
-        text-align: center;
-        gap: 10px;
+        /* في الشاشات الصغيرة جداً، قد يكون أفضل جعل الأيقونة فوق الرقم */
+        justify-content: space-between; 
     }
     
-    .metric-info { align-items: center !important; }
+    .metric-value {
+        font-size: 1.5rem !important;
+    }
     
-    .metric-value { font-size: 1.8rem !important; }
-
-    .power-value { font-size: 1.8rem; }
+    .device-name {
+        font-size: 0.9rem; /* تكبير اسم الجهاز قليلاً للقراءة */
+    }
 }
-
-
-
-
-
-
-
-/* consumption style */
-
-body.consumption-page {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: -1.5rem;
-}
-
-.consumption-page .container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
-
-
-
-
-.consumption-page h1 {
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #111;
-}
-
-.consumption-page .subtitle {
-  color: #5fa1fd;
-  margin-bottom: 15px;
-}
-
-/* ================= Tabs ================== */
-
-.consumption-page .tabs-container {
-  position: relative;
-  border-bottom: 2px solid #ccc;
-  margin-bottom: 20px;
-}
-
-.consumption-page .tabs {
-  display: flex;
-  gap: 20px;
-  position: relative;
-}
-
-.consumption-page .tab {
-  cursor: pointer;
-  font-weight: bold;
-  padding: 10px 0;
-  font-size: 15px;
-  color: #555;
-  position: relative;
-  background: none;
-  border: none;
-  outline: none;
-}
-
-.consumption-page .tab.active {
-  color: #000;
-}
-
-.consumption-page .tabs-underline {
-  position: absolute;
-  bottom: -2px;
-  height: 3px;
-  width: 40px;
-  background-color: #007bff;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-
-/* ================= General ================== */
-
-.consumption-page .tab-content {
-  margin-top: 30px;
-}
-
-
-.consumption-page .date-section {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.consumption-page .date-input {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.consumption-page .date-input label {
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-
-.consumption-page .date-input input[type="date"] {
-  padding: 12px 14px;
-  border: 1.5px solid #000;
-  border-radius: 8px;
-  font-size: 14px;
-  text-align: center;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  color: #000;
-}
-
-.consumption-page .generate-container {
-  text-align: center;
-  margin-top: 10px;
-  margin-bottom: 30px;
-}
-
-.consumption-page .generate-btn {
-  background-color: #007bff;
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 25px;
-  font-size: 15px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.consumption-page .generate-btn .icon {
-  font-size: 18px;
-}
-
-.consumption-page .section {
-  margin-top: 30px;
-}
-
-.consumption-page .card {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 1.5rem;
-}
-
-.consumption-page .metric-title {
-  color: #000;
-  font-size: 20px;
-}
-
-.consumption-page .metric-value {
-  font-size: 26px;
-  margin: 2px 0;
-  font-weight: bold;
-}
-
-.consumption-page .metric-change.green {
-  color: #0a0;
-  font-weight: bold;
-}
-
-.consumption-page canvas {
-  margin-top: 20px;
-  width: 100% !important;
-  height: auto !important;
-}
-
-.consumption-page .icon-animated {
-  animation: wigglePause 3s infinite;
-  display: inline-block;
-}
-
-@keyframes wigglePause {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  2% {
-    transform: rotate(3deg);
-  }
-
-  4% {
-    transform: rotate(-3deg);
-  }
-
-  6% {
-    transform: rotate(2deg);
-  }
-
-  8% {
-    transform: rotate(-2deg);
-  }
-
-  10% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-.responsive-logos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  flex-wrap: wrap;
-  /* مهمة لتقسيمهم على سطرين لو الشاشة ضيقة */
-  margin-top: -123px;
-  /* بدل السالب */
-}
-
-.logo-img {
-  max-width: 100px;
-  width: 100%;
-  height: auto;
-}
-
-@media (max-width: 600px) {
-  .logo-img {
-    max-width: 80px;
-  }
-
-  .responsive-logos {
-    gap: 20px;
-  }
-}
-
-/* Reports style */
-
-body.reports-page {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: -1.5rem;
-}
-
-.reports-page .container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
-
-.reports-page h1,
-.reports-page h3 {
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #111;
-}
-
-.reports-page h2 {
-  margin: 27px;
-}
-
-.reports-page .summary-cards .card h3 {
-  font-size: 22px;
-  color: #007bff;
-}
-
-.reports-page .subtext {
-  color: #5fa1fd;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.reports-page .tabs-container {
-  position: relative;
-  border-bottom: 2px solid #ccc;
-  margin-bottom: 20px;
-}
-
-.reports-page .tabs {
-  display: flex;
-  gap: 20px;
-  position: relative;
-}
-
-.reports-page .tab {
-  cursor: pointer;
-  font-weight: bold;
-  padding: 10px 0;
-  font-size: 15px;
-  color: #555;
-  position: relative;
-  background: none;
-  border: none;
-  outline: none;
-}
-
-.reports-page .tab.active {
-  color: #000;
-}
-
-.reports-page .tabs-underline {
-  position: absolute;
-  bottom: -2px;
-  height: 3px;
-  width: 40px;
-  background-color: #007bff;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.reports-page .summary-cards {
-  display: flex;
-  gap: 20px;
-  margin: 27px;
-}
-
-.reports-page #reportTitle {
-  margin-bottom: 30px;
-  margin-top: 40px;
-  margin-left: 27px;
-  margin-right: 27px;
-}
-
-.reports-page .card {
-  background: #f9f9f9;
-  padding: 50px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.reports-page .card h3 {
-  font-size: 14px;
-  color: #666;
-}
-
-.reports-page .card p {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.reports-page #chart-container {
-  width: 98%;
-  height: 430px;
-  margin: auto;
-}
-
-.reports-page #reportChart {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.reports-page table {
-  width: 98%;
-  border-collapse: collapse;
-  background-color: white;
-  margin: 30px;
-  border: 2px solid #000;
-}
-
-.reports-page thead {
-  background-color: #007bff;
-  color: white;
-  border: 2px solid #000;
-  border-radius: 5px;
-}
-
-.reports-page th,
-.reports-page td {
-  padding: 12px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-
-.reports-page tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-.reports-page .hidden {
-  display: none;
-}
-
-.reports-page .icon-animated {
-  animation: pulse 1.5s infinite;
-}
-
-
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.2);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@media (max-width: 768px) {
-  .consumption-page .date-section {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .consumption-page .generate-btn {
-    width: 100%;
-    font-size: 16px;
-    padding: 12px 0;
-  }
-
-  .reports-page .summary-cards {
-    flex-direction: column;
-    margin: 15px;
-  }
-
-  .reports-page table {
-    font-size: 12px;
-    margin: 15px;
-  }
-
-  .reports-page .card {
-    margin-bottom: 15px;
-    padding: 10px;
-  }
-}
-
-
-/* --- إعدادات الخطوط والألوان الأساسية --- */
+/* ================================ */
+/* ======== Settings page =========*/
+/* ================================ */
 :root {
     --neon-cyan: #00f3ff;
     --neon-pink: #bc13fe;
@@ -2764,7 +2582,7 @@ body {
 /* --- العناوين والأيقونات --- */
 /* 1. تعديل الحاوية (H1) لترتيب العناصر عمودياً */
 /* --- 1. تعديل الحاوية (H1) لترتيب العناصر بجانب بعضها --- */
-.card-header h1 {
+.settings-page .card-header h1 {
     font-size: 2.2rem;
     font-weight: 700;
     margin-bottom: 2rem;
@@ -2780,7 +2598,7 @@ body {
 }
 
 /* --- 2. تنسيق الصورة (تقليل الإضاءة) --- */
-.card-header h1 img.icon-animated {
+.settings-page .card-header h1 img.icon-animated {
     width: 80px; /* تصغير الحجم قليلاً ليناسب الوضع الجانبي */
     height: auto;
     margin-bottom: 0; /* إزالة المسافة السفلية */
@@ -2793,14 +2611,14 @@ body {
 }
 
 
-.section-header {
+.settings-page .section-header {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 1rem;
 }
 
-.section-header h3 {
+.settings-page .section-header h3 {
     margin: 0;
     font-size: 1.2rem;
     color: var(--neon-cyan);
@@ -2809,33 +2627,34 @@ body {
 }
 
 /* تجاوز الألوان المكتوبة داخل HTML للأيقونات لتناسب الثيم */
-.section-header i {
+.settings-page .section-header i {
     color: var(--neon-pink) !important; 
     filter: drop-shadow(0 0 5px var(--neon-pink));
 }
 
-label {
+.settings-page label {
     display: block;
     margin-bottom: 0.8rem;
     color: #a0a0c0;
     font-size: 0.95rem;
 }
-.section i{
+.settings-page .section i{
     color: var(--neon-cyan) !important; 
 }
-.input-group {
-    display: flex;
-    align-items: center;
-    background: transparent; /* إزالة الخلفية */
-    border: none;            /* إزالة الحدود */
-    box-shadow: none;        /* إزالة الظل */
-    padding: 0;
-    margin-bottom: 1.5rem;
+.settings-page .input-group {
+    display: flex !important;
+    flex-direction: row !important; /* ترتيب العناصر بجانب بعض */
+    align-items: center !important;
+    gap: 15px !important; 
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 /* 2. حقل الكتابة: هو الذي سيأخذ شكل "قوس قزح" */
 /* حقل الكتابة بتدرج الألوان المطابق للصورة */
-.input-group input[type="text"] {
+.settings-page .input-group input[type="text"] {
     flex: 1;
     /* width: 100%;
     max-width: 500px; */
@@ -2875,8 +2694,8 @@ label {
 }
 
 /* تأثير عند الوقوف بالماوس أو الضغط لزيادة السطوع */
-.input-group input[type="text"]:focus, 
-.input-group input[type="text"]:hover {
+.settings-page .input-group input[type="text"]:focus, 
+.settings-page .input-group input[type="text"]:hover {
     background: linear-gradient(
         110deg, 
         rgba(0, 243, 255, 0.25) 0%, 
@@ -2888,12 +2707,12 @@ label {
 }
 
 /* لون نص الـ Placeholder ليكون متناسقاً */
-.input-group input[type="text"]::placeholder {
+.settings-page .input-group input[type="text"]::placeholder {
     color: rgba(255, 255, 255, 0.4);
 }
 
 /* 3. الزر: مفصول ومستقل */
-.input-group button {
+.settings-page .input-group button {
     margin-left: 15px; /* هذه المسافة هي التي تخرج الزر بره الـ Input */
     
     background: linear-gradient(135deg, #00c6ff, #0072ff);
@@ -2913,13 +2732,13 @@ label {
     white-space: nowrap;
 }
 
-.input-group button:hover {
+.settings-page .input-group button:hover {
     transform: translateY(-2px);
     box-shadow: 0 0 25px rgba(0, 198, 255, 0.8);
 }
 /* معلومات الطاقة الحالية */
 /* 1. الحاوية الأب (لترتيب العناصر بجانب بعض) */
-.info-row {
+.settings-page .info-row {
     display: flex;
     align-items: center;
     gap: 15px; /* مسافة بين العنوان والرقم */
@@ -2928,7 +2747,7 @@ label {
 }
 
 /* 2. تنسيق العنوان (Current Power Limit) */
-.info-label {
+.settings-page .info-label {
     color: #e0e0e0; /* أبيض هادئ */
     font-size: 1.1rem;
     font-family: sans-serif;
@@ -2939,7 +2758,7 @@ label {
 
 /* 3. تنسيق الصندوق الذي يحتوي الرقم (الشريحة) */
 /* --- 1. تنسيق الحاوية (بدون خلفية هنا) --- */
-.info-value-box { 
+.settings-page .info-value-box { 
     position: relative; /* ضروري عشان الخلفية تثبت جواه */
     width: 100%;  
     max-width: 220px;
@@ -2960,7 +2779,7 @@ label {
 }
 
 /* --- 2. عنصر الخلفية الشفاف (الحل السحري) --- */
-.info-value-box::before {
+.settings-page .info-value-box::before {
     content: "";
     position: absolute;
     top: 0;
@@ -2981,8 +2800,8 @@ label {
 }
 
 /* --- 3. تنسيق النص (عشان يفضل ساطع) --- */
-.info-value-box span,
-.info-value-box {
+.settings-page .info-value-box span,
+.settings-page .info-value-box {
     color: #00f3ff;
     font-family: 'Orbitron', sans-serif;
     font-size: 1.2rem;
@@ -2992,7 +2811,7 @@ label {
 }
 
 /* --- الفواصل --- */
-.separator {
+.settings-page .separator {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
     margin: 2rem 0;
@@ -3000,7 +2819,7 @@ label {
 
 /* --- عداد الوقت (Timer Display) --- */
 /* --- 1. تنسيق الحاوية الأفقية (لضبط المسافات بين الأشرطة) --- */
-.time-row {
+.settings-page .time-row {
     display: flex;
     justify-content: space-between; /* توزيع متساوي */
     gap: 20px; /* مسافة واضحة بين كل شريط والآخر */
@@ -3009,73 +2828,82 @@ label {
 }
 
 /* --- 2. تنسيق العمود (يحتوي الشريط والكلمة تحته) --- */
-.time-col {
-    flex: 1; /* يجعل الأعمدة تأخذ مساحات متساوية */
+.settings-page .time-col {
+    position: relative; /* ضروري جداً لتثبيت الخلفية */
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* زودي هذا السطر لضمان أن الخلفية لا تخرج عن الحدود */
+    isolation: isolate; 
 }
-/* استدعاء خط Digital-7 (خط الأرقام المقطعة) */
-
-/* --- 3. تنسيق شريط الإدخال (Input Bar) --- */
-.time-col input {
-    /* 1. المقاسات المثالية (نسبة وتناسب مع شكل الشريط) */
-    width: 100%;       /* يأخذ عرض العمود المتاح */
-    max-width: 400px;  /* يمنع الشريط من أن يصبح عريضاً جداً في الشاشات الكبيرة */
-    height: 100%;      /* ارتفاع مناسب جداً للنصوص الرقمية */
-    min-height: 123px; /* يمنع ارتفاع الشريط من أن يصبح كبيراً جداً */
-    /* 2. الخلفية (كما هي) */
-    background-image: url("images/input.png");
-    opacity: 0.55 !important; /* تقليل الإضاءة */
-    background-size: 100% 100%; 
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: transparent;
+/* هذا الجزء هو صورة الخلفية الشفافة */
+.settings-page .time-col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    /* نضبط العرض والارتفاع ليتطابق مع حجم الانبوت */
+    width: 100%;
+    max-width: 400px; /* نفس عرض الانبوت */
+    height: 123px;    /* نفس ارتفاع الانبوت */
     
-    /* 3. إزالة الحدود */
+    /* صورة الخلفية */
+    background-image: url("images/input.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    /* --- هنا تتحكمين في شفافية الخلفية فقط --- */
+    opacity: 0.6; /* غيري الرقم ده براحتك (من 0 لـ 1) */
+    /* -------------------------------------- */
+    
+    z-index: -1; /* لجعلها خلف الأرقام */
+}
+.settings-page .time-col input {
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    min-height: 123px;
+    
+    /* جعل خلفية الانبوت نفسه شفافة لأننا وضعنا الصورة وراءه خلاص */
+    background: transparent !important; 
+    
+    /* --- هنا نجعل النص والأرقام واضحة تماماً --- */
+    opacity: 1 !important; 
+    color: #00f3ff !important;
+    /* ---------------------------------------- */
+
     border: none;
     outline: none;
     box-shadow: none;
     
-    /* 4. تنسيق الأرقام */
-    color: #00f3ff;
-    font-family: 'Orbitron', sans-serif !important; 
-    font-size: 2rem !important; /* حجم متناسق */
-    font-weight: 500 !important;   /* جعل الخط أنحف لتقليل الـ Bold */
-    letter-spacing: 2px;           /* مسافة واسعة بين الأرقام لتعطي شكل التقسيم */
-    text-align: center;
-    padding-bottom: 20px !important; /* زودي هذا الرقم لرفع النص أكثر */
-    padding-top: 0 !important;    /* ضعي رقم أقل هنا */
-    
-    /* مهم جداً: لضمان أن الـ padding لا يغير حجم الصندوق */
-    box-sizing: border-box !important;
-    text-align: center;
-    pointer-events: none;
     font-family: 'Digital-7', monospace !important;
-   
-  
-    line-height: normal !important;
-    /* إزالة الـ Padding لأنه قد يزيح النص */
-    padding: 0; 
-    
-    /* التوهج */
-    text-shadow: 0 0 15px rgba(0, 243, 255, 0.8);
+    font-size: 3rem !important; /* حجم كبير وواضح */
+    font-weight: 500 !important;
+    letter-spacing: 2px;
+    text-align: center;
+    padding-bottom: 20px !important;
+    padding-top: 0 !important;
+    box-sizing: border-box !important;
     pointer-events: none;
-}
-.time-col input:disabled,
-.time-col input[disabled],
-.time-col input::placeholder {
-    color: #00f3ff !important;
-    -webkit-text-fill-color: #00f3ff !important;
-    opacity: 1 !important;
-    font-size: 3rem !important;
-    /* توهج خفيف لكي لا يسيح الخط على بعضه */
-    text-shadow: 0 0 8px rgba(0, 243, 255, 0.5) !important;
-    background-color: transparent !important;
+    
+    /* توهج النص ليصبح ساطعاً فوق الخلفية الشفافة */
+    text-shadow: 
+        0 0 10px rgba(0, 243, 255, 1),
+        0 0 20px rgba(0, 243, 255, 0.8) !important;
 }
 
+/* ضمان بقاء الأرقام ساطعة حتى في وضع Disabled */
+.settings-page .time-col input:disabled,
+.settings-page .time-col input[disabled],
+.settings-page .time-col input::placeholder {
+    opacity: 1 !important; /* تأكيد أن النص لا يشف */
+    color: #00f3ff !important;
+    -webkit-text-fill-color: #00f3ff !important;
+    background-color: transparent !important;
+}
 /* --- 4. تنسيق الكلمة أسفل الشريط (Hours, Minutes...) --- */
-.time-col .label {
+.settings-page .time-col .label {
     margin-top: -30px;
     color: #a0a0c0; /* لون رمادي فاتح */
     font-size: 0.8rem;
@@ -3085,7 +2913,7 @@ label {
 }
 
 /* --- تنسيق الزر الأزرق المتوهج (بدون خطوط جانبية) --- */
-.btn-submit {
+.settings-page .btn-submit {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -3129,7 +2957,7 @@ label {
 }
 
 /* --- تأثير عند الوقوف عليه (زيادة التوهج) --- */
-.btn-submit:hover {
+.settings-page .btn-submit:hover {
     /* زيادة قوة التدرج الداخلي والخارجي */
     box-shadow: 
         inset 0 0 25px rgba(0, 243, 255, 0.7),
@@ -3140,21 +2968,21 @@ label {
 }
 
 /* --- تأثير الضغط --- */
-.btn-submit:active {
+.settings-page .btn-submit:active {
     transform: translateY(1px); /* ينزل للأسفل كأنه انضغط */
     box-shadow: 
         inset 0 2px 10px rgba(255, 255, 255, 0.4),
         0 0 10px rgba(0, 243, 255, 0.6);
 }
 /* --- أزرار التحكم عن بعد (Remote Control) --- */
-.remote-buttons {
+.settings-page .remote-buttons {
     display: flex;
     justify-content: center;
     gap: 30px;
     padding: 1rem 0;
 }
 
-.state-btn {
+.settings-page .state-btn {
     background: transparent;
     border: 2px solid;
     border-radius: 50px;
@@ -3169,26 +2997,26 @@ label {
 }
 
 /* زر التشغيل (ON) - أزرق سماوي */
-#on-btn {
+.settings-page #on-btn {
     border-color: var(--neon-cyan);
     color: #fff;
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
 }
 
-#on-btn:hover {
+.settings-page #on-btn:hover {
     background: var(--neon-cyan);
     color: #000;
     box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
 }
 
 /* زر الإيقاف (OFF) - أحمر */
-#off-btn {
+.settings-page #off-btn {
     border-color: var(--neon-red);
     color: #fff;
     box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
 }
 
-#off-btn:hover {
+.settings-page #off-btn:hover {
     background: var(--neon-red);
     color: #fff;
     box-shadow: 0 0 30px rgba(255, 0, 85, 0.6);
@@ -3200,7 +3028,7 @@ label {
         padding: 1.5rem;
     }
     
-    .input-group {
+    .settings-page .input-group {
         flex-direction: column;
         background: none;
         border: none;
@@ -3208,7 +3036,7 @@ label {
         padding: 0;
     }
     
-    .input-group input[type="text"] {
+    .settings-page .input-group input[type="text"] {
         background: rgba(255,255,255,0.1);
         width: 100%;
         border-radius: 8px;
@@ -3216,27 +3044,28 @@ label {
         border: 1px solid rgba(255,255,255,0.1);
     }
     
-    .input-group button {
+    .settings-page .input-group button {
         width: 100%;
         margin-left: 0;
     }
 
-    .remote-buttons {
+    .settings-page .remote-buttons {
         flex-direction: column;
         gap: 15px;
     }
 
-    .time-row {
+    .settings-page .time-row {
         gap: 8px;
     }
     
-    .time-col input {
+    .settings-page .time-col input {
         font-size: 1.5rem;
         padding: 10px 0;
     }
 }
-
-/* --- إعدادات عامة --- */
+/* ================================ */
+/* ========= Contact page ==========*/
+/* ================================ */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #fff;
@@ -3258,7 +3087,7 @@ body {
 }
 
 /* --- الكارت الزجاجي الكبير (الإطار الرئيسي) --- */
-.glass-card { /* حدود سماوي خفيفة */
+.contact-page .glass-card { /* حدود سماوي خفيفة */
     border-radius: 20px;
     width: 100% !important;
     max-width: 100% !important;
@@ -3286,7 +3115,7 @@ body {
 }
 
 /* تأثير خطوط التكنولوجيا في الخلفية (اختياري لجماليات أكثر) */
-.glass-card::before {
+.contact-page .glass-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -3297,21 +3126,21 @@ body {
 }
 
 /* --- نظام الشبكة (Grid Layout) --- */
-.grid-layout {
+.contact-page .grid-layout {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr; /* اليسار أعرض قليلاً من اليمين */
     gap: 50px;
 }
 
 @media (max-width: 900px) {
-    .grid-layout {
+    .contact-page .grid-layout {
         grid-template-columns: 1fr; /* عمود واحد للموبايل */
         gap: 30px;
     }
 }
 
 /* --- القسم الأيسر (الفورم) --- */
-.left-section h1 {
+.contact-page .left-section h1 {
     display: flex;
     align-items: center;
     font-size: 2rem;
@@ -3319,32 +3148,32 @@ body {
     margin-bottom: 10px;
 }
 
-.icon-title {
-    width: 35px;
+.contact-page .icon-title {
+    width: 55px;
     margin-right: 10px;
     filter: drop-shadow(0 0 5px #00f3ff);
 }
 
-.subtitle {
+.contact-page .subtitle {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 30px;
     font-size: 0.95rem;
 }
 
 /* حقول الإدخال */
-.form-group {
+.contact-page .form-group {
     margin-bottom: 20px;
 }
 
-.form-group label {
+.contact-page .form-group label {
     display: block;
     color: #fff;
     margin-bottom: 8px;
     font-size: 0.9rem;
 }
 
-.form-group input,
-.form-group textarea {
+.contact-page .form-group input,
+.contact-page .form-group textarea {
     width: 100%;
     background: rgba(0, 243, 255, 0.05); /* خلفية شفافة سماوي */
     border: 1px solid rgba(0, 243, 255, 0.3); /* حدود سماوي */
@@ -3359,25 +3188,25 @@ body {
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.contact-page .form-group input:focus,
+.contact-page .form-group textarea:focus {
     border-color: #00f3ff;
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
     background: rgba(0, 243, 255, 0.1);
 }
 
-.form-group textarea {
+.contact-page .form-group textarea {
     resize: none;
 }
 
 /* زر الإرسال */
-.submit-container {
+.contact-page .submit-container {
     text-align: center;
     margin-top: 10px;
 }
 
 /* --- زر إرسال الرسالة (تصميم النيون الزجاجي) --- */
-.submit-btn {
+.contact-page .submit-btn {
     /* 1. الحجم والمحاذاة */
     display: inline-flex;
     justify-content: center;
@@ -3419,7 +3248,7 @@ body {
 }
 
 /* --- تأثير عند الوقوف بالماوس (Hover) --- */
-.submit-btn:hover {
+.contact-page .submit-btn:hover {
     /* زيادة التوهج بشكل كبير */
     box-shadow: 
         0 0 25px rgba(0, 243, 255, 0.8), /* توهج خارجي قوي */
@@ -3436,14 +3265,14 @@ body {
 }
 
 /* --- تأثير الضغط (Active) --- */
-.submit-btn:active {
+.contact-page .submit-btn:active {
     transform: translateY(1px);
     box-shadow: 
         0 0 5px rgba(0, 243, 255, 0.6),
         inset 0 0 5px rgba(0, 243, 255, 0.4);
 }
 /* --- القسم الأيمن (المعلومات) --- */
-.right-section {
+.contact-page .right-section {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -3452,7 +3281,7 @@ body {
 }
 
 @media (max-width: 900px) {
-    .right-section {
+    .contact-page .right-section {
         border-left: none;
         border-top: 1px solid rgba(0, 243, 255, 0.1);
         padding-left: 0;
@@ -3468,7 +3297,7 @@ body {
     justify-content: flex-end; /* اللوجوهات على اليمين */
 }
 
-.logo-circle {
+.contact-page .logo-circle {
     width: 120px;
     height: 120px;
     border-radius: 50%;
@@ -3476,7 +3305,7 @@ body {
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
 }
 
-.logo-triangle {
+.contact-page .logo-triangle {
     width: 120px;
     height: 120px;
     /* يمكنك إضافة تنسيق خاص للمثلث لو أردت */
@@ -3484,29 +3313,29 @@ body {
 }
 
 /* معلومات الاتصال */
-.info-content h2 {
+.contact-page .info-content h2 {
     color: #00f3ff;
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
 
-.info-item {
+.contact-page .info-item {
     margin-bottom: 25px;
 }
 
-.info-item .label {
+.contact-page .info-item .label {
     color: #ccc;
     font-size: 0.9rem;
     margin-bottom: 5px;
 }
 
-.value-box {
+.contact-page .value-box {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.value-box i {
+.contact-page .value-box i {
     color: #00f3ff;
     font-size: 1.2rem;
     background: rgba(0, 243, 255, 0.1);
@@ -3515,29 +3344,31 @@ body {
     border: 1px solid rgba(0, 243, 255, 0.3);
 }
 
-.value-box a {
+.contact-page .value-box a {
     color: #fff;
     text-decoration: none;
     font-size: 1rem;
     transition: 0.3s;
 }
 
-.value-box a:hover {
+.contact-page .value-box a:hover {
     color: #00f3ff;
     text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
 }
 
 /* التذييل (Footer) */
-.footer-note {
+.contact-page .footer-note {
     margin-top: auto; /* يدفعه للأسفل */
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.5);
     text-align: right;
     line-height: 1.5;
 }
+/* ========================================= */
+/* About-us page */
+/* ========================================= */
 
-/* === About Page Styles === */
-.about-container {
+.about-page .about-container {
     /* --- توحيد الحجم مع باقي الصفحات --- */
     max-width: 1400px !important; /* كان 1200px، جعلناه 1400px */
     width: 100%; /* لضمان أنه يملأ المساحة المتاحة حتى يصل للحد الأقصى */
@@ -3558,7 +3389,7 @@ body {
 /* === تنسيق جزء العنوان (Header) بدون تعديل HTML === */
 
 /* 1. العنوان الرئيسي About Us */
-.about-title {
+.about-page .about-title {
     display: flex;       /* لترتيب الأيقونة والنص في سطر واحد */
     justify-content: center; /* توسيط أفقي */
     align-items: center;     /* محاذاة عمودية */
@@ -3570,31 +3401,21 @@ body {
     margin-bottom: 10px; /* مسافة بسيطة فوق الوصف */
     
     /* توهج النص */
-    text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
-}
-
-/* 2. إضافة الأيقونة سحرياً باستخدام CSS (شكل المجموعة/الفريق) */
-.about-title::before {
-    content: "\f0c0";    /* كود أيقونة "Users" من مكتبة FontAwesome */
-    font-family: "Font Awesome 6 Free"; /* ضروري لظهور الأيقونة */
-    font-weight: 900;
-    
-    color: #00f3ff;      /* لون سماوي نيون */
-    font-size: 2.2rem;   /* حجم متناسق مع النص */
-    
-    /* توهج قوي للأيقونة لتبدو مضيئة */
-    filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.8));
+     text-shadow:
+        0 0 8px rgba(255,255,255,0.6),
+        0 0 18px rgba(0,200,255,0.7),
+        0 0 35px rgba(99,102,241,0.8);
 }
 
 /* 3. تنسيق العنوان الفرعي (Subtitle) */
 /* نستهدف الـ h3 والـ p الموجودين في الـ HTML الحالي */
-h3 {
+.about-page h3 {
     text-align: center;
     margin-top: 0;
     margin-bottom: 40px; /* مسافة تفصل العنوان عن صور الفريق */
 }
 /* تنسيق اللوجوهات في الهيدر */
-.header-logo {
+.about-page .header-logo {
     position: absolute; /* عشان نقدر نحركهم يمين وشمال */
     top: 18px;          /* المسافة من فوق */
     width: 120px;       /* حجم اللوجو */
@@ -3611,23 +3432,23 @@ h3 {
 }
 
 /* تحديد مكان اللوجو الأيسر */
-.logo-left {
+.about-page .logo-left {
     left: 42px; 
     /* لو عايزه تقربيه، غيري 18px لـ نسبة مئوية زي: left: 15%; */
 }
 
 /* تحديد مكان اللوجو الأيمن */
-.logo-right {
+.about-page .logo-right {
     right: 42px;
     /* لو عايزه تقربيه، غيري 18px لـ نسبة مئوية زي: right: 15%; */
 }
 
 /* (اختياري) زيادة التوهج عند مرور الماوس */
-.header-logo:hover {
+.about-page .header-logo:hover {
     box-shadow: 0 0 35px rgba(0, 243, 255, 1);
     transform: scale(1.05);
 }
-.about-subtitle {
+.about-page .about-subtitle {
     display: inline-block; /* لضبط العرض */
     color: #94a3b8;      /* لون رمادي فاتح مريح للعين */
     font-size: 1.1rem;
@@ -3636,7 +3457,7 @@ h3 {
     line-height: 1.5;
     margin-top: 55px; /* توسيط النص وإضافة مسافة من تحت */
 }
-.about-top-team-row {
+.about-page .about-top-team-row {
     display: flex;
     justify-content: center;
     /* زودي الرقم ده عشان تبعديهم عن بعض */
@@ -3648,8 +3469,8 @@ h3 {
 
 /* === 1. تحويل الكروت إلى ألواح زجاجية تكنولوجية === */
 /* === 1. تنسيق الكارد ليقوم بتوسيط المحتوى === */
-.about-top-frame,
-.about-member-card {
+.about-page .about-top-frame,
+.about-page .about-member-card {
     /* تفعيل نظام Flexbox */
     display: flex !important;
     flex-direction: column !important; /* ترتيب العناصر عمودياً (فوق بعض) */
@@ -3669,8 +3490,8 @@ h3 {
 }
 
 /* === 2. تنسيق الصورة لضمان عدم انحرافها === */
-.about-top-frame img,
-.about-member-card img {
+.about-page .about-top-frame img,
+.about-page .about-member-card img {
     display: block !important;
     margin-left: auto !important;  /* دفع الصورة للمنتصف من اليسار */
     margin-right: auto !important; /* دفع الصورة للمنتصف من اليمين */
@@ -3691,8 +3512,8 @@ h3 {
         0 0 30px #00f3ff !important;
 }
 /* تأثير عند الوقوف على الكارد */
-.about-top-frame:hover,
-.about-member-card:hover {
+.about-page .about-top-frame:hover,
+.about-page .about-member-card:hover {
     transform: translateY(-5px) scale(1.02);
     border-color: #00f3ff !important;
     box-shadow: 
@@ -3702,7 +3523,7 @@ h3 {
 
 /* === 2. تصميم الصور (الحلقات التكنولوجية) === */
 /* === تنسيق عنوان Team Members في المنتصف === */
-.about-section {
+.about-page .about-section {
     display: block !important;    /* 1. يجعل العنصر يأخذ عرض الصفحة بالكامل */
     text-align: center !important; /* 2. يقوم بتوسيط النص والخطوط داخله */
     width: 100%;                  /* ضمان أخذ العرض الكامل */
@@ -3721,8 +3542,8 @@ h3 {
 
 
 /* دوران بسيط للحلقات عند الهوفر يعطي شكل تكنولوجي */
-.about-top-frame:hover img,
-.about-member-card:hover img {
+.about-page .about-top-frame:hover img,
+.about-page .about-member-card:hover img {
     box-shadow: 
         0 0 0 2px rgba(15, 23, 42, 0.8),
         0 0 0 4px #00f3ff,
@@ -3733,8 +3554,8 @@ h3 {
 /* === 3. تنسيق النصوص لتطابق الصورة === */
 
 /* الاسم (أبيض وعريض) */
-.about-top-name,
-.about-member-name {
+.about-page .about-top-name,
+.about-page .about-member-name {
     color: #ffffff !important;
     font-size: 1.1rem;
     font-weight: 700;
@@ -3745,8 +3566,8 @@ h3 {
 }
 
 /* الوظيفة (سماوي ومائل) */
-.about-top-title,
-.about-member-role {
+.about-page .about-top-title,
+.about-page .about-member-role {
     color: #00f3ff !important; /* لون النيون */
     font-size: 0.9rem;
     font-style: italic; /* مائل كما في الصورة */
@@ -3756,7 +3577,7 @@ h3 {
 }
 
 /* === 4. عنوان "Team Members" === */
-.about-section {
+.about-page .about-section {
     position: relative;
     display: inline-block;
     font-size: 1.8rem;
@@ -3768,7 +3589,7 @@ h3 {
 
 
 /* === تنسيق شبكة الأعضاء (Layout 2 top, 3 bottom) === */
-.about-members-grid {
+.about-page .about-members-grid {
     display: grid;
     /* إنشاء 6 أعمدة متساوية للتحكم الدقيق في التوزيع */
     grid-template-columns: repeat(6, 1fr); 
@@ -3781,24 +3602,24 @@ h3 {
 
 /* --- الصف الأول: كارتين فقط --- */
 /* نستهدف الكارت رقم 1 ورقم 2 */
-.about-member-card:nth-child(1),
-.about-member-card:nth-child(2) {
+.about-page .about-member-card:nth-child(1),
+.about-page .about-member-card:nth-child(2) {
     grid-column: span 3; /* كل واحد يحتل 3 أعمدة (نصف العرض) */
 }
 
 /* --- الصف الثاني: 3 كروت --- */
 /* نستهدف الكارت رقم 3 و 4 و 5 */
-.about-member-card:nth-child(3),
-.about-member-card:nth-child(4),
-.about-member-card:nth-child(5) {
+.about-page .about-member-card:nth-child(3),
+.about-page .about-member-card:nth-child(4),
+.about-page .about-member-card:nth-child(5) {
     grid-column: span 2; /* كل واحد يحتل عمودين (ثلث العرض) */
 }
 
 /* --- الخطوط العمودية الموصلة للكروت (Connectors) --- */
 
 /* نستهدف الكارت الأول والثاني في الشبكة */
-.about-members-grid .about-member-card:nth-child(1)::before,
-.about-members-grid .about-member-card:nth-child(2)::before {
+.about-page .about-members-grid .about-member-card:nth-child(1)::before,
+.about-page .about-members-grid .about-member-card:nth-child(2)::before {
     content: '';
     position: absolute;
     /* تحديد مكان بداية الخط (من منتصف الكارد من الأعلى) */
@@ -3817,8 +3638,8 @@ h3 {
 }
 
 /* إضافة "نقطة لحام" مضيئة عند اتصال الخط بالكارد (اختياري لجماليات أكثر) */
-.about-members-grid .about-member-card:nth-child(1)::after,
-.about-members-grid .about-member-card:nth-child(2)::after {
+.about-page .about-members-grid .about-member-card:nth-child(1)::after,
+.about-page .about-members-grid .about-member-card:nth-child(2)::after {
     content: '';
     position: absolute;
     top: -6px; /* على حافة الكارد العلوية */
@@ -3832,20 +3653,20 @@ h3 {
 }
 
 /* تأكيد أن الكروت نسبية لكي تظهر الخطوط فوقها بشكل صحيح */
-.about-member-card {
+.about-page .about-member-card {
     position: relative;
     /* ... باقي تنسيقات الكارد السابقة ... */
 }
 
 /* === 1. حذف الخطوط العمودية من الكروت (Reset) === */
-.about-members-grid .about-member-card::before,
-.about-members-grid .about-member-card::after {
+.about-page .about-members-grid .about-member-card::before,
+.about-page .about-members-grid .about-member-card::after {
     content: none !important;
     display: none !important;
 }
 
 /* === 2. تصميم الخط الأفقي مع الدائرة بجانب الكلمة === */
-.about-section {
+.about-page .about-section {
     /* تفعيل Flexbox لضبط الخطوط بجانب الكلمة */
     display: flex !important;
     align-items: center;
@@ -3863,8 +3684,8 @@ h3 {
 }
 
 /* تنسيق الخطوط والدوار */
-.about-section::before,
-.about-section::after {
+.about-page .about-section::before,
+.about-page .about-section::after {
     content: '';
     display: block;
     height: 12px; /* ارتفاع المنطقة (على قد حجم الدائرة) */
@@ -3874,7 +3695,7 @@ h3 {
 }
 
 /* --- الخط الأيسر (خط ثم دائرة) --- */
-.about-section::before {
+.about-page .about-section::before {
     /* رسمنا الدائرة والخط باستخدام الخلفيات المتدرجة */
     background-image: 
         radial-gradient(circle, #00f3ff 5px, transparent 6px), /* الدائرة (نقطة) */
@@ -3889,7 +3710,7 @@ h3 {
 }
 
 /* --- الخط الأيمن (دائرة ثم خط) --- */
-.about-section::after {
+.about-page .about-section::after {
     background-image: 
         radial-gradient(circle, #00f3ff 5px, transparent 6px), /* الدائرة */
         linear-gradient(to left, transparent, #00f3ff); /* الخط */
@@ -3980,4 +3801,404 @@ h3 {
   .responsive-logos {
     display: none;
   }
+}
+/* ========================================= */
+/* Analytics page */
+/* ========================================= */
+/* استيراد خط مناسب للأرقام والعناوين */
+:root {
+    --bg-dark: #050510;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --neon-blue: #00f2ff7e;
+    --neon-purple: #bb13fe98;
+    --neon-pink: #e71f6262;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    /* الخلفية المتدرجة مع الصورة */
+    background-image: radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.15) 0%, transparent 40%),
+        url('{{ url_for("static", filename="images/background.png") }}');
+    background-size: cover;
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: 'Rajdhani', sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* --- Layout & Main Card --- */
+.layout-wrapper {
+    display: flex;
+    justify-content: center; /* هذا السطر هو المسؤول عن التوسيط */
+    width: 100%;             /* لضمان أخذ العرض الكامل للشاشة */
+}
+
+.analytics-page .card {
+    background: rgba(15, 23, 42, 0.276) !important;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+}
+
+/* --- Typography --- */
+.analytics-page h1, h2, h3 {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.analytics-page h1 {
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+}
+
+.analytics-page .title-icon {
+    width: 70px;
+    height: auto;
+    margin-right: 0;
+    vertical-align: middle;
+    filter: drop-shadow(0 0 5px var(--neon-blue));
+    position: relative;
+    top: -3px;
+}
+
+.analytics-page .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: -10px;
+    margin-bottom: 30px;
+}
+
+/* --- Historical Inputs Section --- */
+.analytics-page .filters-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.analytics-page .input-group {
+    position: relative;
+    background: linear-gradient(180deg, rgba(20, 30, 60, 0.29) 0%, rgba(10, 15, 30, 0.34) 100%);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.05), inset 0 0 20px rgba(0, 242, 255, 0.05);
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.analytics-page .input-group:focus-within {
+    border-color: rgba(0, 242, 255, 0.8);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.2), inset 0 0 10px rgba(0, 242, 255, 0.1);
+}
+
+/* خط مضيء أعلى الإنبوت */
+.analytics-page .input-group::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10px; right: 10px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.analytics-page .input-group label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.analytics-page .date-input {
+    background: transparent;
+    border: none;
+    padding: 0;
+    width: 100%;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    outline: none;
+    text-transform: uppercase;
+}
+
+/* تلوين أيقونة التقويم */
+.analytics-page .date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(200%) sepia(1) hue-rotate(180deg) saturate(5);
+    cursor: pointer;
+    opacity: 0.7;
+    width: 20px;
+    height: 20px;
+    transition: 0.2s;
+}
+
+.analytics-page .date-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.analytics-page .search-btn {
+    grid-column: span 2;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    justify-self: center;
+    width: fit-content;
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+    border: none;
+    border-radius: 50px;
+    padding: 10px 30px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+    box-shadow: 
+        inset 0 0 20px rgba(0, 243, 255, 0.5), 
+        inset 0 4px 15px rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(0, 243, 255, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.analytics-page .search-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
+}
+
+/* --- Tabs Section --- */
+.analytics-page .tabs-container {
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 15px;
+}
+
+.analytics-page .tabs {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+.analytics-page .tab {
+    padding: 10px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-main);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: rgba(20, 20, 50, 0.4);
+    border: 1px solid var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.analytics-page .tab:hover {
+    background: rgba(0, 242, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+.analytics-page .tab.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px var(--neon-pink), inset 0 0 10px rgba(255, 0, 85, 0.5);
+    transform: scale(1.05);
+}
+
+/* --- Summary Reports Cards --- */
+.analytics-page .summary-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 35px; /* تم تغيير القيمة من 20px إلى 35px لزيادة التباعد */
+    margin-top: 30px;
+}
+
+.analytics-page .summary-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.analytics-page .summary-panel:hover {
+    transform: translateY(-2px);
+}
+
+/* Layout for panel contents */
+.analytics-page .panel-left, .analytics-page .panel-right {
+    flex: 0 0 160px; /* مساحة واسعة للأيقونات */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.9;
+}
+
+.analytics-page .panel-center {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Typography inside panels */
+.analytics-page .panel-center h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 5px 0;
+}
+
+.analytics-page .panel-center p {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 0 15px currentColor;
+}
+
+/* Panel Images (PNG Icons) */
+.analytics-page .panel-icon {
+    width: 140px; /* الحجم الكبير المطلوب */
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+    transition: transform 0.3s ease;
+}
+
+.analytics-page .summary-panel:hover .panel-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+}
+
+.analytics-page .panel-blue {
+    /* border-left: 4px solid var(--neon-blue); */
+    box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.1);
+}
+.analytics-page .panel-blue .panel-center p { color: var(--neon-blue); }
+
+/* 2. Purple */
+.analytics-page .panel-purple {
+    /* border-left: 4px solid var(--neon-purple); */
+    box-shadow: inset 0 0 20px rgba(188, 19, 254, 0.1);
+}
+.analytics-page .panel-purple .panel-center p { color: var(--neon-purple); }
+
+/* 3. Pink */
+.analytics-page .panel-pink {
+    /* border-left: 4px solid var(--neon-pink); */
+    box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.1);
+}
+.analytics-page .panel-pink .panel-center p { color: #e71faee6; }
+
+/* --- Charts --- */
+.analytics-page canvas {
+    filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.3));
+}
+/* --- حاوية الفلاتر (الكونتينر الرئيسي) --- */
+
+/* --- تنسيق مجموعة الإدخال --- */
+.analytics-page .input-group {
+    width: 100%; /* يضمن أن الحقل يملأ مكانه */
+    min-width: 0; /* حل لمشكلة في Grid تمنع الحقل من التصغير */
+}
+
+
+
+/* ========================================= */
+/* 📱 RESPONSIVE MEDIA QUERIES (للموبايل) */
+/* ========================================= */
+
+@media (max-width: 992px) {
+    /* في التابلت والشاشات المتوسطة: */
+    .filters-bar {
+        /* نجعل الزر ينزل في سطر لوحده، والحقلين بجانب بعض */
+        grid-template-columns: 1fr 1fr; 
+    }
+    
+    .search-btn {
+        grid-column: span 2; /* الزر يأخذ العرض كامل في السطر الثاني */
+    }
+}
+
+@media (max-width: 600px) {
+    /* في الموبايل: */
+    .filters-bar {
+        /* كل عنصر في سطر لوحده (فوق بعض) */
+        grid-template-columns: 1fr; 
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .search-btn {
+        grid-column: span 1; /* الزر يملأ السطر */
+        width: 100%;
+        margin-top: 10px; /* مسافة صغيرة فوق الزر */
+    }
+    
+    /* تصغير حجم الخط قليلاً في الموبايل */
+    .date-input {
+        font-size: 1.1rem; 
+    }
+    
+    .input-group label {
+        font-size: 0.8rem;
+    }
+}
+/* --- Responsive Media Queries --- */
+@media (max-width: 768px) {
+    .filters-bar {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-btn {
+        grid-column: span 1;
+    }
+
+    /* تصغير الأيقونات قليلاً في التابلت */
+    .panel-left, .panel-right {
+        flex: 0 0 70px;
+    }
+    
+    .panel-icon {
+        width: 80px;
+    }
+}
+
+@media (max-width: 600px) {
+    .summary-panel {
+        padding: 15px;
+    }
+    
+    .panel-center p {
+        font-size: 1.8rem;
+    }
+    
+    .panel-icon {
+        width: 60px; /* تصغير مناسب للموبايل */
+    }
 }
