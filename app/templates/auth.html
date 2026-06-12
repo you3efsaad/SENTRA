@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRA - System Access</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+     body {
+        background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+     }
+  </style>
+</head>
+<body class="auth-page">
+
+    <div class="auth-container">
+        <div class="auth-card" id="authCard">
+            
+            <div class="front">
+                <div class="auth-header">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SENTRA Logo">
+                    <h1>SENTRA</h1>
+                    <p>SYSTEM ACCESS SEQUENCE</p>
+                </div>
+                
+                <div id="loginError" class="error-msg"></div>
+                <div id="loginSuccess" class="success-msg"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Email Address" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePasswordVisibility('loginPassword', this)"></i>
+                    </div>
+                    <div class="forgot-container">
+                        <a href="javascript:void(0);" onclick="openResetOverlay()" class="forgot-link">Forgot Password?</a>
+                    </div>     
+                    <button type="submit" class="auth-btn" id="loginBtn">login</button>
+                </form>
+
+                <div class="social-divider">
+                    <span>OR CONNECT WITH</span>
+                </div>
+
+                <div class="social-login-group">
+                    <a href="/login/google" class="social-btn google">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512" class="google-svg">
+                            <defs>
+                                <linearGradient id="googleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#EA4335" />
+                                    <stop offset="33%" stop-color="#FBBC05" />
+                                    <stop offset="66%" stop-color="#34A853" />
+                                    <stop offset="100%" stop-color="#4285F4" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/>
+                        </svg>
+                    </a>
+                    <a href="/login/facebook" class="social-btn facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="/login/linkedin" class="social-btn linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                
+                <div class="toggle-text">
+                    New Operator? <span onclick="toggleAuth()">Register Here</span>
+                </div>
+            </div>
+
+            <div class="back">
+                <div class="auth-header">
+                    <i class="fa-solid fa-user-plus" style="color: #00f3ff; filter: drop-shadow(0 0 10px #00f3ff);"></i>
+                    <h1>REGISTER</h1>
+                    <p>CREATE OPERATOR PROFILE</p>
+                </div>
+                
+                <div id="signupError" class="error-msg"></div>
+
+                <form id="signupForm">
+                    <div class="form-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="signupName" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="Email Address" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                        <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePasswordVisibility('signupPassword', this)"></i>
+                    </div>
+                    <button type="submit" class="auth-btn" id="signupBtn">Register</button>
+                </form>
+
+                <div id="signupOtpSection" style="display: none; width: 100%;">
+                    <div class="form-group" style="margin-top: 10px;">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="text" id="signupOtpCode" placeholder="Enter 6-Digit Code">
+                    </div>
+                    <button type="button" class="auth-btn" id="verifySignupBtn" onclick="verifySignupOTP()">VERIFY CODE</button>
+                    <div class="toggle-text" style="margin-top: 15px;">
+                        <span onclick="cancelSignupOTP()">Cancel Registration</span>
+                    </div>
+                </div>
+
+                <div class="social-divider" id="signupSocialDivider">
+                    <span>OR CONNECT WITH</span>
+                </div>
+
+                <div class="social-login-group" id="signupSocialGroup">
+                    <a href="/login/google" class="social-btn google">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512" class="google-svg">
+                            <defs>
+                                <linearGradient id="googleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#EA4335" />
+                                    <stop offset="33%" stop-color="#FBBC05" />
+                                    <stop offset="66%" stop-color="#34A853" />
+                                    <stop offset="100%" stop-color="#4285F4" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/>
+                        </svg>
+                    </a>
+                    <a href="/login/facebook" class="social-btn facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="/login/linkedin" class="social-btn linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                
+                <div class="toggle-text" id="signupToggleText">
+                    Existing Operator? <span onclick="toggleAuth()">Return to Login</span>
+                </div>
+            </div>
+            
+            <div class="reset-overlay" id="resetOverlay">
+                <div class="auth-header">
+                    <i class="fa-solid fa-shield-halved" style="color: #00f3ff; font-size: 2rem;"></i>
+                    <h1 id="resetTitle">RECOVERY</h1>
+                    <p id="resetSub">INITIALIZE SECURITY SEQUENCE</p>
+                </div>
+
+                <div id="step1">
+                    <div class="form-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="resetEmail" placeholder="Enter Operator Email">
+                    </div>
+                    <button class="auth-btn" onclick="sendOTP()">SEND CODE</button>
+                </div>
+
+                <div id="step2" style="display: none;">
+                    <div class="form-group">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="text" id="otpCode" placeholder="Enter 6-Digit Code">
+                    </div>
+                    <button class="auth-btn" onclick="verifyOTP()">VERIFY CODE</button>
+                </div>
+
+                <div id="step3" style="display: none;">
+                    <div class="form-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="newPass" placeholder="New Password">
+                        <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePasswordVisibility('newPass', this)"></i>
+                    </div>
+                    <button class="auth-btn" onclick="updatePassword()">UPDATE PASSWORD</button>
+                </div>
+
+                <div class="toggle-text">
+                    <span onclick="closeResetOverlay()">Abort Mission</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRA</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
+        }
+    </style>
+</head>
+
+<body class="dashboard-page nav-page">
+    <div class="layout-wrapper">
+
+        {% include "navbar.html" %}
+
+        <div class="page">
+            <div class="card">
+                <div class="esp-tabs-wrapper"
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; width: 100%;">
+
+                    <div id="esp-tabs-list" style="display: flex; gap: 10px; overflow-x: auto;">
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-left: 10px;">
+                        <button class="add-esp-btn" onclick="window.showMyDeviceIDs()" title="Show Hardware IDs"
+                            style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: #f59e0b; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s;">
+                            <i class="fa-solid fa-microchip"></i>
+                        </button>
+
+                        <button class="add-esp-btn" onclick="openSafePowerModal()" title="Add Sub-Device"
+                            style="background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s;">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                </div>
+                <hr
+                    style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); width: 100%; margin-bottom: 25px; margin-top: 10px;">
+                <div class="dashboard">
+
+                    <div class="header-section">
+                        <h1>
+                            <i class="fas fa-chart-pie glowing-icon"></i>
+                            Real-Time Dashboard
+                        </h1>
+                    </div>
+
+
+                    <div
+                        style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; padding: 5px 5px 5px 25px;">
+                        <div
+                            style="color: #94a3b8; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; text-transform: uppercase;">
+                            Energy Efficiency</div>
+
+                        <div style="display: flex; align-items: center; gap: 25px;">
+                            <i class="fa-solid fa-leaf"
+                                style="color: #00eaff; font-size: 2rem; filter: drop-shadow(0 0 10px rgba(0, 234, 255, 0.7));"></i>
+
+                            <div
+                                style="width: 95px; height: 95px; position: relative; display: flex; align-items: center; justify-content: center;">
+                                <div
+                                    style="position: absolute; inset: 0; background: radial-gradient(circle, rgba(0, 234, 255, 0.2) 0%, transparent 75%); border-radius: 50%;">
+                                </div>
+
+                                <svg viewBox="0 0 36 36"
+                                    style="position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); z-index: 1;">
+                                    <path
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="3" />
+                                    <path id="efficiency-ring" stroke-dasharray="0, 100"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none" stroke="url(#headerGradientRing)" stroke-width="3"
+                                        stroke-linecap="round"
+                                        style="transition: stroke-dasharray 1s ease-out; filter: drop-shadow(0 0 6px rgba(0, 234, 255, 0.9));" />
+                                    <defs>
+                                        <linearGradient id="headerGradientRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#00eaff" />
+                                            <stop offset="100%" stop-color="#4ade80" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+
+                                <div id="efficiency-value"
+                                    style="color: #fff; font-size: 1.1rem; font-weight: bold; font-family: 'Orbitron', sans-serif; z-index: 2; text-shadow: 0 0 10px rgba(0, 234, 255, 0.6);">
+                                    0.0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-card-wrapper small-card">
+                        <div class="ai-card-border">
+                            <svg class="ai-border-beam" width="100%" height="100%" viewBox="0 0 1000 500"
+                                preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="beamGradient" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#00eaff" />
+                                        <stop offset="33%" stop-color="#4338ca" />
+                                        <stop offset="66%" stop-color="#8b5cf6" />
+                                        <stop offset="100%" stop-color="#ec4899" />
+                                        <animateTransform attributeName="gradientTransform" type="rotate"
+                                            from="0 500 250" to="360 500 250" dur="2s" repeatCount="indefinite" />
+                                    </linearGradient>
+                                </defs>
+                                <path
+                                    d="M 0 60 L 60 0 L 420 0 L 460 30 L 540 30 L 580 0 L 940 0 L 1000 60 L 1000 440 L 940 500 L 580 500 L 540 470 L 460 470 L 420 500 L 60 500 L 0 440 Z"
+                                    fill="none" stroke="url(#beamGradient)" stroke-width="12" stroke-linecap="round"
+                                    stroke-linejoin="round" pathLength="1" class="ai-beam-path" />
+                            </svg>
+
+                            <div class="ai-card-inner">
+                                <div class="ai-text-content">
+                                    <h3 class="ai-label">Active Device (AI)</h3>
+                                    <div class="ticker-mask">
+                                        <h1 class="ai-status" id="ai-device-name">Idle</h1>
+                                    </div>
+                                    <div class="ai-badge-container">
+                                        <span id="ai-device-status" class="status-badge">Standby</span>
+                                    </div>
+                                </div>
+
+                                <div class="ai-visual-content">
+                                    <img src="{{ url_for('static', filename='images/brain-glow.png') }}" alt="AI Brain"
+                                        class="brain-img">
+                                </div>
+                            </div>
+                            <input type="hidden" id="current-cluster-id">
+                        </div>
+                    </div>
+
+                    <div class="metric-card voltage-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Voltage</div>
+                            <div class="metric-value" id="voltage-value">220 V</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card current-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Current</div>
+                            <div class="metric-value" id="current-value">0.0 A</div>
+                        </div>
+                    </div>
+
+                    <div class="power-card">
+                        <div class="metric-info">
+                            <div class="header-with-icon"
+                                style="display: flex; align-items: center; justify-content: space-between;">
+                                <i class="fas fa-plug metric-icon-small"
+                                    style="color: #f472b6; font-size: 1.5rem; filter: drop-shadow(0 0 5px #f472b6);"></i>
+                                <span class="metric-label">POWER</span>
+                            </div>
+                            <h2 id="livePowerValue" class="metric-value">0 W</h2>
+                            <span id="status-text" class="status-subtext" style="color: #10b981;">● Active</span>
+                        </div>
+
+                        <div class="mini-chart-container">
+                            <canvas id="powerMiniChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card energy-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Energy</div>
+                            <div class="metric-value" id="energy-value">0 kWh</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card cost-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Est. Cost</div>
+                            <div class="metric-value" id="cost-value">0 EGP</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card frequency-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-broadcast-tower"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Frequency</div>
+                            <div class="metric-value" id="frequency-value">0 Hz</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card power_factor-card small-card">
+                        <div class="metric-icon"><i class="fa-solid fa-percent"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-title">Power Factor</div>
+                            <div class="metric-value" id="power_factor-value">0</div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 15px 5px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-wave-square"
+                                style="color: #4ade80; font-size: 1.44rem; filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.4));"></i>
+                            <div
+                                style="color: #94a3b8; font-size: 0.8rem; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; text-transform: uppercase;">
+                                Power Quality</div>
+                        </div>
+
+                        <div id="quality-value"
+                            style="background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80; padding: 8px 24px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.2); margin-right: 25px;">
+                            --</div>
+                    </div>
+
+                    <div class="devices-section-wrapper" id="ai-monitoring-section">
+                        <div class="section-header-row">
+                            <h2 class="section-title">AI Device Monitoring</h2>
+                            <div class="scroll-controls">
+                                <button class="scroll-btn" id="scrollLeft"><i
+                                        class="fa-solid fa-chevron-left"></i></button>
+                                <button class="scroll-btn" id="scrollRight"><i
+                                        class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="devices-scroll-container" id="devicesContainer">
+                            <div class="cyber-card" id="fridge-card">
+                                <div class="cyber-card-inner">
+                                    <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                                        <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+                                    </svg>
+                                    <div class="card-header">
+                                        <span class="device-name">fridge</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="fridge-toggle" disabled>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="card-body">
+                                        <i class="fa-solid fa-snowflake device-icon"></i>
+                                    </div>
+                                    <div class="card-footer">
+                                        <span class="power-value" id="fridge-power">0W</span>
+                                    </div>
+                                    <div class="holo-shine"></div>
+                                </div>
+                            </div>
+
+                            <div class="cyber-card" id="kettle-card">
+                                <div class="cyber-card-inner">
+                                    <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                                        <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+                                    </svg>
+                                    <div class="card-header">
+                                        <span class="device-name">Kettle</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="kettle-toggle" disabled>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="card-body">
+                                        <i class="fa-solid fa-mug-hot device-icon"></i>
+                                    </div>
+                                    <div class="card-footer">
+                                        <span class="power-value" id="kettle-power">0W</span>
+                                    </div>
+                                    <div class="holo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="cyber-card" id="washing_machine-card">
+                                <div class="cyber-card-inner">
+                                    <svg class="bg-wave" viewBox="0 0 300 100" preserveAspectRatio="none">
+                                        <path d="M0,70 C50,90 100,20 150,60 C200,100 250,40 300,50 L300,100 L0,100 Z" />
+                                    </svg>
+                                    <div class="card-header">
+                                        <span class="device-name">Washing Machine</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="washing_machine-toggle" disabled>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="card-body">
+                                        <i class="fa-solid fa-shirt device-icon"></i>
+                                    </div>
+                                    <div class="card-footer">
+                                        <span class="power-value" id="washing_machine-power">0W</span>
+                                    </div>
+                                    <div class="holo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="cyber-card add-new-card" onclick="addNewDeviceUI()"
+                                style="cursor: pointer; opacity: 0.7;">
+                                <div class="cyber-card-inner"
+                                    style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-plus"
+                                        style="font-size: 2.5rem; color: #fff; margin-bottom: 10px;"></i>
+                                    <span style="color: #fff; font-weight: bold;">Add Device</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="deviceModal" class="custom-modal">
+            <div class="modal-content">
+                <div class="modal-icon-top">
+                    <i class="fa-solid fa-plus-glow"></i>
+                </div>
+
+                <h2 class="modal-title">ADD NEW DEVICE</h2>
+                <p class="modal-subtitle">Integrate a new smart component to your system</p>
+
+                <div class="input-container">
+                    <input type="text" id="newDeviceName" placeholder="e.g., Microwave, Iron, TV..." autocomplete="off">
+                    <div class="input-glow"></div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button onclick="closeDeviceModal()" class="btn-cancel">
+                        <span>CANCEL</span>
+                    </button>
+                    <button onclick="confirmAddDevice()" class="btn-confirm">
+                        <span>ADD DEVICE</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="safePowerModal" class="custom-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-icon-top">
+                    <i class="fa-solid fa-plug-circle-bolt"
+                        style="color: #00f3ff; font-size: 2rem; filter: drop-shadow(0 0 10px #00f3ff);"></i>
+                </div>
+                <h2 class="modal-title">ADD SUB-DEVICE</h2>
+                <p class="modal-subtitle">Connect a new Safe Power node (e.g., AC, Fridge)</p>
+
+                <div class="input-container">
+                    <input type="text" id="safeDeviceName" placeholder="Device Name" autocomplete="off"
+                        class="cyber-input">
+                </div>
+
+                <div class="node-id-container">
+                    <p class="node-id-label">Node Device ID</p>
+                    <h1 id="generated-esp-id" class="node-id-value">Loading...</h1>
+                </div>
+
+                <div class="modal-buttons">
+                    <button onclick="closeSafePowerModal()" class="btn-cancel"><span>CANCEL</span></button>
+                    <button onclick="confirmAddSafeDevice()" class="btn-confirm"><span>REGISTER NODE</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mainMeterModal" class="custom-modal"
+            style="display: none; z-index: 9999; backdrop-filter: blur(15px);">
+            <div class="modal-content" style="border-color: #f59e0b; box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);">
+                <div class="modal-icon-top" style="border-color: #f59e0b;">
+                    <i class="fa-solid fa-bolt"
+                        style="color: #f59e0b; font-size: 2rem; filter: drop-shadow(0 0 10px #f59e0b);"></i>
+                </div>
+                <h2 class="modal-title" style="color: #f59e0b;">MAIN METER SETUP</h2>
+                <p class="modal-subtitle">Your account needs a main power meter to start.</p>
+
+                <div class="main-meter-container">
+                    <p class="main-meter-label">This is your Main Meter ID:</p>
+                    <h1 id="main-meter-generated-id" class="main-meter-value">...</h1>
+                    <p class="main-meter-note">(Don't worry, you can always find this in your Settings later)</p>
+                </div>
+
+                <div class="modal-buttons" style="justify-content: center;">
+                    <button onclick="registerMainMeter()" class="btn-confirm"
+                        style="background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 15px rgba(255, 248, 236, 0.5);">
+                        <span>INITIALIZE MAIN METER</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRA - Operator Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background-image: url('{{ url_for("static", filename="images/background.png") }}') !important; }
+    </style>
+</head>
+<body class="profile-page nav-page">
+    <div class="layout-wrapper">
+        {% include "navbar.html" %}
+
+        <div class="page">
+            <div class="profile-container">
+                <div class="profile-card card">
+                    
+                    <div class="profile-header">
+                       <div class="avatar-wrapper" onclick="document.getElementById('avatar-upload').click()">
+                            <img src="{{ current_user.avatar_url or url_for('static', filename='images/logo.png') }}" 
+                                alt="Operator" 
+                                class="operator-avatar" 
+                                id="profile-img-display">
+                            <div class="avatar-overlay">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="avatar-upload" style="display:none" accept="image/*" onchange="uploadAvatar(event)">
+                        <div class="operator-meta">
+                            <h1 class="neon-header">{{ session.get('user_name', 'Operator') }}</h1>
+                            <p class="role-badge">System Administrator | ID: #{{ session.get('user_id', '000') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-grid">
+                        
+                        <div class="insight-card full-width">
+                            <h3 class="section-label"><i class="fa-solid fa-user-pen"></i> Account Settings</h3>
+                            <div class="config-form">
+                                <div class="input-item" style="margin-bottom: 15px;">
+                                    <label>Username</label>
+                                    <input type="text" id="edit-username" class="cyber-input" value="{{ session.get('user_name', '') }}">
+                                </div>
+                                <div class="input-row" style="margin-bottom: 20px;">
+                                    <div class="input-item">
+                                        <label>New Password</label>
+                                        <input type="password" id="edit-password" class="cyber-input" placeholder="Leave empty to keep current">
+                                    </div>
+                                    <div class="input-item">
+                                        <label>Confirm Password</label>
+                                        <input type="password" id="confirm-password" class="cyber-input" placeholder="Confirm new password">
+                                    </div>
+                                </div>
+                                <div class="input-item" style="text-align: center;">
+                                    <button class="btn-confirm" style="width: 100%; max-width: 300px; padding: 12px; margin: 0 auto; display: block;" onclick="updateProfileSettings()">Save Changes</button>
+                                    <div id="profile-msg" style="margin-top: 15px; font-weight: bold; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="insight-card full-width">
+                            <h3 class="section-label"><i class="fa-solid fa-bolt"></i> Electricity Tier Configuration</h3>
+                            <div class="config-form">
+                                <div class="input-item" style="margin-bottom: 15px;">
+                                    <label>Select Current Tier</label>
+                                    <select id="tariff-type" class="cyber-input" onchange="updateTierPrice()">
+                                        <option value="1" {% if current_user.tariff_type == '1' %}selected{% endif %}>Tier 1 (0 - 50 kWh)</option>
+                                        <option value="2" {% if current_user.tariff_type == '2' %}selected{% endif %}>Tier 2 (51 - 100 kWh)</option>
+                                        <option value="3" {% if current_user.tariff_type == '3' %}selected{% endif %}>Tier 3 (101 - 200 kWh)</option>
+                                        <option value="4" {% if current_user.tariff_type == '4' %}selected{% endif %}>Tier 4 (201 - 350 kWh)</option>
+                                        <option value="5" {% if current_user.tariff_type == '5' %}selected{% endif %}>Tier 5 (351 - 650 kWh)</option>
+                                        <option value="6" {% if current_user.tariff_type == '6' %}selected{% endif %}>Tier 6 (651 - 1000 kWh)</option>
+                                        <option value="7" {% if current_user.tariff_type == '7' %}selected{% endif %}>Tier 7 (> 1000 kWh)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="input-item" style="margin-bottom: 20px; background: rgba(0, 243, 255, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 243, 255, 0.2);">
+                                    <div id="tier-price-display" style="color: #4ade80; font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; margin-bottom: 5px;">
+                                        Price: 0.68 EGP / kWh
+                                    </div>
+                                    <div id="tier-details-display" style="color: #94a3b8; font-size: 0.9rem;">
+                                        Calculation: Normal calculation for consumption from 0 to 50 kWh.
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="total-appliances" value="0">
+                                <input type="hidden" id="usage-schedule" value="default">
+                                <input type="hidden" id="monthly-budget-input" value="0">
+
+                                <div class="input-item" style="text-align: center;">
+                                    <button class="btn-confirm" style="width: 100%; max-width: 300px; padding: 12px; margin: 0 auto; display: block;" onclick="saveSystemConfig()">Save Tier Configuration</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="insight-card full-width" style="text-align: center;">
+                            <h3 class="section-label" style="text-align: left;"><i class="fa-solid fa-box-archive"></i> Activity & Logs</h3>
+                            
+                            <button class="btn-confirm" onclick="viewMyPosts()" style="width: 250px; padding: 12px; background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 8px; margin: 10px auto;">
+                                <i class="fa-solid fa-clock-rotate-left" style="margin-right: 10px;"></i> View My Transmissions
+                            </button>
+
+                            <div id="my-posts-container" style="display: none; margin-top: 20px; width: 100%; text-align: left;">
+                                <h3 class="section-label" style="color: #00f3ff; border-bottom: 1px solid rgba(0, 243, 255, 0.3); padding-bottom: 10px;">
+                                    <i class="fa-solid fa-list"></i> Transmission History
+                                </h3>
+                                <div id="my-posts-list" class="posts-feed" style="margin-top: 20px;">
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="insight-card full-width" style="border-color: rgba(255, 77, 77, 0.3); background: rgba(255, 77, 77, 0.02);">
+                            <h3 class="section-label" style="color: #ff4d4d;"><i class="fa-solid fa-shield-halved"></i> Danger Zone</h3>
+                            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Proceed with caution. These actions cannot be easily undone.</p>
+                            
+                            <div class="action-buttons" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                                <a href="/logout" class="btn-cancel" style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 200px; padding: 12px; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 8px;">
+                                    <i class="fa-solid fa-power-off" style="margin-right: 10px;"></i> Logout
+                                </a>
+
+                                <button class="btn-cancel" onclick="confirmDeleteAccount()" style="width: 200px; padding: 12px; background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 8px;">
+                                    <i class="fa-solid fa-user-xmark" style="margin-right: 10px;"></i> Remove Account
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
