@@ -451,8 +451,10 @@ def add_device():
 # ==========================================
 
 @website_bp.route('/settings')
+@login_required
 def settings():
     return render_template('Settings.html')
+
 
 @website_bp.route('/esp_limit', methods=['GET', 'POST'])
 @website_bp.route('/set_limit', methods=['POST'])

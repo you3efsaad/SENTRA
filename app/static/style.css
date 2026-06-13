@@ -2322,7 +2322,6 @@ hr.subtle-divider {
     filter: blur(0.3px);
     pointer-events: none;
     clip-path: var(--card-shape);
-    /* animation: glassFloat 10s ease-in-out infinite; */
     z-index: 3;
 }
 
@@ -2347,7 +2346,6 @@ hr.subtle-divider {
     height: 200%;
     background: linear-gradient(135deg, transparent 20%, rgba(0, 242, 255, 0.1) 30%, rgba(157, 0, 255, 0.2) 40%, rgba(255, 255, 255, 0.3) 50%, rgba(0, 242, 255, 0.1) 60%, transparent 70%);
     transform: rotate(30deg);
-    /* animation: shine-move 6s ease-in-out infinite; */
     pointer-events: none;
     mix-blend-mode: screen;
     opacity: .18;
@@ -2984,27 +2982,39 @@ input:checked+.slider:after {
 /* MOBILE SPECIFIC FIXES (Max 768px)                         */
 /* ========================================================= */
 @media (max-width: 768px) {
-    /* 1. إجبار الحاوية الرئيسية إنها تكون Grid عشان نضمن إن كل كارتين جنب بعض بالظبط */
+    
     .dashboard-page .dashboard {
         display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important; /* عمودين متساويين */
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 15px !important;
         align-items: stretch !important;
     }
 
-    /* 2. العناصر اللي هتاخد عرض الشاشة بالكامل (صف كامل) */
+    .dashboard-page .header-section {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .dashboard-page h1 {
+        white-space: nowrap !important; 
+        font-size: 1.2rem !important;   
+        margin-left: 0 !important;
+        justify-content: center !important;
+        gap: 8px !important;
+    }
+
     .header-section, 
     .power-card, 
     .ai-card-wrapper, 
     .devices-section-wrapper {
-        grid-column: 1 / -1 !important; /* بياخد العرض من الأول للآخر */
+        grid-column: 1 / -1 !important; 
         width: 100% !important;
         max-width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
     }
 
-    /* 3. تظبيط حجم العنوان */
     .dashboard-page h1 {
         font-size: 1.5rem !important;
         margin-left: 0 !important;
@@ -3013,7 +3023,6 @@ input:checked+.slider:after {
         margin-bottom: 5px !important;
     }
 
-    /* 4. الترتيب (Order) */
     .header-section { order: 1; }
     .power-card { order: 2; margin-bottom: 5px !important; }
     
@@ -3032,7 +3041,6 @@ input:checked+.slider:after {
     
     .devices-section-wrapper { order: 12; margin-top: 15px !important; }
 
-    /* 5. الكروت العادية ومؤشرات الجودة (هياخدوا خلية واحدة في الجريد يعني نص الشاشة) */
     .voltage-card, .current-card, .energy-card, 
     .cost-card, .frequency-card, .power_factor-card,
     .dashboard-page .dashboard > div:nth-child(2),
@@ -3049,7 +3057,6 @@ input:checked+.slider:after {
         box-sizing: border-box !important;
     }
 
-    /* تظبيط الكفاءة والجودة لتطابق شكل الكروت */
     .dashboard-page .dashboard > div:nth-child(2),
     .dashboard-page .dashboard > div:nth-child(11) {
         background: rgba(15, 23, 42, 0.4) !important; 
@@ -3059,7 +3066,6 @@ input:checked+.slider:after {
         align-items: center !important;
     }
 
-    /* تكبير الأيقونات والأرقام جوه الكروت */
     .voltage-card .metric-icon, .current-card .metric-icon, 
     .energy-card .metric-icon, .cost-card .metric-icon, 
     .frequency-card .metric-icon, .power_factor-card .metric-icon {
@@ -3079,7 +3085,6 @@ input:checked+.slider:after {
         font-size: 1.3rem !important; 
     }
 
-    /* تظبيط عناصر الـ Efficiency */
     .dashboard-page .dashboard > div:nth-child(2) > div:first-child {
         font-size: 0.65rem !important;
         text-align: center !important;
@@ -3101,7 +3106,6 @@ input:checked+.slider:after {
         font-size: 0.85rem !important;
     }
 
-    /* تظبيط عناصر الـ Quality */
     .dashboard-page .dashboard > div:nth-child(11) > div:first-child {
         flex-direction: column !important;
         justify-content: center !important;
@@ -3122,7 +3126,6 @@ input:checked+.slider:after {
         min-width: 90px !important;
     }
 
-    /* 6. كارت الذكاء الاصطناعي وكارت الطاقة */
     .ai-card-inner {
         flex-direction: column !important;
         padding: 15px 10px !important;
@@ -3190,7 +3193,6 @@ input:checked+.slider:after {
 /* EXTRA SMALL SCREENS (<480px)                              */
 /* ========================================================= */
 @media (max-width: 480px) {
-    /* الـ Grid هيظبط المسافات لوحده، هنعدل بس حجم الخطوط البسيطة */
     .voltage-card .metric-value, .current-card .metric-value, 
     .energy-card .metric-value, .cost-card .metric-value, 
     .frequency-card .metric-value, .power_factor-card .metric-value {
@@ -4063,6 +4065,7 @@ input:checked+.slider:after {
     color: #fff;
     font-size: 2.4em;
     font-weight: 700;
+    margin-top: 80px; 
     margin-bottom: 10px;
     font-family: 'Orbitron', sans-serif;
     letter-spacing: 1px;
@@ -5298,7 +5301,6 @@ select.cyber-input:focus {
 /* COMMUNITY HUB MOBILE FIXES                                */
 /* ========================================================= */
 @media (max-width: 768px) {
-    /* Fix page and card paddings */
     .dashboard-page .page {
         padding: 10px !important;
         width: 98% !important;
@@ -5308,7 +5310,6 @@ select.cyber-input:focus {
         margin-bottom: 20px !important;
     }
     
-    /* Fix header size and margins */
     .dashboard-page .header-section h1.neon-header {
         font-size: 1.5rem !important;
         margin-left: 0 !important;
@@ -5321,7 +5322,6 @@ select.cyber-input:focus {
         font-size: 0.85rem;
     }
 
-    /* Fix post creator layout */
     .post-creator {
         flex-direction: column;
         align-items: center !important;
@@ -5330,7 +5330,6 @@ select.cyber-input:focus {
         margin-bottom: 5px;
     }
     
-    /* Fix post header and actions */
     .post-header {
         flex-wrap: wrap;
     }
@@ -5342,7 +5341,6 @@ select.cyber-input:focus {
         justify-content: flex-end;
     }
 
-    /* Fix comments section preventing overflow */
     .comments-section {
         padding: 15px 10px !important;
     }
@@ -5358,3 +5356,241 @@ select.cyber-input:focus {
         gap: 10px;
     }
 }
+/* ========================================================= */
+/* EFFICIENCY & QUALITY SIDE-BY-SIDE FIX FOR MOBILE          */
+/* ========================================================= */
+@media (max-width: 768px) {
+    .dashboard-page .dashboard > div:nth-child(2),
+    .dashboard-page .dashboard > div:nth-child(11) {
+        grid-column: span 1 !important;
+        width: 100% !important;
+        flex: 0 0 calc(50% - 10px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        padding: 10px 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    .dashboard-page .dashboard > div:nth-child(2) > div:first-child,
+    .dashboard-page .dashboard > div:nth-child(11) > div:first-child div {
+        font-size: 0.65rem !important;
+        text-align: center !important;
+        margin-bottom: 15px !important;
+        min-height: 15px !important;
+    }
+
+    .dashboard-page .dashboard > div:nth-child(2) > div:nth-child(2) {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 15px !important;
+    }
+
+    .dashboard-page .dashboard > div:nth-child(11) > div:first-child {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        align-items: center !important;
+        gap: 15px !important;
+    }
+
+    .dashboard-page .dashboard > div:nth-child(2) > div:nth-child(2) i,
+    .dashboard-page .dashboard > div:nth-child(11) > div:first-child i {
+        font-size: 1.8rem !important;
+        margin: 0 !important;
+    }
+
+    .dashboard-page .dashboard > div:nth-child(2) > div:nth-child(2) > div {
+        width: 65px !important;
+        height: 65px !important;
+    }
+
+    #efficiency-value {
+        font-size: 0.85rem !important;
+    }
+
+    #quality-value {
+        margin: 15px 0 0 0 !important;
+        font-size: 0.8rem !important;
+        padding: 8px 15px !important;
+        min-width: 90px !important;
+    }
+    .ai-card-wrapper {
+        order: 7 !important;
+        grid-column: 1 / -1 !important;
+        justify-self: stretch !important;
+        width: calc(100% + 16px) !important;
+        max-width: calc(100% + 16px) !important;
+        margin: 15px -8px !important;
+        padding: 0 !important;
+        min-height: 145px !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+        display: block !important; 
+    }
+
+    .dashboard-page .ai-card-border {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        box-sizing: border-box !important;
+        clip-path: polygon(
+            0% 12%, 
+            6% 0%, 
+            42% 0%, 
+            46% 6%, 
+            54% 6%, 
+            58% 0%, 
+            94% 0%, 
+            100% 12%, 
+            100% 88%, 
+            94% 100%, 
+            58% 100%, 
+            54% 94%, 
+            46% 94%, 
+            42% 100%, 
+            6% 100%, 
+            0% 88%
+        ) !important;
+    }
+
+    .ai-card-inner {
+        flex-direction: row !important;
+        padding: 5px 28px !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+    }
+
+    .ai-text-content {
+        width: auto !important;
+        min-width: unset !important;
+        max-width: 60% !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        padding-top: 30px !important;
+        margin-top: 0 !important;
+    }
+
+    .ai-label {
+        font-size: 0.85rem !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important;
+        margin-bottom: 5px !important;
+    }
+
+    .ticker-mask {
+        -webkit-mask-image: linear-gradient(to right, transparent 5%, black 25%, black 75%, transparent 100%) !important;
+        mask-image: linear-gradient(to right, transparent 5%, black 25%, black 75%, transparent 100%) !important;
+        justify-content: flex-start !important;
+    }
+
+    .ai-ticker {
+        margin-top: 2px !important;
+    }
+
+    .ai-status {
+        animation: scroll-left 10s linear infinite !important;
+        font-size: 1.2rem !important;
+        padding-left: 100% !important;
+    }
+
+    .ai-badge-container {
+        margin-top: -18px !important;
+        margin-bottom: 12px !important;
+        margin-left: 7px !important; 
+    }
+
+    .status-badge {
+        padding: 2px 10px !important;
+        font-size: 0.65rem !important;
+    }
+
+    .ai-visual-content {
+        width: 90px !important;
+        height: 90px !important;
+        margin-top: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .brain-img {
+        width: 100px !important;
+        height: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+    .modal-content {
+        width: 92% !important;
+        max-width: 92% !important;
+        padding: 20px 15px !important;
+        box-sizing: border-box !important;
+        margin: 80px auto 20px auto !important;
+    }
+
+    .modal-title {
+        font-size: 1.4rem !important;
+        text-align: center !important;
+    }
+
+    .modal-subtitle {
+        font-size: 0.85rem !important;
+        text-align: center !important;
+        padding: 0 10px !important;
+    }
+
+    .main-meter-container {
+        padding: 15px 10px !important;
+        margin: 15px 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .main-meter-label {
+        font-size: 0.85rem !important;
+    }
+
+    .main-meter-value {
+        font-size: 1.5rem !important;
+        word-break: break-all !important;
+        margin: 10px 0 !important;
+    }
+
+    .main-meter-note {
+        font-size: 0.75rem !important;
+    }
+
+    .modal-buttons {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .modal-buttons button {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    .esp-tab {
+    padding: 6px 14px !important; 
+    font-size: 0.75rem !important; 
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    color: #94a3b8;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    }
+}
+
+

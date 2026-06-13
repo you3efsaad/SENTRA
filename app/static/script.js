@@ -60,9 +60,8 @@ window.cyberConfirm = async function (message) {
 // ==================================================
 // 2. GLOBAL STATE & HELPER FUNCTIONS
 // ==================================================
-window.mainMeterId = null;
-window.activeEspId = parseInt(sessionStorage.getItem('activeEspId'));
-if (isNaN(window.activeEspId)) window.activeEspId = null;
+window.mainMeterId = parseInt(sessionStorage.getItem('mainMeterId')) || null;
+window.activeEspId = parseInt(sessionStorage.getItem('activeEspId')) || null;
 
 window.sysTracker = {
     powerOn: false,
@@ -159,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("🚀 SENTRA System Loaded");
 
     window.updateNavigationState();
+    window.checkSettingsAccess();
 
     const body = document.body;
 
@@ -208,14 +208,16 @@ window.forceSyncNow = async function () {
 window.switchEsp = function (id) {
     window.activeEspId = id;
     sessionStorage.setItem('activeEspId', id);
+    
+    window.checkSettingsAccess(); 
+    window.updateNavigationState();
+    
     window.loadEspTabs();
     window.loadSysSettings();
 
     forceSyncNow();
 
     if (typeof syncTimerUI === 'function') syncTimerUI();
-
-    window.updateNavigationState();
 
     if (document.body.classList.contains('settings-page')) {
         initSettings();
@@ -410,6 +412,7 @@ window.loadEspTabs = async function () {
             const mainEsp = data.esps.find(e => e.is_main === true);
             if (mainEsp) {
                 window.mainMeterId = mainEsp.espid;
+                sessionStorage.setItem('mainMeterId', mainEsp.espid);
             }
 
             const tabsList = document.getElementById('esp-tabs-list');
@@ -433,6 +436,7 @@ window.loadEspTabs = async function () {
             }
 
             window.updateNavigationState();
+            window.checkSettingsAccess();
         }
     } catch (e) {
         console.error("Error loading tabs", e);
@@ -1335,6 +1339,12 @@ window.budgetInterval = null;
 
 async function initSettings() {
     console.log("Loading Settings from Database...");
+    
+    if (window.activeEspId === window.mainMeterId) {
+        window.location.href = '/dashboard'; 
+        return;
+    }
+
     try {
         const res = await fetch(`/api/get_user_settings?espid=${window.activeEspId}`);
         const data = await res.json();
@@ -1367,6 +1377,36 @@ async function initSettings() {
         window.timerSyncInterval = setInterval(syncTimerUI, 1000);
     }
 }
+
+window.checkSettingsAccess = function() {
+    const activeId = parseInt(sessionStorage.getItem('activeEspId'));
+    const mainId = parseInt(sessionStorage.getItem('mainMeterId'));
+    
+    const settingsLinks = document.querySelectorAll('a[href="/settings"]'); 
+    
+    if (isNaN(activeId) || activeId === 0 || activeId === mainId) {
+        /* Apply lock class to the entire HTML document */
+        document.documentElement.classList.add('settings-locked');
+        
+        settingsLinks.forEach(link => {
+            if (link) {
+                link.title = "Settings are locked for the Main Meter";
+                link.onclick = (e) => e.preventDefault();
+            }
+        });
+    } else {
+        /* Remove lock class */
+        document.documentElement.classList.remove('settings-locked');
+        
+        settingsLinks.forEach(link => {
+            if (link) {
+                link.removeAttribute('title');
+                link.onclick = null;
+            }
+        });
+    }
+};
+
 
 window.submitCurrentLimit = async function () {
     const val = document.getElementById('current-limit').value;
