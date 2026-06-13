@@ -5591,6 +5591,62 @@ select.cyber-input:focus {
     white-space: nowrap;
     transition: all 0.3s ease;
     }
+    .ai-visual-content .brain-img {
+        width: 200px !important;
+        height: auto !important; 
+    }
+}
+
+@media (max-width: 768px) {
+    .devices-scroll-container {
+        gap: 12px !important;
+        padding: 5px 0 !important;
+    }
+
+    .cyber-card {
+        min-width: 240px !important;
+        width: 240px !important;
+        height: 150px !important;
+        margin-right: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .cyber-card-inner {
+        padding: 15px !important;
+    }
+
+    .device-icon {
+        font-size: 2rem !important;
+        margin-top: 5px !important;
+    }
+
+    .power-value {
+        font-size: 1.8rem !important;
+    }
+
+    .section-title {
+        font-size: 1.2rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .scroll-btn {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .toggle-switch {
+        transform: scale(0.85);
+        transform-origin: right center;
+    }
+    
+    .add-new-card .cyber-card-inner i {
+        font-size: 2rem !important;
+    }
+    
+    .add-new-card .cyber-card-inner span {
+        font-size: 0.9rem !important;
+    }
 }
 
 
