@@ -2715,8 +2715,9 @@ window.fetchSentraData = async function() {
 
     try {
         const userId = window.getUserId();
-        const url = `/api/readings/history?start=${encodeURIComponent(start + ' 00:00:00+00')}&end=${encodeURIComponent(end + ' 23:59:59+00')}&user_id=${encodeURIComponent(userId)}`;
-
+        // Replace the space with 'T' to match the ISO format in the database
+        const url = `/api/readings/history?start=${encodeURIComponent(start + 'T00:00:00')}&end=${encodeURIComponent(end + 'T23:59:59')}&user_id=${encodeURIComponent(userId)}`;
+        
         const response = await fetch(url);
         if (!response.ok) throw new Error("Server rejected historical query");
 

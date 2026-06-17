@@ -87,12 +87,18 @@ def receive_data():
         esp["data"]["frequency"] = float(data.get("frequency", 0))
         esp["data"]["pf"] = float(data.get("pf", 0))
 
+        if "device_name" in data and data["device_name"]:
+            esp["data"]["ac_device_name"] = data["device_name"]
+
         if ("device_db_id" not in esp["data"] or esp["data"]["user_id"] is None) and g.supabase:
             try:
                 dev_res = g.supabase.table("safe_power_devices").select("id, user_id, device_name, is_main").eq("espid", espid).execute()
                 if dev_res.data:
                     esp["data"]["user_id"] = dev_res.data[0]['user_id']
-                    esp["data"]["ac_device_name"] = dev_res.data[0]['device_name']
+                    
+                    if "ac_device_name" not in esp["data"] or not esp["data"]["ac_device_name"]:
+                        esp["data"]["ac_device_name"] = dev_res.data[0]['device_name']
+                        
                     esp["data"]["device_db_id"] = dev_res.data[0]['id']
                     esp["is_main"] = dev_res.data[0].get('is_main', False) 
                 else:
@@ -271,6 +277,7 @@ def get_historical_readings():
             query = query.eq('user_id', str(user_id))
             
         response = query.order('timestamp', desc=False).limit(10000).execute()
+        print("======== DATA SENT TO FRONTEND ========", response.data)
         return jsonify(response.data if response.data else []), 200
                 
     except Exception as e:
