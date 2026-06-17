@@ -857,6 +857,134 @@ window.deleteSafeDevice = async function (espid) {
 };
 
 // ==================================================
+// SUPABASE AI PREDICTIONS CHART
+// ==================================================
+
+// Initialize Supabase Connection
+const SUPABASE_URL = "https://wtsfngscmtmywcklplhj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0c2ZuZ3NjbXRteXdja2xwbGhqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjEzNDQ0MSwiZXhwIjoyMDg3NzEwNDQxfQ.wYesuGasSOKtuvDwXJdQBZPY4MkTqVsKwKOGmjBtCBA";
+const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function fetchAndRenderPredictionsChart() {
+    console.log("Fetching the last 24 predictions...");
+    
+    // Fetch the latest 24 rows ordered by descending ID
+    let { data: rows, error } = await _supabase
+        .from('predictions')
+        .select('prediction_time, predicted_value, id')
+        .order('id', { ascending: false })
+        .limit(24); 
+
+    if (error) {
+        console.error("Failed to fetch prediction data:", error);
+        return;
+    }
+
+    if (!rows || rows.length === 0) {
+        console.warn("No predictions available in the database.");
+        return;
+    }
+
+    // Reverse array to display chronological order (left to right)
+    rows.reverse();
+
+    // Map X-axis: Format time
+    const labelsX = rows.map(row => {
+        const dateObj = new Date(row.prediction_time);
+        return dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
+    });
+
+    // Map Y-axis: Predicted values
+    const dataValuesY = rows.map(row => row.predicted_value);
+
+    const canvas = document.getElementById('futurePredictionsChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy previous chart instance to prevent rendering glitches
+    if (window.predictionsChartInstance) {
+        window.predictionsChartInstance.destroy();
+    }
+
+    // Create Cyberpunk Purple Gradient
+    const gradientPurple = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientPurple.addColorStop(0, 'rgba(187, 19, 254, 0.5)'); 
+    gradientPurple.addColorStop(1, 'rgba(187, 19, 254, 0.0)');
+
+    // Render the new chart
+    window.predictionsChartInstance = new Chart(ctx, {
+        type: 'line', 
+        data: {
+            labels: labelsX,
+            datasets: [{
+                label: 'Predicted Power (W)',
+                data: dataValuesY,
+                borderColor: '#bb13fe', 
+                backgroundColor: gradientPurple,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4, 
+                pointRadius: 3,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#bb13fe',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#00f3ff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: true,
+                    labels: { color: '#fff', font: { family: 'Orbitron', size: 12 } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: '#00f3ff',
+                    bodyColor: '#fff',
+                    borderColor: '#bb13fe',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function (context) { return `Predicted: ${context.parsed.y} W`; }
+                    }
+                }
+            },
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Prediction Time (UTC)', color: '#94a3b8', font: { family: 'Rajdhani', size: 14 } },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', display: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.5)', font: { size: 10 } }
+                },
+                y: { 
+                    title: { display: true, text: 'Predicted Value (Watts)', color: '#94a3b8', font: { family: 'Rajdhani', size: 14 } }, 
+                    beginAtZero: false,
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#00f3ff', font: { size: 12 }, padding: 10 }
+                }
+            }
+        }
+    });
+    console.log("Predictions chart rendered successfully.");
+}
+
+// Ensure the chart initializes when the dashboard loads
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.body.classList.contains('dashboard-page')) {
+        setTimeout(() => {
+            if (document.getElementById('futurePredictionsChart')) {
+                fetchAndRenderPredictionsChart();
+                
+                // Refresh predictions every 60 seconds automatically
+                setInterval(fetchAndRenderPredictionsChart, 60000); 
+            }
+        }, 1000); // Slight delay to ensure DOM and libraries are fully loaded
+    }
+});
+
+// ==================================================
 // 6. AI ENGINE & NILM
 // ==================================================
 async function fetchAIStatus() {
@@ -1103,230 +1231,6 @@ function updateMiniChartUI(data) {
     }
 }
 
-let historicalChartInstance = null;
-let reportChartInstance = null;
-
-function initAnalytics() {
-    console.log("🔹 Initializing Analytics Page...");
-
-    const dailyTab = document.querySelector('.tabs .tab');
-    if (dailyTab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        dailyTab.classList.add('active');
-        window.generateReport('daily', dailyTab);
-    }
-
-    const today = new Date();
-    const lastWeek = new Date();
-    lastWeek.setDate(today.getDate() - 7);
-
-    const startDateInput = document.getElementById('start-date');
-    const endDateInput = document.getElementById('end-date');
-
-    if (startDateInput && endDateInput) {
-        startDateInput.value = lastWeek.toISOString().split('T')[0];
-        endDateInput.value = today.toISOString().split('T')[0];
-    }
-}
-
-window.generateHistoricalData = async function () {
-    const start = document.getElementById('start-date').value;
-    const end = document.getElementById('end-date').value;
-    const btn = document.getElementById('hist-btn');
-
-    if (!start) return alert("Please select a start date!");
-
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
-    btn.disabled = true;
-
-    try {
-        const res = await fetch(`/historical?start=${start}&end=${end}`);
-        const data = await res.json();
-
-        if (!data.power || data.power.length === 0) {
-            alert("No data found for this range in the database.");
-            return;
-        }
-
-        const ctx = document.getElementById('historicalChart');
-        if (ctx) {
-            if (historicalChartInstance) historicalChartInstance.destroy();
-
-            const canvasCtx = ctx.getContext('2d', { willReadFrequently: true });
-            let gradientBlue = canvasCtx.createLinearGradient(0, 0, 0, 400);
-            gradientBlue.addColorStop(0, 'rgba(0, 255, 255, 0.6)');
-            gradientBlue.addColorStop(1, 'rgba(0, 255, 255, 0.0)');
-
-            historicalChartInstance = new Chart(canvasCtx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            label: 'Power (W)',
-                            data: data.power,
-                            borderColor: '#00ffff',
-                            backgroundColor: gradientBlue,
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.1,
-                            pointRadius: 0,
-                            pointHoverRadius: 5,
-                            yAxisID: 'y'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: true, labels: { color: '#fff' } },
-                        tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: 'rgba(0, 255, 255, 0.3)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: '#ccc', maxTicksLimit: 10 },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: 'Power (Watts)', color: '#fff' },
-                            ticks: { color: '#ccc' },
-                            grid: { color: 'rgba(255,255,255,0.1)' }
-                        }
-                    }
-                }
-            });
-        }
-    } catch (e) {
-        console.error("History Error:", e);
-        alert("Failed to load historical data.");
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-};
-
-window.generateReport = async function (type, btnElement) {
-    if (btnElement) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        btnElement.classList.add('active');
-
-        const underline = document.getElementById('tabUnderline');
-        if (underline) {
-            underline.style.width = btnElement.offsetWidth + "px";
-            underline.style.left = btnElement.offsetLeft + "px";
-        }
-    }
-
-    const titleEl = document.getElementById('reportTitle');
-    if (titleEl) titleEl.innerText = "Loading...";
-
-    try {
-        const response = await fetch(`/report/${type}`);
-        if (!response.ok) throw new Error(`Server Error: ${response.status}`);
-        const data = await response.json();
-
-        safeTxt('totalConsumption', data.total_consumption + ' kWh');
-        safeTxt('totalCost', data.total_cost + ' EGP');
-        safeTxt('peakConsumption', data.peak_consumption + ' W');
-        safeTxt('reportTitle', type.charAt(0).toUpperCase() + type.slice(1) + ' Summary');
-
-        const canvas = document.getElementById('reportChart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-            if (reportChartInstance) reportChartInstance.destroy();
-
-            let gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
-            gradientBlue.addColorStop(0, 'rgba(0, 255, 255, 0.5)');
-            gradientBlue.addColorStop(1, 'rgba(0, 255, 255, 0.0)');
-
-            let gradientPink = ctx.createLinearGradient(0, 0, 0, 400);
-            gradientPink.addColorStop(0, 'rgba(255, 0, 255, 0.5)');
-            gradientPink.addColorStop(1, 'rgba(255, 0, 255, 0.0)');
-
-            reportChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            label: 'Total Consumption (kWh)',
-                            data: data.values_total,
-                            borderColor: '#00ffff',
-                            backgroundColor: gradientBlue,
-                            fill: true,
-                            tension: 0,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#00ffff',
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'Peak Power (W)',
-                            data: data.values_peak,
-                            borderColor: '#ff00ff',
-                            backgroundColor: gradientPink,
-                            fill: true,
-                            tension: 0,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#ff00ff',
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, labels: { color: '#fff' } },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: 'rgba(255,255,255,0.2)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#ccc' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#ccc' }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
-                }
-            });
-        }
-    } catch (e) {
-        console.error("Report Error:", e);
-        safeTxt('reportTitle', "Error Loading Data");
-    }
-};
 
 // ==================================================
 // 8. SETTINGS, TIMER & NOTIFICATIONS SYNC
@@ -2598,4 +2502,504 @@ function initContact() {
     }
 }
 
+// ==================================================
+// SENTRA SYSTEM - ANALYTICS MODULE
+// ==================================================
 
+let myHistoricalChart = null;
+let myDonutChart = null;
+let myCarbonComparison = null;
+let myAICostChart = null;
+let reportChartInstance = null;
+
+// Helper to secure and retrieve User ID from global scope
+window.getUserId = function() {
+    if (typeof window.currentUserId === 'undefined' || window.currentUserId === 'None' || window.currentUserId === '') {
+        console.error("User ID is missing. Cannot fetch analytics data.");
+        return null;
+    }
+    return window.currentUserId;
+};
+
+// Safe text content updater to prevent template crashes
+function safeTxt(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+// Render empty structural charts on load to preserve UI borders
+window.renderEmptyCharts = function() {
+    const defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { display: false } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { display: false }, beginAtZero: true }
+        }
+    };
+
+    const ctxLine = document.getElementById('historicalChart');
+    if (ctxLine && !myHistoricalChart) {
+        myHistoricalChart = new Chart(ctxLine.getContext('2d'), { 
+            type: 'line', 
+            data: { labels: [], datasets: [] }, 
+            options: defaultOptions 
+        });
+    }
+
+    const ctxDonut = document.getElementById('devicesDonutChart');
+    if (ctxDonut && !myDonutChart) {
+        myDonutChart = new Chart(ctxDonut.getContext('2d'), { 
+            type: 'doughnut', 
+            data: { labels: [], datasets: [] }, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } } 
+            } 
+        });
+    }
+
+    const ctxCarbon = document.getElementById('carbonComparisonChart');
+    if (ctxCarbon && !myCarbonComparison) {
+        myCarbonComparison = new Chart(ctxCarbon.getContext('2d'), { 
+            type: 'bar', 
+            data: { labels: [], datasets: [] }, 
+            options: defaultOptions 
+        });
+    }
+
+    const ctxAICost = document.getElementById('aiCostComparisonChart');
+    if (ctxAICost && !myAICostChart) {
+        myAICostChart = new Chart(ctxAICost.getContext('2d'), { 
+            type: 'bar', 
+            data: { labels: [], datasets: [] }, 
+            options: defaultOptions 
+        });
+    }
+};
+
+// Initialize Analytics View
+window.initAnalytics = function() {
+    console.log("Initializing Analytics Dashboard...");
+    const dailyTab = document.querySelector('.tabs .tab');
+    if (!dailyTab) return;
+
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    dailyTab.classList.add('active');
+
+    // Trigger the empty frames immediately to preserve the Cyberpunk look
+    window.renderEmptyCharts();
+
+    setTimeout(() => {
+        if (typeof window.generateReport === 'function') {
+            window.generateReport('daily', dailyTab);
+        }
+    }, 300);
+};
+
+// Tab switcher and periodic report generator (Daily, Weekly, Monthly, Yearly)
+window.generateReport = async function(type, btnElement) {
+    if (btnElement) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btnElement.classList.add('active');
+
+        const underline = document.getElementById('tabUnderline');
+        if (underline) {
+            underline.style.width = btnElement.offsetWidth + "px";
+            underline.style.left = btnElement.offsetLeft + "px";
+        }
+    }
+
+    const titleEl = document.getElementById('reportTitle');
+    if (titleEl) titleEl.innerText = "Loading Summary...";
+
+    const uid = window.getUserId();
+    if (!uid) return;
+
+    try {
+        const response = await fetch(`/report/${type}?user_id=${uid}`);
+        if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+        const data = await response.json();
+
+        // Update UI metrics inside the summary panels
+        safeTxt('totalConsumption', (data.total_consumption || 0).toFixed(2) + ' kWh');
+        safeTxt('totalCost', (data.total_cost || 0).toFixed(2) + ' EGP');
+        safeTxt('peakConsumption', (data.peak_consumption || 0).toFixed(2) + ' W');
+
+        let titleText = type.charAt(0).toUpperCase() + type.slice(1);
+        safeTxt('reportTitle', titleText + ' Summary');
+
+        // Render Periodic Report Chart
+        const canvas = document.getElementById('reportChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+            if (window.reportChartInstance) {
+                window.reportChartInstance.destroy();
+            }
+
+            let gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientBlue.addColorStop(0, 'rgba(0, 255, 255, 0.5)');
+            gradientBlue.addColorStop(1, 'rgba(0, 255, 255, 0.0)');
+
+            let gradientPink = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientPink.addColorStop(0, 'rgba(255, 0, 255, 0.5)');
+            gradientPink.addColorStop(1, 'rgba(255, 0, 255, 0.0)');
+
+            window.reportChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Total Consumption (kWh)',
+                            data: data.values_total,
+                            borderColor: '#00ffff',
+                            backgroundColor: gradientBlue,
+                            fill: true,
+                            tension: 0.2,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#00ffff',
+                            pointRadius: 4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Peak Power (W)',
+                            data: data.values_peak,
+                            borderColor: '#ff00ff',
+                            backgroundColor: gradientPink,
+                            fill: true,
+                            tension: 0.2,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#ff00ff',
+                            pointRadius: 4,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, labels: { color: '#fff' } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ccc' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ccc' } }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Report Fetching Error:", e);
+        safeTxt('reportTitle', "Error Loading Data");
+    }
+};
+
+// Fetch historical data range from Supabase backend using filters
+window.fetchSentraData = async function() {
+    const start = document.getElementById('start-date').value;
+    const end = document.getElementById('end-date').value;
+    const btn = document.getElementById('hist-btn');
+
+    if (!start || !end) {
+        alert("Please select both start and end dates first!");
+        return;
+    }
+
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Data...';
+    btn.disabled = true;
+
+    try {
+        const userId = window.getUserId();
+        const url = `/api/readings/history?start=${encodeURIComponent(start + ' 00:00:00+00')}&end=${encodeURIComponent(end + ' 23:59:59+00')}&user_id=${encodeURIComponent(userId)}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Server rejected historical query");
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            alert("No data available for the selected period.");
+            safeTxt('hist-peak-load', '-- W');
+            safeTxt('hist-peak-time', '--:--');
+            safeTxt('hist-present-load', '-- W');
+            safeTxt('hist-present-time', '--:--');
+            safeTxt('hist-carbon-val', '-- Tons');
+            safeTxt('hist-occupancy-val', '--%');
+            document.getElementById('occupancy-circle').style.background = `conic-gradient(#6366f1 0%, rgba(255,255,255,0.1) 0%)`;
+            
+            if (myHistoricalChart) myHistoricalChart.destroy();
+            if (myDonutChart) myDonutChart.destroy();
+            if (myCarbonComparison) myCarbonComparison.destroy();
+            if (myAICostChart) myAICostChart.destroy();
+            
+            document.getElementById('ai-tips-container').innerHTML = '<p style="color: #94a3b8;">Not enough historical data for system recommendations.</p>';
+            return;
+        }
+
+        let maxPower = 0;
+        let minPower = Infinity;
+        let peakTimestamp = "";
+        let totalPowerSum = 0;
+
+        let lastRecord = data[data.length - 1];
+        let presentPower = parseFloat(lastRecord.power) || 0;
+        let presentTimestamp = lastRecord.timestamp;
+
+        data.forEach(item => {
+            let p = parseFloat(item.power) || 0;
+            totalPowerSum += p;
+
+            if (p > maxPower) {
+                maxPower = p;
+                peakTimestamp = item.timestamp;
+            }
+            if (p < minPower) {
+                minPower = p;
+            }
+        });
+
+        if (minPower === Infinity) minPower = 0;
+
+        const formatTimeOnly = (ts) => {
+            if (!ts) return "--:--";
+            let clean = ts.replace(' ', 'T');
+            let d = new Date(clean);
+            if (isNaN(d)) d = new Date(clean.split('.')[0] + 'Z');
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        };
+
+        safeTxt('hist-peak-load', maxPower.toFixed(1) + ' W');
+        safeTxt('hist-peak-time', formatTimeOnly(peakTimestamp));
+        safeTxt('hist-present-load', presentPower.toFixed(1) + ' W');
+        safeTxt('hist-present-time', formatTimeOnly(presentTimestamp));
+
+        // Calculate Carbon Footprint parameters
+        let total_kWh = (totalPowerSum / 1000) * (2 / 3600);
+        let carbon_kg = total_kWh * 0.45;
+        let carbon_tons = carbon_kg / 1000;
+
+        if (carbon_tons >= 1) {
+            safeTxt('hist-carbon-val', carbon_tons.toFixed(2) + ' Tons');
+        } else if (carbon_kg >= 1) {
+            safeTxt('hist-carbon-val', carbon_kg.toFixed(2) + ' Kg');
+        } else {
+            safeTxt('hist-carbon-val', (carbon_kg * 1000).toFixed(1) + ' g');
+        }
+
+        // Calculate active occupancy percentage based on noise threshold
+        let activeThreshold = minPower + 100;
+        let activeReadings = 0;
+
+        data.forEach(item => {
+            let p = parseFloat(item.power) || 0;
+            if (p > activeThreshold) activeReadings++;
+        });
+
+        let occupancyPercentage = data.length > 0 ? Math.round((activeReadings / data.length) * 100) : 0;
+        safeTxt('hist-occupancy-val', occupancyPercentage + '%');
+        document.getElementById('occupancy-circle').style.background = `conic-gradient(#6366f1 ${occupancyPercentage}%, rgba(255,255,255,0.1) ${occupancyPercentage}%)`;
+
+        // Trigger multi-chart updates
+        window.updateCharts(data);
+
+    } catch (error) {
+        console.error("Historical Grid Error:", error);
+        alert("Failed to retrieve historical matrix: " + error.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+// Render trend, donut distributions, carbon metrics, and optimization bar charts
+window.updateCharts = function(data) {
+    // 1. Core Consumption Trend Chart (Line)
+    // Dynamic step to prevent over-filtering small datasets
+    const step = Math.max(1, Math.floor(data.length / 50));
+    const filteredData = data.filter((_, index) => index % step === 0);
+    
+    const labels = filteredData.map(item => {
+        let cleanTimestamp = item.timestamp.replace(' ', 'T');
+        let dateObj = new Date(cleanTimestamp);
+        if (isNaN(dateObj)) dateObj = new Date(cleanTimestamp.split('.')[0] + 'Z');
+        return dateObj.toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    });
+    
+    // Parse power safely to ensure numerical values
+    const powerValues = filteredData.map(item => parseFloat(item.power) || 0);
+
+    const ctxLine = document.getElementById('historicalChart').getContext('2d');
+    if (myHistoricalChart) myHistoricalChart.destroy();
+
+    let gradientBlue = ctxLine.createLinearGradient(0, 0, 0, 400);
+    gradientBlue.addColorStop(0, 'rgba(0, 243, 255, 0.6)');
+    gradientBlue.addColorStop(1, 'rgba(0, 243, 255, 0.0)');
+
+    myHistoricalChart = new Chart(ctxLine, {
+        type: 'line',
+        data: { 
+            labels: labels, 
+            datasets: [{ 
+                label: 'Power Consumption (Watts)', 
+                data: powerValues, 
+                borderColor: '#00f3ff', 
+                backgroundColor: gradientBlue, 
+                borderWidth: 2, 
+                fill: true, 
+                tension: 0.4, 
+                // Show points if the dataset is very small, otherwise hide them for clean lines
+                pointRadius: filteredData.length <= 1 ? 4 : 0 
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            interaction: { mode: 'index', intersect: false }, 
+            plugins: { 
+                tooltip: { backgroundColor: 'rgba(10, 15, 30, 0.9)', titleColor: '#ffffff', bodyColor: '#00f3ff', borderColor: '#bb13fe', borderWidth: 1, padding: 10 }, 
+                legend: { labels: { color: '#ffffff' } } 
+            }, 
+            scales: { 
+                x: { ticks: { color: '#a0a0c0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }, 
+                y: { beginAtZero: true, ticks: { color: '#00f3ff' }, grid: { color: 'rgba(255,255,255,0.05)' } } 
+            } 
+        }
+    });
+
+    // 2. Disaggregated Device Distribution Chart (Doughnut)
+    const deviceConsumption = {};
+    data.forEach(item => {
+        const device = item.device_name || 'Unknown';
+        const power = parseFloat(item.power) || 0;
+        deviceConsumption[device] = (deviceConsumption[device] || 0) + power;
+    });
+
+    const ctxDonut = document.getElementById('devicesDonutChart').getContext('2d');
+    if (myDonutChart) myDonutChart.destroy();
+    myDonutChart = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: { labels: Object.keys(deviceConsumption), datasets: [{ data: Object.values(deviceConsumption), backgroundColor: ['#00f3ff', '#bb13fe', '#ff0055', '#4F46E5'], borderColor: 'rgba(10, 15, 30, 1)', borderWidth: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#ffffff', font: { size: 12 } } } } }
+    });
+
+    // 3. Carbon Footprint Impact Mitigation Chart (Horizontal Bar)
+    const deviceNamesArr = Object.keys(deviceConsumption);
+    const beforeCarbon = deviceNamesArr.map(d => -((deviceConsumption[d] / 1000) * (2 / 3600) * 0.45));
+    const afterCarbon = deviceNamesArr.map(d => ((deviceConsumption[d] / 1000) * (2 / 3600) * 0.45) * 0.85);
+
+    const ctxCarbon = document.getElementById('carbonComparisonChart').getContext('2d');
+    if (myCarbonComparison) myCarbonComparison.destroy();
+    myCarbonComparison = new Chart(ctxCarbon, {
+        type: 'bar',
+        data: {
+            labels: deviceNamesArr,
+            datasets: [
+                { label: 'Current Carbon', data: beforeCarbon, backgroundColor: '#8b5cf6', borderWidth: 0, borderRadius: 4, barThickness: 45 },
+                { label: 'Optimized Carbon', data: afterCarbon, backgroundColor: '#10b981', borderWidth: 0, borderRadius: 4, barThickness: 45 }
+            ]
+        },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { color: '#ffffff', font: { size: 14 } } } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+    });
+
+    // 4. AI Cost Optimization Projection Matrix (Double Vertical Bar)
+    const aiDevices = Object.keys(deviceConsumption);
+    const currentCosts = aiDevices.map(d => ((deviceConsumption[d] / 1000) * (2 / 3600)) * 1.50);
+    const optimizedCosts = currentCosts.map(c => c * 0.75);
+    const originalSavingsEffect = {};
+    aiDevices.forEach((d, i) => originalSavingsEffect[d] = currentCosts[i] * 0.25);
+
+    const ctxAICost = document.getElementById('aiCostComparisonChart').getContext('2d');
+    if (myAICostChart) myAICostChart.destroy();
+    myAICostChart = new Chart(ctxAICost, {
+        type: 'bar',
+        data: {
+            labels: aiDevices,
+            datasets: [
+                { label: 'Current Cost (EGP)', data: currentCosts, backgroundColor: '#8b5cf6', borderRadius: 4 },
+                { label: 'Optimized Cost (EGP)', data: optimizedCosts, backgroundColor: '#0ea5e9', borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#ffffff' } }, y: { beginAtZero: true, ticks: { color: '#0ea5e9' } } } }
+    });
+
+    // Pass disaggregated matrices directly into Gemini Pro pipeline
+    if (Object.keys(deviceConsumption).length > 0) {
+        window.fetchLiveGeminiTipsFromFlask(deviceConsumption, aiDevices, currentCosts, originalSavingsEffect);
+    }
+};
+
+// Feed disaggregated matrix into Gemini Engine via safe Flask endpoint
+window.fetchLiveGeminiTipsFromFlask = async function(deviceData, aiDevices, currentCosts, originalSavingsEffect) {
+    if (!deviceData || typeof deviceData !== 'object' || Object.keys(deviceData).length === 0) {
+        const tipsContainer = document.getElementById('ai-tips-container');
+        if (tipsContainer) tipsContainer.innerHTML = '<p style="color: #9ca3af;">Not enough device telemetry to generate tips.</p>';
+        return;
+    }
+
+    const tipsContainer = document.getElementById('ai-tips-container');
+    if (!tipsContainer) return;
+
+    tipsContainer.innerHTML = '<p style="color: #38bdf8;"><i class="fa-solid fa-spinner fa-spin"></i> Processing System Optimization...</p>';
+
+    try {
+        const flaskResponse = await fetch('/api/ai/recommendations', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ devices: deviceData })
+        });
+
+        const flaskData = await flaskResponse.json();
+        if (!flaskResponse.ok) throw new Error(flaskData.error || "Connection failure to Gemini gateway");
+
+        tipsContainer.innerHTML = '';
+        const rawTips = flaskData.recommendations.split('*');
+
+        aiDevices.forEach((device, index) => {
+            let matchedTip = rawTips.find(t => t.toUpperCase().includes(device.toUpperCase()));
+            let cleanTipText = matchedTip && matchedTip.includes(':') ? matchedTip.split(':')[1].trim() : `Monitor operations for ${device}.`;
+
+            let tipRow = document.createElement('div');
+            tipRow.style.cssText = 'display: flex; align-items: flex-start; gap: 12px; padding: 12px; margin-bottom: 8px; border-radius: 8px; background: rgba(14, 165, 233, 0.12); border-left: 4px solid #0ea5e9;';
+            tipRow.innerHTML = `
+                <input type="checkbox" id="check-${device}" data-device-index="${index}" data-device-name="${device}" checked style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="check-${device}" style="cursor: pointer; flex: 1;"><strong style="color: #38bdf8;">${device}:</strong> ${cleanTipText}</label>`;
+
+            tipsContainer.appendChild(tipRow);
+
+            document.getElementById(`check-${device}`).addEventListener('change', function() {
+                let idx = this.getAttribute('data-device-index');
+                let dName = this.getAttribute('data-device-name');
+                if (this.checked) {
+                    myAICostChart.data.datasets[1].data[idx] = currentCosts[idx] - (originalSavingsEffect[dName] || 0);
+                } else {
+                    myAICostChart.data.datasets[1].data[idx] = currentCosts[idx];
+                }
+                myAICostChart.update();
+            });
+        });
+    } catch (geminiError) {
+        console.error("AI Recommendations Engine Error:", geminiError);
+        tipsContainer.innerHTML = `<p style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> ${geminiError.message}</p>`;
+    }
+};
+// Automated full state tracking clearance on logout
+document.querySelectorAll('a[href="/logout"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        sessionStorage.clear();
+        localStorage.clear();
+        window.activeEspId = null;
+        window.mainMeterId = null;
+    });
+});
+
+// Self-invoking DOM trigger for analytics initial lifecycle
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.body.classList.contains('analytics-page')) {
+        window.initAnalytics();
+    }
+});

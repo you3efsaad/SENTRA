@@ -1027,180 +1027,18 @@ def delete_safe_power_device():
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-# ==========================================
-# ANALYTICS & REPORTS ROUTES
-# ==========================================
 
+# ==========================================
+# ANALYTICS PAGE ROUTE (WEBSITE)
+# ==========================================
 @website_bp.route('/analytics')
+@login_required
 def analytics():
-    return render_template('analytics.html')
-
-@website_bp.route('/historical')
-@website_bp.route('/device_power')
-def historical_data():
-    try:
-        start_str = request.args.get('start')
-        end_str = request.args.get('end')
-        
-        if not start_str or start_str == 'undefined':
-            latest_record = g.supabase.table("house_1").select("Time").order("Time", desc=True).limit(1).execute()
-            if latest_record.data:
-                base_date = parser.parse(latest_record.data[0]['Time'])
-            else:
-                base_date = datetime.now()
-                
-            start_str = (base_date - timedelta(days=7)).strftime("%Y-%m-%d 00:00:00")
-            end_str = base_date.strftime("%Y-%m-%d 23:59:59")
-        else:
-            if len(start_str) <= 10: start_str += " 00:00:00"
-            if end_str and len(end_str) <= 10: end_str += " 23:59:59"
-
-        response = g.supabase.table("house_1")\
-            .select("Time, Aggregate")\
-            .gte("Time", start_str)\
-            .lte("Time", end_str)\
-            .order("Time")\
-            .limit(15000)\
-            .execute()
-        
-        data = response.data
-
-        if not data:
-            return jsonify({"labels": [], "power": [], "energy": [], "values": []})
-
-        if len(data) > 300:
-            step = len(data) // 300
-            data = data[::step]
-
-        labels, power_vals, energy_vals = [], [], []
-        prev_time = None
-
-        for row in data:
-            dt = parser.parse(row['Time'])
-            labels.append(dt.strftime('%Y-%m-%d %H:%M'))
-            
-            power = float(row.get('Aggregate') or 0)
-            power_vals.append(power)
-
-            if prev_time:
-                time_diff = (dt - prev_time).total_seconds()
-                if time_diff > 3600: time_diff = 8.0 
-            else:
-                time_diff = 8.0
-            
-            prev_time = dt
-            energy_kwh = (power / 1000.0) * (time_diff / 3600.0)
-            energy_vals.append(energy_kwh)
-        
-        return jsonify({
-            "labels": labels, 
-            "values": energy_vals,
-            "power": power_vals,
-            "energy": energy_vals
-        })
-    except Exception as e:
-        return jsonify({"labels": [], "power": [], "energy": [], "values": []}), 500
-
-@website_bp.route('/report/<report_type>')
-def get_report_by_type(report_type):
-    try:
-        latest_record = g.supabase.table("house_1").select("Time").order("Time", desc=True).limit(1).execute()
-        if latest_record.data:
-            base_date = parser.parse(latest_record.data[0]['Time'])
-        else:
-            base_date = datetime.now()
-
-        start_time, label_fmt, mode = None, None, 'standard'
-
-        if report_type == 'daily':
-            start_time = base_date.replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d %H:%M:%S")
-            label_fmt = '%H:00'
-        elif report_type == 'weekly':
-            start_time = (base_date - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
-            label_fmt = '%a'
-        elif report_type == 'monthly':
-            start_time = (base_date - timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")
-            mode = 'monthly_weeks' 
-        elif report_type == 'yearly':
-            start_time = (base_date - timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
-            label_fmt = '%b'
-            mode = 'yearly'
-        else:
-            return jsonify({"error": "Invalid type"}), 400
-
-        response = g.supabase.table("house_1")\
-            .select("Time, Aggregate")\
-            .gte("Time", start_time)\
-            .lte("Time", base_date.strftime("%Y-%m-%d %H:%M:%S"))\
-            .order("Time")\
-            .limit(5000)\
-            .execute()
-        
-        rows = response.data
-        aggregated_energy = defaultdict(float)
-        aggregated_peak = defaultdict(float)
-        keys_order = []
-        start_dt = parser.parse(start_time)
-
-        for row in rows:
-            dt = parser.parse(row['Time'])
-            power = float(row.get('Aggregate') or 0)
-            energy = (power / 1000.0) * (8.0 / 3600.0)
-
-            if mode == 'monthly_weeks':
-                days_diff = (dt - start_dt).days
-                week_num = min((days_diff // 7) + 1, 4)
-                key = f"Week {week_num}"
-            else:
-                key = dt.strftime(label_fmt)
-
-            if key not in aggregated_energy:
-                keys_order.append(key)
-
-            aggregated_energy[key] += energy
-            if power > aggregated_peak[key]:
-                aggregated_peak[key] = power
-
-        values_energy = [round(aggregated_energy[k], 4) for k in keys_order]
-        values_peak = [round(aggregated_peak[k], 2) for k in keys_order]
-        costs = [calculate_cost(v) for v in values_energy]
-        
-        return jsonify({
-            "labels": keys_order,
-            "values_total": values_energy,
-            "values_peak": values_peak,
-            "total_consumption": round(sum(values_energy), 3),
-            "total_cost": round(sum(costs), 2),
-            "peak_consumption": round(max(values_peak) if values_peak else 0, 2)
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@website_bp.route('/device_energy')
-def device_energy():
-    try:
-        response = g.supabase.table("house_1").select("Appliance_Name, Aggregate").neq("Appliance_Name", "Idle").order("Time", desc=True).limit(1000).execute()
-        
-        device_totals = {}
-        for row in response.data:
-            name = row.get("Appliance_Name")
-            power = float(row.get("Aggregate", 0))
-            if name not in device_totals:
-                device_totals[name] = 0
-            device_totals[name] += (power / 1000.0) * (8.0 / 3600.0) 
-            
-        return jsonify({
-            "device_names": list(device_totals.keys()),
-            "device_energy": [round(val, 3) for val in device_totals.values()]
-        })
-    except Exception as e:
-        return jsonify({"device_names": [], "device_energy": []})
-
-@website_bp.route('/report/device_breakdown/<report_type>')
-def device_breakdown(report_type):
-    return jsonify({"devices": []})
-
+    current_user_id = session.get('user_id') 
+    
+    return render_template('analytics.html', 
+                           dynamic_user_id=current_user_id,
+                           current_user=session.get('user_profile', {}))
 
 # ==========================================
 # COMMUNITY HUB ROUTES

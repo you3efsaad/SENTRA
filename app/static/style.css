@@ -4440,8 +4440,18 @@ input:checked+.slider:after {
 
 .analytics-page {
     background-color: var(--bg-dark);
-    background-image: radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.15) 0%, transparent 40%),
+    background-image: radial-gradient(circle at 10% 20%,
+    rgba(188,
+    19,
+    254,
+    0.15) 0%,
+    transparent 40%),
+    radial-gradient(circle at 90% 80%,
+    rgba(0,
+    242,
+    255,
+    0.15) 0%,
+    transparent 40%),
     url('{{ url_for("static", filename="images/background.png") }}');
     background-size: cover;
     background-attachment: fixed;
@@ -4459,8 +4469,8 @@ input:checked+.slider:after {
 
 .analytics-page .card {
     background: rgba(15, 23, 42, 0.276) !important;
-    backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 30px;
@@ -4565,6 +4575,29 @@ input:checked+.slider:after {
     height: 20px;
     transition: 0.2s;
 }
+.cyber-chart-box {
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(20, 30, 60, 0.4), rgba(5, 10, 25, 0.8));
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.1), inset 0 0 15px rgba(56, 189, 248, 0.05);
+    position: relative;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.cyber-chart-box:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.25), inset 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.analytics-page h2, 
+.neon-chart-title {
+    margin-bottom: 25px !important;
+}
 
 .analytics-page .date-input::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
@@ -4587,11 +4620,7 @@ input:checked+.slider:after {
     cursor: pointer;
     text-transform: uppercase;
     transition: transform 0.2s;
-    box-shadow:
-        inset 0 0 20px rgba(0, 243, 255, 0.5),
-        inset 0 4px 15px rgba(255, 255, 255, 0.4),
-        0 0 20px rgba(0, 243, 255, 0.5),
-        0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.5), inset 0 4px 15px rgba(255, 255, 255, 0.4), 0 0 20px rgba(0, 243, 255, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .analytics-page .search-btn:hover {
@@ -4742,67 +4771,163 @@ input:checked+.slider:after {
 }
 
 @media (max-width: 992px) {
-    .filters-bar {
+    .analytics-page .filters-bar {
         grid-template-columns: 1fr 1fr;
     }
-
-    .search-btn {
+    .analytics-page .search-btn {
         grid-column: span 2;
     }
 }
 
 @media (max-width: 768px) {
-    .filters-bar {
-        grid-template-columns: 1fr;
+    .analytics-page .cyber-chart-box {
+        height: 300px !important;
+        padding: 10px;
     }
 
-    .search-btn {
-        grid-column: span 1;
+    .analytics-page .card-header .subtitle {
+        display: none;
     }
 
-    .panel-left,
-    .panel-right {
-        flex: 0 0 70px;
-    }
-
-    .panel-icon {
-        width: 80px;
-    }
-}
-
-@media (max-width: 600px) {
-    .filters-bar {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 15px;
-    }
-
-    .search-btn {
-        grid-column: span 1;
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    .date-input {
+    .analytics-page h2 {
         font-size: 1.1rem;
+        margin-top: 30px !important;
     }
 
-    .input-group label {
-        font-size: 0.8rem;
+    .analytics-page .donut-box {
+        height: 250px !important;
     }
 
-    .summary-panel {
-        padding: 15px;
+    .analytics-page canvas#carbonComparisonChart {
+        max-height: 250px;
     }
 
-    .panel-center p {
-        font-size: 1.8rem;
+    .analytics-page .summary-panel {
+        padding: 15px !important;
     }
 
-    .panel-icon {
-        width: 60px;
+    .analytics-page .filters-bar .date-input {
+        font-size: 0.8rem; /* Reduces the size of the text/placeholder inside the input */
+        padding: 2px 5px;  /* Adjusts the inner spacing so the text fits perfectly */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .analytics-page .filters-bar .input-group label {
+        font-size: 0.85rem; /* Optionally reduces the label text size to match */
+        margin-bottom: 4px;
+    }
+    .analytics-page .panel-center p {
+        font-size: 1.5rem !important;
     }
 }
+
+@media (max-width: 480px) {
+    .analytics-page h1.neon-header {
+        font-size: 1.2rem;
+    }
+
+    .analytics-page .cyber-chart-box {
+        height: 250px !important;
+    }
+
+    .analytics-page .donut-box {
+        height: 200px !important;
+    }
+
+    .analytics-page .neon-chart-title {
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+}
+@media (max-width: 600px) {
+    .analytics-page {
+        padding: 10px;
+    }
+    .analytics-page .tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    .analytics-page .tab {
+        flex: 1 1 40%;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+    .analytics-page .summary-panel {
+        flex-direction: column;
+        padding: 20px 15px;
+        gap: 10px;
+        text-align: center;
+    }
+    .analytics-page .panel-left,
+    .analytics-page .panel-right {
+        display: none; 
+    }
+    .analytics-page .panel-center p {
+        font-size: 2rem;
+    }
+
+    .analytics-page .panel-center p {
+        font-size: 1.2rem !important;
+    }
+    
+    .analytics-page .panel-center h3 {
+        font-size: 0.75rem !important;
+    }
+    
+    .analytics-page .stats-container {
+        gap: 10px !important;
+    }
+    
+    .analytics-page .summary-panel {
+        padding: 15px 10px !important;
+    }
+    
+    .analytics-page .cyber-chart-box {
+        height: 350px !important;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    .analytics-page canvas#historicalChart {
+        min-height: 300px !important;
+        margin-left: -1px !important;
+        width: calc(100% + 15px) !important;
+    }
+
+    .analytics-page .donut-box {
+        height: 250px !important;
+    }
+    .analytics-page #ai-tips-container {
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
+    }
+    
+    .analytics-page #ai-tips-container > div {
+        padding: 12px 10px !important;
+        gap: 10px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .analytics-page #ai-tips-container input[type="checkbox"] {
+        width: 16px !important;
+        height: 16px !important;
+        flex-shrink: 0 !important;
+        margin-top: 2px !important;
+    }
+    
+    .analytics-page #ai-tips-container label {
+        word-break: break-word !important;
+    }
+}
+
 
 /* ========================== */
 /* This is the Profile Page */
@@ -5076,6 +5201,33 @@ select.cyber-input:focus {
         text-align: center;
     }
 }
+
+.prediction-chart-container {
+    width: 100%;
+    height: 350px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(20, 30, 60, 0.4), rgba(5, 10, 25, 0.8));
+    border: 1px solid rgba(187, 19, 254, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(187, 19, 254, 0.1), inset 0 0 15px rgba(187, 19, 254, 0.05);
+    position: relative;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.prediction-chart-container:hover {
+    border-color: #bb13fe;
+    box-shadow: 0 0 25px rgba(187, 19, 254, 0.2), inset 0 0 20px rgba(187, 19, 254, 0.1);
+}
+
+@media (max-width: 768px) {
+    .prediction-chart-container {
+        height: 280px;
+        padding: 10px;
+    }
+}
+
 
 /* ========================================= */
 /* Universal Responsive Fixes For All Pages  */

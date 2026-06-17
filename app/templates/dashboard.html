@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             background-image: url('{{ url_for("static", filename="images/background.png") }}') !important;
@@ -304,6 +305,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="devices-section-wrapper" id="ai-predictions-section">
+                        <div class="section-header-row">
+                            <h2 class="section-title">
+                                <i class="fa-solid fa-chart-line glowing-icon" style="color: #bb13fe; text-shadow: 0 0 10px rgba(187, 19, 254, 0.6);"></i>
+                                AI Future Predictions
+                            </h2>
+                        </div>
+                        
+                        <div class="prediction-chart-container">
+                            <canvas id="futurePredictionsChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -381,7 +394,9 @@
                     </button>
                 </div>
             </div>
+            
         </div>
+        
 
     </div>
 
