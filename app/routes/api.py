@@ -120,7 +120,7 @@ def receive_data():
                 
                 # Update the threshold from 120 to 8 seconds
                 if not last_insert or (now - last_insert).total_seconds() >= 8:
-                    db_device_name = esp["data"]["ai_device_name"] if esp.get("is_main", False) and "ai_device_name" in esp["data"] else esp["data"]["ac_device_name"]
+                    db_device_name = esp["data"].get("ac_device_name", "Unknown Device")
                     
                     g.supabase.table("user_readings").insert({
                         "user_id": user_id,
