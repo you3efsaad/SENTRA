@@ -17,6 +17,7 @@ def init_esp_state(espid):
                 "energy": 0,
                 "frequency": 0,
                 "pf": 0,
+                "total_dashboard_cost": 0.0,
                 "ac_device_name": "Idle",
                 "ai_device_name": "Idle",
                 "ai_cluster_id": -1
@@ -43,6 +44,7 @@ def init_esp_state(espid):
                 "flag_high_voltage": False,
                 "flag_low_voltage": False,
                 "budget_start_time": None,
+                "user_segment": 1,
                 "budget_locked": False
             },
             "last_update_time": datetime.now(),

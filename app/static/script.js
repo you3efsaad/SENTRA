@@ -260,6 +260,11 @@ window.updateNavigationState = function () {
         }
     }
 
+    const aiPredictionsSection = document.getElementById('ai-predictions-section');
+    if (aiPredictionsSection) {
+        aiPredictionsSection.style.display = isMainMeterActive ? 'block' : 'none';
+    }
+
     if (isMainMeterActive && document.body.classList.contains('settings-page')) {
         window.location.href = '/dashboard';
     }
@@ -452,6 +457,11 @@ function updateDashboardUI(data) {
         safeTxt('energy-value', data.energy + ' kWh');
         safeTxt('frequency-value', data.frequency + ' Hz');
         safeTxt('power_factor-value', data.pf);
+
+        const costElement = document.getElementById('cost-value');
+        if (costElement && data.total_dashboard_cost !== undefined) {
+            costElement.textContent = parseFloat(data.total_dashboard_cost).toFixed(2) + ' EGP';
+        }
 
         const dot = document.getElementById('status-dot');
         const txt = document.getElementById('status-text');
@@ -809,36 +819,36 @@ async function confirmAddDevice() {
         }
     }
 }
-window.editSafeDevice = async function (espid, currentName) {
-    const { value: newName } = await Swal.fire({
-        title: 'تعديل اسم الجهاز',
-        input: 'text',
-        inputValue: currentName,
-        showCancelButton: true,
-        background: 'rgba(15, 23, 42, 0.95)',
-        color: '#fff',
-        confirmButtonColor: '#00f3ff',
-        cancelButtonColor: '#ff4d4d',
-        inputValidator: (value) => {
-            if (!value) return 'يجب كتابة اسم للجهاز!'
-        }
-    });
+// window.editSafeDevice = async function (espid, currentName) {
+//     const { value: newName } = await Swal.fire({
+//         title: 'تعديل اسم الجهاز',
+//         input: 'text',
+//         inputValue: currentName,
+//         showCancelButton: true,
+//         background: 'rgba(15, 23, 42, 0.95)',
+//         color: '#fff',
+//         confirmButtonColor: '#00f3ff',
+//         cancelButtonColor: '#ff4d4d',
+//         inputValidator: (value) => {
+//             if (!value) return 'يجب كتابة اسم للجهاز!'
+//         }
+//     });
 
-    if (newName) {
-        try {
-            const res = await fetch('/api/edit_safe_power_device', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ espid: parseInt(espid), name: newName })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                window.showMyDeviceIDs();
-                window.loadEspTabs();
-            } else alert("Error: " + data.message);
-        } catch (e) { alert("خطأ في الاتصال"); }
-    }
-};
+//     if (newName) {
+//         try {
+//             const res = await fetch('/api/edit_safe_power_device', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({ espid: parseInt(espid), name: newName })
+//             });
+//             const data = await res.json();
+//             if (data.status === 'success') {
+//                 window.showMyDeviceIDs();
+//                 window.loadEspTabs();
+//             } else alert("Error: " + data.message);
+//         } catch (e) { alert("خطأ في الاتصال"); }
+//     }
+// };
 
 window.deleteSafeDevice = async function (espid) {
     const confirmation = await window.cyberConfirm("Are you sure you want to delete this device? You will no longer be able to monitor it.");
@@ -858,6 +868,174 @@ window.deleteSafeDevice = async function (espid) {
     }
 };
 
+function calculateCostBySegment(energyKwh, segmentNumber) {
+    const segmentPrices = {
+        1: 0.58,
+        2: 0.68,
+        3: 0.83,
+        4: 1.25,
+        5: 1.40,
+        6: 1.50,
+        7: 1.65
+    };
+    
+    const price = segmentPrices[segmentNumber] || 0.58; 
+    return energyKwh * price;
+}
+
+function runDynamicReactorEngine() {
+    const aiMode = document.getElementById('ai-mode-content');
+    const reactorMode = document.getElementById('reactor-mode-content');
+    if (!aiMode || !reactorMode) return;
+
+    const activeTab = document.querySelector('.esp-tabs-wrapper .active');
+    if (!activeTab) return;
+
+    const tabText = activeTab.textContent.toUpperCase();
+    
+    if (tabText.includes('TOTAL') || tabText.includes('MAIN')) {
+        aiMode.style.display = 'flex';
+        reactorMode.style.display = 'none';
+        return;
+    }
+
+    aiMode.style.display = 'none';
+    reactorMode.style.display = 'flex';
+
+    const cleanDeviceName = activeTab.textContent.replace(/⚡|[\d.]+\s*W|[\d.]+\s*A/gi, '').trim();
+    
+    let currentAmp = 0;
+    let powerW = 0;
+
+    const ampElement = document.getElementById('current-value');
+    const powerElement = document.getElementById('livePowerValue') || document.getElementById('power-value');
+
+    if (ampElement) currentAmp = parseFloat(ampElement.textContent) || 0;
+    if (powerElement) powerW = parseFloat(powerElement.textContent) || 0;
+
+    const nameEl = document.getElementById('reactorDeviceName');
+    const ampValEl = document.getElementById('reactorAmpValue');
+    const limitEl = document.getElementById('reactorAmpLimit');
+    const badgeEl = document.getElementById('reactorStatusBadge');
+    const ringEl = document.getElementById('reactorRingProgress');
+    const iconContainer = document.getElementById('reactorIcon');
+    const reactorCard = document.getElementById('dynamic-ai-card');
+    const glowEl = document.getElementById('reactorGlow');
+
+    if (nameEl) nameEl.textContent = cleanDeviceName;
+    if (ampValEl) ampValEl.textContent = currentAmp.toFixed(2);
+
+    let maxLimit = 15;
+    const upperName = cleanDeviceName.toUpperCase();
+
+    if (window.sysSettings && window.sysSettings.current_limit) {
+        maxLimit = parseFloat(window.sysSettings.current_limit);
+    } else {
+        if (upperName.includes('AC') || upperName.includes('CONDITIONER')) maxLimit = 20;
+        else if (upperName.includes('FRIDGE') || upperName.includes('REFRIGERATOR')) maxLimit = 10;
+        else if (upperName.includes('KETTLE')) maxLimit = 12;
+        else if (upperName.includes('HEATER')) maxLimit = 16;
+    }
+    
+    if (limitEl) limitEl.textContent = maxLimit;
+
+    let iconClass = "fa-solid fa-microchip";
+    
+    if (upperName.includes('KETTLE') || upperName.includes('COFFEE') || upperName.includes('TEA')) {
+        iconClass = "fa-solid fa-mug-hot";
+    }
+    else if (upperName.includes('AC') || upperName.includes('CONDITIONER')) {
+        iconClass = "fa-solid fa-wind";
+    }
+    else if (upperName.includes('FRIDGE') || upperName.includes('REFRIGERATOR')) {
+        iconClass = "fa-solid fa-snowflake";
+    }
+    else if (upperName.includes('WASH') || upperName.includes('LAUNDRY')) {
+        iconClass = "fa-solid fa-jug-detergent";
+    }
+    else if (upperName.includes('MICROWAVE') || upperName.includes('OVEN')) {
+        iconClass = "fa-solid fa-fire-burner";
+    }
+    else if (upperName.includes('HEAT') || upperName.includes('BOILER')) {
+        iconClass = "fa-solid fa-temperature-arrow-up";
+    }
+    else if (upperName.includes('IRON')) {
+        iconClass = "fa-solid fa-shirt";
+    }
+    else if (upperName.includes('TV') || upperName.includes('SCREEN')) {
+        iconClass = "fa-solid fa-tv";
+    }
+    else if (upperName.includes('ROUTER') || upperName.includes('WIFI')) {
+        iconClass = "fa-solid fa-wifi";
+    }
+    else if (upperName.includes('LAMP') || upperName.includes('LIGHT') || upperName.includes('BULB')) {
+        iconClass = "fa-solid fa-lightbulb";
+    }
+    else {
+        iconClass = "fa-solid fa-plug-circle-bolt";
+    }
+
+    if (iconContainer) {
+        iconContainer.innerHTML = `<i class="${iconClass}"></i>`;
+    }
+    
+    const percentage = Math.min((currentAmp / maxLimit) * 100, 100);
+    const radius = 45;
+    const circumference = 2 * Math.PI * radius;
+    let dashoffset = circumference - (percentage / 100) * circumference;
+
+    if (ringEl) {
+        ringEl.style.strokeDasharray = circumference;
+    }
+
+    if (reactorCard) {
+        reactorCard.classList.remove('reactor-safe', 'reactor-warning', 'reactor-critical', 'reactor-standby');
+
+        if (powerW < 3) {
+            reactorCard.classList.add('reactor-standby');
+            if (badgeEl) {
+                badgeEl.textContent = "STANDBY";
+                badgeEl.style.color = "#94a3b8";
+                badgeEl.style.background = "rgba(148, 163, 184, 0.1)";
+            }
+            if (ringEl) ringEl.style.strokeDashoffset = circumference;
+        } else {
+            if (ringEl) ringEl.style.strokeDashoffset = dashoffset;
+
+            if (percentage <= 50) {
+                reactorCard.classList.add('reactor-safe');
+                if (badgeEl) {
+                    badgeEl.textContent = "SAFE";
+                    badgeEl.style.color = "#00f3ff";
+                    badgeEl.style.background = "rgba(0, 243, 255, 0.15)";
+                }
+            } else if (percentage <= 80) {
+                reactorCard.classList.add('reactor-warning');
+                if (badgeEl) {
+                    badgeEl.textContent = "WARNING";
+                    badgeEl.style.color = "#facc15";
+                    badgeEl.style.background = "rgba(250, 204, 21, 0.15)";
+                }
+            } else {
+                reactorCard.classList.add('reactor-critical');
+                if (badgeEl) {
+                    badgeEl.textContent = "CRITICAL";
+                    badgeEl.style.color = "#ff4d4d";
+                    badgeEl.style.background = "rgba(255, 77, 77, 0.15)";
+                }
+            }
+        }
+    }
+
+    if (glowEl && powerW >= 3) {
+        const animSpeed = Math.max(0.2, 2.0 - (powerW / 2000));
+        glowEl.style.animation = `pulseGlow ${animSpeed}s infinite alternate`;
+    } else if (glowEl) {
+        glowEl.style.animation = 'none';
+    }
+}
+
+setInterval(runDynamicReactorEngine, 500);
 // ==================================================
 // SUPABASE AI PREDICTIONS CHART
 // ==================================================
@@ -1340,6 +1518,9 @@ window.submitCurrentLimit = async function () {
             alert("Current Limit Saved Successfully!");
             document.getElementById('ww').innerText = val;
             document.getElementById('current-limit').value = '';
+            
+            if (!window.sysSettings) window.sysSettings = {};
+            window.sysSettings.current_limit = parseFloat(val);
         } else {
             alert("Error: " + (data.message || "Failed to save."));
         }
@@ -1571,11 +1752,11 @@ window.sendCommand = async (cmd) => {
 
         const data = await response.json();
 
-
-
         if (data.status === 'success') {
             window.updateRemoteUI(cmd);
             alert(`Command Sent: ${cmd.toUpperCase()}`);
+        } else {
+            alert(`Error: ${data.message || 'Action failed'}`);
         }
     } catch (e) {
         console.error("Command Error:", e);

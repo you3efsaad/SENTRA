@@ -76,9 +76,21 @@ def receive_data():
                 pass
 
         if old_energy > 0 and new_energy >= old_energy:
-            current_consumed = esp["settings"].get('consumed_since_budget', 0.0)
             increment = new_energy - old_energy
+            
+            current_consumed = esp["settings"].get('consumed_since_budget', 0.0)
             esp["settings"]["consumed_since_budget"] = current_consumed + increment
+
+            user_segment = int(esp["settings"].get("user_segment", 1))
+            segment_prices = {1: 0.58, 2: 0.68, 3: 0.83, 4: 1.25, 5: 1.40, 6: 1.50, 7: 1.65}
+            current_price = segment_prices.get(user_segment, 0.58)
+
+            current_dash_cost = esp["data"].get("total_dashboard_cost", 0.0)
+
+            if current_dash_cost == 0.0 and old_energy > 0:
+                current_dash_cost = old_energy * current_price
+
+            esp["data"]["total_dashboard_cost"] = current_dash_cost + (increment * current_price)
 
         esp["data"]["voltage"] = float(data.get("voltage", 0))
         esp["data"]["current"] = float(data.get("current", 0))
@@ -206,7 +218,6 @@ def update_wifi_config():
 # ==========================================
 @api_bp.route('/control', methods=['GET', 'POST'])
 @api_bp.route('/esp_command', methods=['GET', 'POST'])
-@api_bp.route('/set_command', methods=['POST']) 
 def control_device():
     data = request.get_json(silent=True) or {}
     

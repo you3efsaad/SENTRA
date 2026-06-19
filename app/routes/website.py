@@ -346,6 +346,7 @@ def get_latest_readings():
         "current": float(data.get('current', 0)),
         "power": float(data.get('power', 0)),
         "energy": float(data.get('energy', 0)),
+        "total_dashboard_cost": float(data.get('total_dashboard_cost', 0.0)),
         "frequency": float(data.get('frequency', 0)),
         "pf": float(data.get('pf', 0)),
         "command": esp["control"].get("latest_command", "off"),

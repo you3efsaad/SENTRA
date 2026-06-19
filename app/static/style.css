@@ -1648,6 +1648,7 @@ hr.subtle-divider {
     margin: 20px auto;
 }
 
+
 .frequency-card {
     grid-area: freq;
     max-width: 200px !important;
@@ -1661,6 +1662,27 @@ hr.subtle-divider {
     width: 100% !important;
     margin-left: 20px !important;
 }
+
+.power_factor-card .metric-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important; /* Pushes the title to the right */
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.power_factor-card .metric-title {
+    margin-top: -60px !important;
+    margin-bottom: 8px !important;
+    margin-left: 1px !important;
+    white-space: nowrap !important;
+}
+
+.power_factor-card .metric-value {
+    align-self: flex-start !important; /* Pulls ONLY the value to the left */
+    margin-left: -500px !important; /* Adjust this to move the number left or right */
+}
+
 
 .voltage-card {
     grid-area: volt;
@@ -2404,138 +2426,110 @@ hr.subtle-divider {
     height: 0;
 }
 
-#ai-mode-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
+
+/* Reactor Core CSS inside AI Card */
+.hud-title {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    font-family: 'Orbitron', sans-serif;
 }
 
-.hidden-view {
-    display: none !important;
+#reactorDeviceName {
+    color: #ffffff;
+    font-size: 2rem;
+    font-family: 'Rajdhani', sans-serif;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-.active-view {
+.amp-readout {
+    color: #e2e8f0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    font-family: 'Rajdhani', sans-serif;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.device-core-card {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-}
-
-.core-data {
-    display: flex;
-    flex-direction: column;
     gap: 8px;
 }
 
-.core-title {
-    color: #0ff;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    margin: 0;
-    text-transform: uppercase;
-}
-
-.amp-stats {
-    font-size: 1.4rem;
-    color: #fff;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-}
-
-.limit-divider {
-    color: #555;
-    font-size: 1rem;
-}
-
-.core-visual {
+.hologram-core {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
-    width: 110px;
-    height: 110px;
 }
 
-.limit-ring {
+.limit-ring-svg {
+    position: absolute;
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
 }
 
-.ring-bg {
+.hologram-core .ring-bg {
     fill: none;
     stroke: rgba(255, 255, 255, 0.05);
-    stroke-width: 6;
+    stroke-width: 5;
 }
 
-.ring-fill {
+.hologram-core .ring-progress {
     fill: none;
-    stroke: #0ff;
-    stroke-width: 6;
+    stroke-width: 5;
+    stroke-linecap: round;
     stroke-dasharray: 283;
     stroke-dashoffset: 283;
-    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease;
-    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
 }
 
-.hologram-container {
+.digital-twin-icon {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.8);
+    z-index: 3;
+    transition: color 0.5s ease, transform 0.3s ease;
+}
+
+.hologram-glow {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2rem;
-    color: #0ff;
-    filter: drop-shadow(0 0 8px #0ff);
-    transition: filter 0.5s ease, color 0.5s ease;
+    width: 50%;
+    height: 50%;
+    border-radius: 50%;
+    filter: blur(15px);
+    z-index: 1;
+    transition: background 0.5s ease;
 }
 
-.badge-safe {
-    background: rgba(0, 255, 255, 0.1);
-    color: #0ff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    border: 1px solid #0ff;
-    width: fit-content;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
+.reactor-safe .ring-progress { stroke: #00f3ff; filter: drop-shadow(0 0 4px #00f3ff); }
+.reactor-safe #reactorStatusBadge { background: rgba(0, 243, 255, 0.1); color: #00f3ff; border: 1px solid #00f3ff; }
+.reactor-safe .hologram-glow { background: rgba(0, 243, 255, 0.3); animation: reactorBreathe 2s infinite alternate; }
+.reactor-safe .digital-twin-icon { color: #00f3ff; }
 
-.badge-warning {
-    background: rgba(255, 165, 0, 0.1);
-    color: orange;
-    padding: 4px 12px;
-    border-radius: 4px;
-    border: 1px solid orange;
-    width: fit-content;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
+.reactor-warning .ring-progress { stroke: #f59e0b; filter: drop-shadow(0 0 4px #f59e0b); }
+.reactor-warning #reactorStatusBadge { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid #f59e0b; }
+.reactor-warning .hologram-glow { background: rgba(245, 158, 11, 0.3); animation: reactorBreathe 1.2s infinite alternate; }
+.reactor-warning .digital-twin-icon { color: #f59e0b; }
 
-.badge-critical {
-    background: rgba(255, 0, 0, 0.1);
-    color: red;
-    padding: 4px 12px;
-    border-radius: 4px;
-    border: 1px solid red;
-    width: fit-content;
-    font-size: 0.8rem;
-    font-weight: bold;
-    animation: critical-pulse 1s infinite;
-}
+.reactor-critical .ring-progress { stroke: #ef4444; filter: drop-shadow(0 0 8px #ef4444); animation: criticalRingPulse 0.8s infinite alternate; }
+.reactor-critical #reactorStatusBadge { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; animation: criticalBadgePulse 0.8s infinite alternate; }
+.reactor-critical .hologram-glow { background: rgba(239, 68, 68, 0.5); animation: reactorBreathe 0.5s infinite alternate; }
+.reactor-critical .digital-twin-icon { color: #ef4444; animation: criticalIconPulse 0.8s infinite alternate; }
 
-@keyframes critical-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
-}
+.reactor-standby .ring-progress { stroke: rgba(255, 255, 255, 0.05); filter: none; }
+.reactor-standby #reactorStatusBadge { background: rgba(255, 255, 255, 0.02); color: #475569; border: 1px solid #334155; }
+.reactor-standby .hologram-glow { background: transparent; animation: none; }
+.reactor-standby .digital-twin-icon { color: #334155; transform: scale(0.9); }
+
+@keyframes reactorBreathe { 0% { transform: scale(0.85); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0.8; } }
+@keyframes criticalRingPulse { 0% { stroke-width: 5; filter: drop-shadow(0 0 4px #ef4444); } 100% { stroke-width: 7; filter: drop-shadow(0 0 12px #ef4444); } }
+@keyframes criticalBadgePulse { 0% { transform: scale(1); box-shadow: 0 0 0 rgba(239, 68, 68, 0); } 100% { transform: scale(1.03); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); } }
+@keyframes criticalIconPulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); filter: drop-shadow(0 0 5px #ef4444); } }
+
+
 
 .slider {
     position: absolute;

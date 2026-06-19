@@ -116,21 +116,48 @@
                                     stroke-linejoin="round" pathLength="1" class="ai-beam-path" />
                             </svg>
 
-                            <div class="ai-card-inner">
-                                <div class="ai-text-content">
-                                    <h3 class="ai-label">Active Device (AI)</h3>
-                                    <div class="ticker-mask">
-                                        <h1 class="ai-status" id="ai-device-name">Idle</h1>
+                            <div class="ai-card-inner" id="dynamic-ai-card" style="width: 100%; height: 100%; min-height: 180px;">
+    
+                                <div id="ai-mode-content" style="display: flex; width: 100%; height: 100%; justify-content: space-between; align-items: flex-start; padding-top: 15px;">
+                                    <div class="ai-text-content">
+                                        <h3 class="ai-label">Active Device (AI)</h3>
+                                        <div class="ticker-mask">
+                                            <h1 class="ai-status" id="ai-device-name">Idle</h1>
+                                        </div>
+                                        <div class="ai-badge-container">
+                                            <span id="ai-device-status" class="status-badge">Standby</span>
+                                        </div>
                                     </div>
-                                    <div class="ai-badge-container">
-                                        <span id="ai-device-status" class="status-badge">Standby</span>
+                                    <div class="ai-visual-content">
+                                        <img src="/static/images/brain-glow.png" alt="AI Brain" class="brain-img">
                                     </div>
                                 </div>
 
-                                <div class="ai-visual-content">
-                                    <img src="{{ url_for('static', filename='images/brain-glow.png') }}" alt="AI Brain"
-                                        class="brain-img">
+                                <div id="reactor-mode-content" style="display: none; width: 100%; height: 100%; justify-content: space-between; align-items: flex-start; padding-top: 15px;">
+                                    <div class="ai-text-content">
+                                        <h2 class="device-name" id="reactorDeviceName" style="margin-top: 0;">--</h2>
+                                        <div class="amp-readout">
+                                            <i class="fa-solid fa-charging-station"></i>
+                                            <span id="reactorAmpValue">0.00</span>A / <span id="reactorAmpLimit">15</span>A MAX
+                                        </div>
+                                        <div class="ai-badge-container" style="margin-top: 10px;">
+                                            <span id="reactorStatusBadge" class="status-badge">STANDBY</span>
+                                        </div>
+                                    </div>
+                                    <div class="ai-visual-content" style="display: flex; justify-content: center; align-items: center;">
+                                        <div class="hologram-core">
+                                            <svg class="limit-ring-svg" viewBox="0 0 100 100">
+                                                <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
+                                                <circle class="ring-progress" id="reactorRingProgress" cx="50" cy="50" r="45"></circle>
+                                            </svg>
+                                            <div class="digital-twin-icon" id="reactorIcon">
+                                                <i class="fa-solid fa-microchip"></i>
+                                            </div>
+                                            <div class="hologram-glow" id="reactorGlow"></div>
+                                        </div>
+                                    </div>
                                 </div>
+
                             </div>
                             <input type="hidden" id="current-cluster-id">
                         </div>
