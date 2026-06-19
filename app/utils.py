@@ -82,14 +82,18 @@ def check_device_power_range(user_id, espid, device_name, power, esp_state):
         esp_state["settings"][flag_key] = False
 
 # Continuously monitors all connected ESP devices for conditions, limits, and anomalies.
+# Continuously monitors all connected ESP devices for conditions, limits, and anomalies.
 def monitor_background_logic():
     try:
-        # [تعديل 1]: استخدام list() لمنع الـ Crash أثناء مسح أي جهاز
+        # استخدام list() لمنع الـ Crash أثناء مسح أي جهاز
         for espid, esp in list(g.esps.items()):
+            
+            # 1. التايمر: نقفل الجهاز بس لو مكنش العداد الرئيسي
             if esp["timer"]["end_time"]:
                 now = datetime.now()
                 if now >= esp["timer"]["end_time"]:
-                    esp["control"]["latest_command"] = 'off'
+                    if not esp.get("is_main", False):  # التعديل: لا تقم بإغلاق العداد الرئيسي
+                        esp["control"]["latest_command"] = 'off'
                     esp["timer"]["end_time"] = None
                     esp["timer"]["paused_remaining"] = None
 
@@ -139,6 +143,7 @@ def monitor_background_logic():
                 except Exception:
                     pass
             
+            # إشعارات الفولتج (أمان) - ممكن تسيبيها للرئيسي عشان لو الفولت عالي جداً ينبهك
             voltage = float(esp["data"].get('voltage', 0))
             max_v = float(esp["settings"].get('max_voltage', 250.0))
             min_v = float(esp["settings"].get('min_voltage', 190.0))
@@ -153,7 +158,8 @@ def monitor_background_logic():
                         espid
                     )
                     esp["settings"]['flag_high_voltage'] = True
-            elif 0 < voltage < min_v:
+                    
+            elif 0 < voltage < min_v: 
                 if not esp["settings"].get('flag_low_voltage', False):
                     create_notification(
                         user_id, 
@@ -167,30 +173,28 @@ def monitor_background_logic():
                 esp["settings"]['flag_high_voltage'] = False
                 esp["settings"]['flag_low_voltage'] = False
 
-            current = float(esp["data"].get('current', 0))
-            c_limit = float(esp["control"].get('current_limit', 100))
-            if current > c_limit:
-                esp["control"]["latest_command"] = 'off'
-                if not esp["settings"].get('flag_current_limit', False):
-                    create_notification(user_id, f"ESP {espid} - CURRENT LIMIT", f"Amperage reached {current}A.", "error", espid)
-                    esp["settings"]['flag_current_limit'] = True
-            else:
-                esp["settings"]['flag_current_limit'] = False
+            # 2. الليميت الخاص بالتيار (Current Limit): يطبق فقط على الأجهزة الفرعية
+            if not esp.get("is_main", False):
+                current = float(esp["data"].get('current', 0))
+                c_limit = float(esp["control"].get('current_limit', 100))
+                if current > c_limit:
+                    esp["control"]["latest_command"] = 'off'
+                    if not esp["settings"].get('flag_current_limit', False):
+                        create_notification(user_id, f"ESP {espid} - CURRENT LIMIT", f"Amperage reached {current}A.", "error", espid)
+                        esp["settings"]['flag_current_limit'] = True
+                else:
+                    esp["settings"]['flag_current_limit'] = False
 
             power = float(esp["data"].get('power', 0))
             device_name = str(esp["data"].get('ac_device_name', 'Idle'))
             
+            # 3. الليميت الخاص بالطاقة (Power): لا نرسل إشعارات ولا نغلق العداد الرئيسي
             if esp.get("is_main", False):
-                p_limit = float(esp["control"].get('power_limit', 5000.0))
-                if power > p_limit:
-                    if not esp["settings"].get('flag_power_limit', False):
-                        create_notification(user_id, f"{device_name} - HIGH LOAD", f"Total house power reached {power}W.", "error", espid)
-                        esp["settings"]['flag_power_limit'] = True
-                else:
-                    esp["settings"]['flag_power_limit'] = False
+                pass # تم إلغاء أي حدود للعداد الرئيسي
             else:
                 check_device_power_range(user_id, espid, device_name, power, esp)
 
+            # 4. الميزانية (Budget): تطبق فقط على الأجهزة الفرعية
             if not esp.get("is_main", False):
                 budget_kwh = float(esp["settings"].get('budget_kwh', 0))
                 consumed = float(esp["settings"].get('consumed_since_budget', 0))

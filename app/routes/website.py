@@ -1096,7 +1096,9 @@ def delete_post():
         user_id = session.get('user_id')
 
         post = g.supabase.table("posts").select("user_id").eq("id", post_id).execute()
-        if not post.data or post.data[0]['user_id'] != user_id:
+        
+        # Cast both variables to string to prevent type mismatch
+        if not post.data or str(post.data[0]['user_id']) != str(user_id):
             return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
         g.supabase.table("posts").delete().eq("id", post_id).execute()
@@ -1152,7 +1154,9 @@ def delete_comment():
         user_id = session.get('user_id')
 
         comment = g.supabase.table("comments").select("user_id").eq("id", comment_id).execute()
-        if not comment.data or comment.data[0]['user_id'] != user_id:
+        
+        # Cast both variables to string to prevent type mismatch
+        if not comment.data or str(comment.data[0]['user_id']) != str(user_id):
             return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
         g.supabase.table("comments").delete().eq("id", comment_id).execute()

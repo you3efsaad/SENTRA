@@ -473,8 +473,10 @@ function updateDashboardUI(data) {
         const efficiencyPercent = (data.pf * 100).toFixed(1);
         safeTxt('efficiency-value', efficiencyPercent + '%');
 
-        const effBar = document.getElementById('efficiency-bar');
-        if (effBar) effBar.style.width = Math.min(efficiencyPercent, 100) + '%';
+        const effRing = document.getElementById('efficiency-ring');
+        if (effRing) {
+            effRing.style.strokeDasharray = `${Math.min(efficiencyPercent, 100)}, 100`;
+        }
 
         const qualityEl = document.getElementById('quality-value');
         if (qualityEl) {
@@ -860,11 +862,16 @@ window.deleteSafeDevice = async function (espid) {
 // SUPABASE AI PREDICTIONS CHART
 // ==================================================
 
-// Initialize Supabase Connection
+
 const SUPABASE_URL = "https://wtsfngscmtmywcklplhj.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0c2ZuZ3NjbXRteXdja2xwbGhqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjEzNDQ0MSwiZXhwIjoyMDg3NzEwNDQxfQ.wYesuGasSOKtuvDwXJdQBZPY4MkTqVsKwKOGmjBtCBA";
-const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let _supabase = null;
+if (window.supabase) {
+    _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+    console.warn("Supabase library not loaded. AI predictions chart will be disabled.");
+}
 async function fetchAndRenderPredictionsChart() {
     console.log("Fetching the last 24 predictions...");
     
@@ -1311,24 +1318,33 @@ window.checkSettingsAccess = function() {
     }
 };
 
-
 window.submitCurrentLimit = async function () {
     const val = document.getElementById('current-limit').value;
     if (!val) return alert("Please enter a value!");
+    
+    const activeId = sessionStorage.getItem('activeEspId');
+    if (!activeId || activeId === "null") return alert("Error: No active device selected from Dashboard!");
 
-    const res = await fetch('/api/update_user_settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            current_limit: parseFloat(val),
-            espid: window.activeEspId
-        })
-    });
+    try {
+        const res = await fetch('/api/update_user_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                current_limit: parseFloat(val),
+                espid: parseInt(activeId)
+            })
+        });
 
-    if ((await res.json()).status === 'success') {
-        alert("Current Limit Saved!");
-        document.getElementById('ww').innerText = val;
-        document.getElementById('current-limit').value = '';
+        const data = await res.json();
+        if (data.status === 'success') {
+            alert("Current Limit Saved Successfully!");
+            document.getElementById('ww').innerText = val;
+            document.getElementById('current-limit').value = '';
+        } else {
+            alert("Error: " + (data.message || "Failed to save."));
+        }
+    } catch (e) {
+        alert("Connection Error.");
     }
 };
 
@@ -2876,8 +2892,12 @@ window.updateCharts = function(data) {
     const deviceConsumption = {};
     data.forEach(item => {
         const device = item.device_name || 'Unknown';
-        const power = parseFloat(item.power) || 0;
-        deviceConsumption[device] = (deviceConsumption[device] || 0) + power;
+        
+        // Skip the main meter from individual device charts
+        if (device.toUpperCase() !== 'TOTAL (MAIN)') {
+            const power = parseFloat(item.power) || 0;
+            deviceConsumption[device] = (deviceConsumption[device] || 0) + power;
+        }
     });
 
     const ctxDonut = document.getElementById('devicesDonutChart').getContext('2d');
