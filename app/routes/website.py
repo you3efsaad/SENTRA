@@ -354,30 +354,7 @@ def get_latest_readings():
         "is_main": is_main
     })
 
-@website_bp.route('/ai-status')
-def ai_status():
-    try:
-        espid_raw = request.args.get('espid')
-        if not espid_raw or espid_raw in ['0', 'null', 'undefined']:
-            return jsonify({"status": "error", "message": "Invalid or missing espid"}), 400
-            
-        espid = int(espid_raw)
-        
-        if hasattr(g, 'esps') and espid in g.esps:
-            esp_data = g.esps[espid]["data"]
-            power = esp_data.get("power", 0)
-            device_name = esp_data.get("ai_device_name", "Idle")
-        else:
-            power = 0
-            device_name = "Idle"
-        
-        return jsonify({
-            "status": "success",
-            "device_name": device_name,
-            "badge_status": "Active" if float(power) > 5 else "Standby"
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+
 @website_bp.route('/set_command', methods=['POST'])
 @login_required
 def handle_web_command():
@@ -795,13 +772,17 @@ def get_energy_budget():
 @login_required
 def get_user_notifications():
     user_id = session.get('user_id')
-    res = g.supabase.table("notifications")\
-        .select("*")\
-        .eq("user_id", user_id)\
-        .order("created_at", desc=True)\
-        .limit(50)\
-        .execute()
-    return jsonify(res.data)
+    try:
+        res = g.supabase.table("notifications")\
+            .select("*")\
+            .eq("user_id", user_id)\
+            .order("created_at", desc=True)\
+            .limit(50)\
+            .execute()
+        return jsonify(res.data)
+    except Exception as e:
+        print(f"Supabase Connection Error in notifications: {e}")
+        return jsonify([]), 200
 
 @website_bp.route('/api/clear_notifications', methods=['POST'])
 @login_required

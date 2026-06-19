@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!body.classList.contains('auth-page')) {
         window.syncNotifications();
-        setInterval(window.syncNotifications, 3000);
+        setInterval(window.syncNotifications, 10000);
     }
 });
 
@@ -352,8 +352,6 @@ function initDashboard() {
 
     initMasterSync();
 
-    setInterval(fetchAIStatus, 4000);
-    fetchAIStatus();
 }
 
 // --- New Function: Check and Auto-create Main Meter ---
@@ -1172,157 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==================================================
 // 6. AI ENGINE & NILM
 // ==================================================
-async function fetchAIStatus() {
-    if (!window.activeEspId) return;
-    try {
-        const response = await fetch(`/ai-status?espid=${window.activeEspId}`);
 
-        const data = await response.json();
-
-        if (data.status === "success") {
-            const deviceNameEl = document.getElementById('ai-device-name');
-            const deviceStatusEl = document.getElementById('ai-device-status');
-            const cardInner = document.querySelector('.ai-card-border');
-
-            if (deviceNameEl) deviceNameEl.textContent = data.device_name;
-
-            if (deviceStatusEl) {
-                deviceStatusEl.textContent = data.badge_status;
-
-                if (data.badge_status === "Active") {
-                    deviceStatusEl.style.backgroundColor = "#10b981";
-                    deviceStatusEl.style.color = "#ffffff";
-                    if (cardInner) cardInner.style.boxShadow = "0 0 20px rgba(0, 234, 255, 0.6)";
-                } else {
-                    deviceStatusEl.style.backgroundColor = "#4b5563";
-                    deviceStatusEl.style.color = "#d1d5db";
-                    if (cardInner) cardInner.style.boxShadow = "none";
-                }
-            }
-        }
-    } catch (error) {
-        console.error("AI Model Connection Error:", error);
-    }
-}
-
-window.SIMULATION_MODE = 'ALL';
-
-const DEVICE_CONFIGS = {
-    KETTLE: { url: '/static/kettle_test.json', cutoff: 3100.0, data: null, startIndex: 0 },
-    FRIDGE: { url: '/static/fridge_test.json', cutoff: 300.0, data: null, startIndex: 0 },
-    WASHING_MACHINE: { url: '/static/washing_test.json', cutoff: 2500.0, data: null, startIndex: 0 }
-};
-
-let timeIndex = 0;
-
-Object.keys(DEVICE_CONFIGS).forEach(device => {
-    fetch(DEVICE_CONFIGS[device].url)
-        .then(response => response.json())
-        .then(json => {
-            DEVICE_CONFIGS[device].data = json.gt;
-
-            if (device === 'KETTLE') {
-                for (let i = 0; i < json.gt.length; i++) {
-                    if (json.gt[i][0] > 0.3) {
-                        DEVICE_CONFIGS[device].startIndex = Math.max(0, i - 470);
-                        break;
-                    }
-                }
-            } else if (device === 'WASHING_MACHINE') {
-                for (let i = 0; i < json.gt.length; i++) {
-                    if (json.gt[i][0] > 0.1) {
-                        DEVICE_CONFIGS[device].startIndex = Math.max(0, i - 470);
-                        break;
-                    }
-                }
-            } else if (device === 'FRIDGE') {
-                for (let i = 0; i < json.gt.length; i++) {
-                    if (json.gt[i][0] > 0.2) {
-                        DEVICE_CONFIGS[device].startIndex = Math.max(0, i - 470);
-                        break;
-                    }
-                }
-            }
-        })
-        .catch(err => console.error(err));
-});
-
-function getCurrentPowerSequence() {
-    const windowSize = 480;
-    let sequence = new Array(windowSize).fill(0);
-
-    for (let i = 0; i < windowSize; i++) {
-        sequence[i] = 10 + (Math.random() * 20);
-    }
-
-    const mode = window.SIMULATION_MODE;
-
-    if (mode === 'OFF') {
-        return sequence;
-    }
-
-    const devicesToSimulate = mode === 'ALL' ? Object.keys(DEVICE_CONFIGS) : [mode];
-
-    devicesToSimulate.forEach(device => {
-        const config = DEVICE_CONFIGS[device];
-
-        if (config.data) {
-            const maxIndex = config.data.length;
-            const startOff = config.startIndex;
-
-            for (let i = 0; i < windowSize; i++) {
-                const dataIndex = (startOff + timeIndex + i) % maxIndex;
-                const normalizedPower = config.data[dataIndex][0];
-                const realPower = normalizedPower * config.cutoff;
-                sequence[i] += realPower;
-            }
-        }
-    });
-
-    timeIndex += 1;
-    return sequence;
-}
-
-async function updateNILMStatus() {
-    try {
-        const powerData = getCurrentPowerSequence();
-
-        const response = await fetch('/api/process_nilm', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sequence: powerData })
-        });
-
-        const result = await response.json();
-
-        if (result.status === "success") {
-            const predictions = result.data;
-
-            Object.keys(predictions).forEach(device => {
-                const deviceData = predictions[device];
-                const toggleElement = document.getElementById(`${device}-toggle`);
-                const powerElement = document.getElementById(`${device}-power`);
-                const cardElement = document.getElementById(`${device}-card`);
-
-                if (toggleElement && powerElement) {
-                    const aiIsOn = (deviceData.status === "ON");
-
-                    toggleElement.checked = aiIsOn;
-                    powerElement.innerText = `${deviceData.power}W`;
-
-                    if (aiIsOn) {
-                        cardElement.style.opacity = "1";
-                    } else {
-                        cardElement.style.opacity = "0.6";
-                    }
-                }
-            });
-        }
-    } catch (error) {
-    }
-}
-
-setInterval(updateNILMStatus, 6000);
 
 // ==================================================
 // 7. CHARTS & ANALYTICS

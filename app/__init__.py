@@ -33,7 +33,7 @@ def create_app():
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=save_hourly_snapshot, trigger="interval", minutes=60)
-    scheduler.add_job(func=monitor_background_logic, trigger="interval", seconds=2)
+    scheduler.add_job(func=monitor_background_logic, trigger="interval", seconds=5)
     scheduler.start()
 
     from app.routes.api import api_bp

@@ -5,34 +5,10 @@ from datetime import datetime
 import google.generativeai as genai
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-# from app.ai_engine.core import SentraNILMEngine
 
 api_bp = Blueprint('api', __name__)
 
-# engine = SentraNILMEngine()
 
-@api_bp.route('/api/process_nilm', methods=['POST'])
-def process_nilm():
-    data = request.json
-    sequence = data.get('sequence', [0]*480) 
-    
-    # print("\n" + "="*50)
-    # print(f"[AI ENGINE] Received new request.")
-    # print(f"[AI ENGINE] Sequence length: {len(sequence)}")
-    # if len(sequence) >= 5:
-    #     print(f"[AI ENGINE] Sample data (first 5): {sequence[:5]}")
-    
-    # predictions = engine.predict_parallel(sequence)
-    
-    # print(f"[AI ENGINE] Prediction Results:")
-    # for device, result in predictions.items():
-    #     print(f"  -> {device.upper()}: Status={result['status']}, Power={result['power']}W")
-    # print("="*50 + "\n")
-    predictions = {}
-    return jsonify({
-        "status": "success",
-        "data": predictions
-    })
 
 # ==========================================
 # 1. Receive Data from ESP32 (The Heartbeat)
@@ -51,15 +27,6 @@ def receive_data():
         new_power = float(data.get("power", 0))
         
         esp["power_buffer"].append(new_power)
-
-        if g.ai_engine is not None and len(esp["power_buffer"]) == 480:
-            predictions = g.ai_engine.predict_parallel(list(esp["power_buffer"]))
-            
-            detected_devices = [dev for dev, res in predictions.items() if res['status'] == 'ON']
-            if detected_devices:
-                esp["data"]["ai_device_name"] = ", ".join(detected_devices)
-            else:
-                esp["data"]["ai_device_name"] = "Idle"
         
         g.init_esp_state(espid)
         esp = g.esps[espid]
