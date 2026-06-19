@@ -819,36 +819,36 @@ async function confirmAddDevice() {
         }
     }
 }
-// window.editSafeDevice = async function (espid, currentName) {
-//     const { value: newName } = await Swal.fire({
-//         title: 'تعديل اسم الجهاز',
-//         input: 'text',
-//         inputValue: currentName,
-//         showCancelButton: true,
-//         background: 'rgba(15, 23, 42, 0.95)',
-//         color: '#fff',
-//         confirmButtonColor: '#00f3ff',
-//         cancelButtonColor: '#ff4d4d',
-//         inputValidator: (value) => {
-//             if (!value) return 'يجب كتابة اسم للجهاز!'
-//         }
-//     });
+window.editSafeDevice = async function (espid, currentName) {
+    const { value: newName } = await Swal.fire({
+        title: 'Edit Device Name',
+        input: 'text',
+        inputValue: currentName,
+        showCancelButton: true,
+        background: 'rgba(15, 23, 42, 0.95)',
+        color: '#fff',
+        confirmButtonColor: '#00f3ff',
+        cancelButtonColor: '#ff4d4d',
+        inputValidator: (value) => {
+            if (!value) return 'Please enter a name for the device!'
+        }
+    });
 
-//     if (newName) {
-//         try {
-//             const res = await fetch('/api/edit_safe_power_device', {
-//                 method: 'POST',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({ espid: parseInt(espid), name: newName })
-//             });
-//             const data = await res.json();
-//             if (data.status === 'success') {
-//                 window.showMyDeviceIDs();
-//                 window.loadEspTabs();
-//             } else alert("Error: " + data.message);
-//         } catch (e) { alert("خطأ في الاتصال"); }
-//     }
-// };
+    if (newName) {
+        try {
+            const res = await fetch('/api/edit_safe_power_device', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ espid: parseInt(espid), name: newName })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                window.showMyDeviceIDs();
+                window.loadEspTabs();
+            } else alert("Error: " + data.message);
+        } catch (e) { alert("Error connecting to the server"); }
+    }
+};
 
 window.deleteSafeDevice = async function (espid) {
     const confirmation = await window.cyberConfirm("Are you sure you want to delete this device? You will no longer be able to monitor it.");
@@ -864,7 +864,7 @@ window.deleteSafeDevice = async function (espid) {
                 window.showMyDeviceIDs();
                 window.loadEspTabs();
             } else alert("Error: " + data.message);
-        } catch (e) { alert("خطأ في الاتصال"); }
+        } catch (e) { alert("Error connecting to the server"); }
     }
 };
 

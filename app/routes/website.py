@@ -995,7 +995,7 @@ def edit_safe_power_device():
     new_name = data.get('name')
     
     if not espid or not new_name:
-        return jsonify({"status": "error", "message": "بيانات ناقصة"}), 400
+        return jsonify({"status": "error", "message": "Please provide both ESPID and new device name."}), 400
         
     try:
         g.supabase.table("safe_power_devices").update({"device_name": new_name})\
@@ -1016,7 +1016,7 @@ def delete_safe_power_device():
     espid = data.get('espid')
     
     if not espid:
-        return jsonify({"status": "error", "message": "ESPID مفقود"}), 400
+        return jsonify({"status": "error", "message": "ESPID is missing"}), 400
         
     try:
         g.supabase.table("safe_power_devices").delete()\

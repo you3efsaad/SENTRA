@@ -45,7 +45,7 @@ body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-main);
     background-color: #1a0b2e !important;
-    background-image: url('../images/background.png') !important;
+    background-image: url('/static/images/background.png') !important;
     background-size: cover !important;
     background-position: center !important;
     background-attachment: fixed !important;

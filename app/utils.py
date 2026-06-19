@@ -85,14 +85,12 @@ def check_device_power_range(user_id, espid, device_name, power, esp_state):
 # Continuously monitors all connected ESP devices for conditions, limits, and anomalies.
 def monitor_background_logic():
     try:
-        # استخدام list() لمنع الـ Crash أثناء مسح أي جهاز
         for espid, esp in list(g.esps.items()):
             
-            # 1. التايمر: نقفل الجهاز بس لو مكنش العداد الرئيسي
             if esp["timer"]["end_time"]:
                 now = datetime.now()
                 if now >= esp["timer"]["end_time"]:
-                    if not esp.get("is_main", False):  # التعديل: لا تقم بإغلاق العداد الرئيسي
+                    if not esp.get("is_main", False):  
                         esp["control"]["latest_command"] = 'off'
                     esp["timer"]["end_time"] = None
                     esp["timer"]["paused_remaining"] = None
