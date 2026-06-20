@@ -1658,31 +1658,10 @@ hr.subtle-divider {
 
 .power_factor-card {
     grid-area: power_factor;
-    max-width: 200px !important;
-    width: 100% !important;
-    margin-left: 20px !important;
+    max-width: 200px;
+    width: 100%;
+    margin-left: 20px;
 }
-
-.power_factor-card .metric-info {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important; /* Pushes the title to the right */
-    justify-content: center !important;
-    width: 100% !important;
-}
-
-.power_factor-card .metric-title {
-    margin-top: -60px !important;
-    margin-bottom: 8px !important;
-    margin-left: 1px !important;
-    white-space: nowrap !important;
-}
-
-.power_factor-card .metric-value {
-    align-self: flex-start !important; /* Pulls ONLY the value to the left */
-    margin-left: -500px !important; /* Adjust this to move the number left or right */
-}
-
 
 .voltage-card {
     grid-area: volt;
