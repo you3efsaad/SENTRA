@@ -3316,9 +3316,6 @@ input:checked+.slider:after {
     }
 }
 
-/* ========================================================= */
-/* EXTRA SMALL SCREENS (<480px)                              */
-/* ========================================================= */
 @media (max-width: 480px) {
     .voltage-card .metric-value, .current-card .metric-value, 
     .energy-card .metric-value, .cost-card .metric-value, 
