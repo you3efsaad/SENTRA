@@ -4,7 +4,6 @@ __pycache__/
 fridge.pth
 kettle.pth
 washing_machine.pth
-ai_engine/
 fridge_test.json
 kettle_test.json
 washing_test.json
