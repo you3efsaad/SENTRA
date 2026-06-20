@@ -1863,30 +1863,40 @@ window.toggleNotificationPopup = function () {
 };
 
 window.submitVoltageLimits = async function () {
-    const minV = document.getElementById('min-voltage').value;
-    const maxV = document.getElementById('max-voltage').value;
+    const minV = document.getElementById('min-voltage').value.trim();
+    const maxV = document.getElementById('max-voltage').value.trim();
 
-    if (!minV || !maxV) return alert("Please enter both min and max values!");
+    if (!minV && !maxV) {
+        return alert("Please enter at least one value (Min or Max)!");
+    }
+
+    const payload = {
+        espid: window.activeEspId
+    };
+
+    if (minV) payload.min_voltage = parseFloat(minV);
+    if (maxV) payload.max_voltage = parseFloat(maxV);
 
     const res = await fetch('/api/update_user_settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            min_voltage: parseFloat(minV),
-            max_voltage: parseFloat(maxV),
-            espid: window.activeEspId
-        })
+        body: JSON.stringify(payload)
     });
 
     if ((await res.json()).status === 'success') {
         alert("Voltage Limits Saved!");
 
         if (!window.sysSettings) window.sysSettings = {};
-        window.sysSettings.min_voltage = parseFloat(minV);
-        window.sysSettings.max_voltage = parseFloat(maxV);
-
-        document.getElementById('active-min-v').innerText = minV;
-        document.getElementById('active-max-v').innerText = maxV;
+        
+        if (minV) {
+            window.sysSettings.min_voltage = parseFloat(minV);
+            document.getElementById('active-min-v').innerText = minV;
+        }
+        
+        if (maxV) {
+            window.sysSettings.max_voltage = parseFloat(maxV);
+            document.getElementById('active-max-v').innerText = maxV;
+        }
 
         document.getElementById('min-voltage').value = '';
         document.getElementById('max-voltage').value = '';
