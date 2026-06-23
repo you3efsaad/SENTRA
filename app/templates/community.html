@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRA - Community Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+</head>
+<body class="nav-page dashboard-page">
+    <div class="layout-wrapper">
+        {% include "navbar.html" %}
+
+        <div class="page" style="flex-direction: column; max-width: 1400px; width: 95%; margin: 0 auto; padding-top: 40px;">
+            
+            <div class="header-section" style="margin-bottom: 30px;">
+                <h1 class="neon-header"><i class="fa-solid fa-users-rays"></i> COMMUNITY HUB</h1>
+                <p class="subtitle">Connect with other system operators and share insights</p>
+            </div>
+            
+            <div class="card glass-card" style="margin-bottom: 40px; padding: 25px;">
+                <div class="post-creator" style="display: flex; align-items: flex-start; gap: 15px;">
+                    <img src="{{ current_user.avatar_url or url_for('static', filename='images/logo.png') }}" 
+                         alt="User" class="nav-avatar" style="width: 55px; height: 55px; flex-shrink: 0;">
+                    
+                    <div style="flex-grow: 1;">
+                        <textarea id="new-post-content" class="cyber-input" 
+                                  placeholder="What's happening in your sector, Operator?" 
+                                  rows="3" style="resize: none; width: 100%; font-size: 1.1rem; padding: 15px;"></textarea>
+                        
+                        <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+                            <button class="btn-confirm" onclick="submitPost()" style="padding: 10px 30px;">
+                                <i class="fa-solid fa-paper-plane" style="margin-right: 8px;"></i> POST 
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="posts-feed">
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="card glass-card post-card" style="margin-bottom: 25px; padding: 25px;">
+                        
+                        <div class="post-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                            <img src="{{ post.users.avatar_url or url_for('static', filename='images/logo.png') }}" 
+                                 class="nav-avatar" style="width: 48px; height: 48px; margin-right: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #00f3ff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem;">{{ post.users.name }}</h3>
+                                <span style="font-size: 0.8rem; color: #94a3b8; font-family: 'Rajdhani', sans-serif;">
+                                    <i class="fa-regular fa-clock"></i> {{ post.created_at[:16] | replace('T', ' ') }}
+                                </span>
+                            </div>
+
+                            {% if post.user_id == session.get('user_id') %}
+                            <div class="post-actions" style="margin-left: auto;">
+                                <button onclick="enableEditMode('{{ post.id }}')" title="Edit Post"
+                                        style="background: none; border: none; color: #00f3ff; cursor: pointer; font-size: 1.2rem; margin-right: 15px; transition: 0.3s;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deletePost('{{ post.id }}')" title="Delete Post"
+                                        style="background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 1.2rem; transition: 0.3s;">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div id="post-content-{{ post.id }}">
+                            <p style="color: #fff; line-height: 1.7; font-size: 1.05rem; white-space: pre-wrap; margin-bottom: 25px;">{{ post.content }}</p>
+                        </div>
+
+                        <div id="edit-box-{{ post.id }}" style="display: none; margin-bottom: 25px;">
+                            <textarea id="edit-input-{{ post.id }}" class="cyber-input" 
+                                      style="width: 100%; resize: none; margin-bottom: 12px; font-size: 1.05rem; padding: 15px;" 
+                                      rows="4">{{ post.content }}</textarea>
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button class="btn-cancel" onclick="cancelEdit('{{ post.id }}')" 
+                                        style="padding: 8px 20px; border: 1px solid #94a3b8; color: #94a3b8;">CANCEL</button>
+                                <button class="btn-confirm" onclick="saveEdit('{{ post.id }}')" 
+                                        style="padding: 8px 20px;">UPDATE</button>
+                            </div>
+                        </div>
+
+                        <div class="comments-section" style="background: rgba(0, 0, 0, 0.25); padding: 20px; border-radius: 12px; border-left: 2px solid #bc13fe;">
+                            <h4 style="color: #bc13fe; margin-top: 0; margin-bottom: 20px; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">
+                                <i class="fa-regular fa-comment-dots"></i> LOG ENTRIES ({{ post.comments|length }})
+                            </h4>
+                            
+                            <div class="comments-list">
+                                {% for comment in post.comments %}
+                                <div class="comment-item" style="display: flex; gap: 12px; margin-bottom: 18px;">
+                                    <img src="{{ comment.users.avatar_url or url_for('static', filename='images/logo.png') }}" 
+                                         class="nav-avatar" style="width: 35px; height: 35px; flex-shrink: 0;">
+                                    <div style="background: rgba(255, 255, 255, 0.04); padding: 12px 18px; border-radius: 12px; width: 100%; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <strong style="color: #00f3ff; font-size: 0.9rem; font-family: 'Rajdhani', sans-serif;">{{ comment.users.name }}</strong>
+                                                <span style="font-size: 0.7rem; color: #64748b;">{{ comment.created_at[:10] }}</span>
+                                            </div>
+                                            
+                                            {% if comment.user_id == session.get('user_id') %}
+                                            <button onclick="deleteComment('{{ comment.id }}')" title="Delete Entry"
+                                                    style="background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 0.9rem; transition: 0.3s; opacity: 0.8;"
+                                                    onmouseover="this.style.opacity='1'; this.style.transform='scale(1.1)';" 
+                                                    onmouseout="this.style.opacity='0.8'; this.style.transform='scale(1)';">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                        <p style="margin: 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.4;">{{ comment.content }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="comment-form" style="position: relative; margin-top: 20px; display: flex; align-items: center;">
+                                <input type="text" id="comment-input-{{ post.id }}" class="cyber-input" 
+                                    placeholder="Add a log entry..." 
+                                    style="width: 100%; border-radius: 25px; padding: 12px 50px 12px 20px; font-size: 0.95rem;"
+                                    onkeypress="if(event.key === 'Enter') submitComment('{{ post.id }}')"
+                                    oninput="toggleSendButton('{{ post.id }}')">
+                                
+                                <button id="send-btn-{{ post.id }}" onclick="submitComment('{{ post.id }}')" 
+                                        style="position: absolute; right: 15px; background: none; border: none; color: #00f3ff; font-size: 1.2rem; cursor: pointer; display: none; transition: transform 0.2s;">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card glass-card" style="text-align: center; padding: 50px;">
+                        <i class="fa-solid fa-satellite-dish" style="font-size: 3rem; color: #94a3b8; margin-bottom: 20px;"></i>
+                        <h2 style="color: #94a3b8; font-family: 'Orbitron', sans-serif;">No Transmissions Found</h2>
+                        <p style="color: #64748b;">Be the first to share an update with the network.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div id="profile-msg" style="position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 10px; display: none; z-index: 1000; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.5);"></div>
+
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

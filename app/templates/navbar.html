@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SENTRA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* CSS rule to lock the settings link instantly */
+    html.settings-locked a[href="/settings"] {
+        pointer-events: none !important;
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+    }
+</style>
+
+<script>
+    /* Immediate check before the page rendering process starts */
+    (function() {
+        var activeId = parseInt(sessionStorage.getItem('activeEspId'));
+        var mainId = parseInt(sessionStorage.getItem('mainMeterId'));
+        if (isNaN(activeId) || activeId === 0 || activeId === mainId) {
+            document.documentElement.classList.add('settings-locked');
+        }
+    })();
+</script>
+</head>
+
+<body class="nav-page">
+
+  <div class="navbar-container">
+    <nav class="navbar">
+
+      <div class="nav-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="logo-section">
+        <div class="logo-img-wrapper">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="S" class="logo-img">
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="/" class="{{ 'active' if request.path == '/' else '' }}">
+          <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="/analytics" class="{{ 'active' if request.path == '/analytics' else '' }}">
+          <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a href="/community" class="{{ 'active' if request.path == '/community' else '' }}">
+          <i class="fas fa-users"></i> Community
+        </a>
+        <a href="/settings" id="nav-settings" class="nav-item">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </a>
+        <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}">
+          <i class="fas fa-map-marker-alt"></i> About Us
+        </a>
+        <a href="/contact" class="{{ 'active' if request.path == '/contact' else '' }}">
+          <i class="fas fa-phone-alt"></i> Contact Us
+        </a>
+      </div>
+
+      <div class="right-icons">
+
+        <div class="notification-container icon-circle">
+          <i class="fas fa-bell"></i>
+
+          <div id="notification-popup" class="cyber-notif-popup"
+            style="display: none; background: transparent !important; border: none !important; box-shadow: none !important; padding-top: 15px;">
+
+            <svg class="notif-svg-bg" viewBox="0 0 380 400" preserveAspectRatio="none"
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: visible;">
+              <path d="M 15 15 
+                                  L 280 15 
+                                  L 292.5 8 
+                                  L 300 15 
+                                  L 368 15 
+                                  Q 378 15 378 25 
+                                  L 378 388 
+                                  Q 378 398 368 398 
+                                  L 15 398 
+                                  Q 2 398 2 388 
+                                  L 2 25 
+                                  Q 2 15 15 15 Z" fill="rgba(10, 15, 35, 0.4)" stroke="#3abdfe" stroke-width="1.5" />
+            </svg>
+
+            <div style="position: relative; z-index: 2;">
+              <div class="notif-header" style="border-bottom: 1px solid rgba(0, 243, 255, 0.2);">
+                <h4>NOTIFICATION LIST</h4>
+              </div>
+              <ul id="notification-list" class="notif-list">
+              </ul>
+              <div class="notif-footer" style="border-top: 1px solid rgba(0, 243, 255, 0.2);">
+                <button class="btn-clear" onclick="clearNotifications()">CLEAR ALL</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="icon-circle" onclick="openWifiModal()" title="ESP32 WiFi Config">
+          <i class="fa-solid fa-wifi"></i>
+        </div>
+
+        <div class="profile-dropdown-container">
+          <div class="icon-circle" title="Operator Profile" onclick="toggleProfileDropdown()">
+            {% if current_user.avatar_url %}
+            <img src="{{ current_user.avatar_url }}" alt="User" class="nav-avatar">
+            {% else %}
+            <i class="fa-solid fa-user"></i>
+            {% endif %}
+          </div>
+
+          <div id="profile-dropdown" class="cyber-dropdown-menu" style="display: none;">
+
+            <svg class="dropdown-svg-bg" viewBox="0 0 300 300" preserveAspectRatio="none">
+              <defs>
+                <polygon id="pentagon" points="0,-15 14.2,-4.6 8.8,12.1 -8.8,12.1 -14.2,-4.6" />
+              </defs>
+
+              <path d="M 285 0 
+                            L 240 35 
+                            L 25 35 
+                            Q 5 35 5 65 
+                            L 5 275 
+                            Q 5 295 35 295 
+                            L 275 295 
+                            Q 295 295 295 265 
+                            L 295 20 
+                            Z" fill="rgba(10, 15, 35, 0.4)" stroke="#3abdfe" stroke-width="1.5" />
+
+              <g fill="rgba(58, 189, 254, 0.05)" stroke="rgba(58, 189, 254, 0.2)" stroke-width="1.5">
+                <g transform="translate(60, 100) scale(1.5) rotate(10)">
+                  <use href="#pentagon" />
+                </g>
+                <g transform="translate(240, 80) scale(0.8) rotate(-15)">
+                  <use href="#pentagon" />
+                </g>
+                <g transform="translate(220, 220) scale(2.2) rotate(35)">
+                  <use href="#pentagon" />
+                </g>
+                <g transform="translate(80, 250) scale(1.2) rotate(-20)">
+                  <use href="#pentagon" />
+                </g>
+                <g transform="translate(150, 160) scale(0.6) rotate(45)">
+                  <use href="#pentagon" />
+                </g>
+              </g>
+
+              <path d="M -8 110 L -8 65 Q -8 22 35 22 L 90 22" stroke="#3abdfe" stroke-width="4" fill="none"
+                stroke-linecap="round" style="filter: drop-shadow(0 0 12px #3abdfe) drop-shadow(0 0 6px #3abdfe);" />
+
+              <path d="M -8 230 L -8 285 Q -8 308 35 308 L 90 308" stroke="#3abdfe" stroke-width="4" fill="none"
+                stroke-linecap="round" style="filter: drop-shadow(0 0 12px #3abdfe) drop-shadow(0 0 6px #3abdfe);" />
+
+              <path d="M 308 210 L 308 275 Q 308 308 275 308 L 210 308" stroke="#3abdfe" stroke-width="4" fill="none"
+                stroke-linecap="round" style="filter: drop-shadow(0 0 12px #3abdfe) drop-shadow(0 0 6px #3abdfe);" />
+            </svg>
+
+            <div class="floating-avatar">
+              {% if current_user.avatar_url %}
+              <img src="{{ current_user.avatar_url }}" alt="User">
+              {% else %}
+              <i class="fa-solid fa-user"></i>
+              {% endif %}
+            </div>
+
+            <div class="dropdown-content">
+              <a href="/profile" class="cyber-btn profile-btn-active">
+                <i class="fa-regular fa-user"></i>
+                <span>Profile</span>
+              </a>
+              <a href="/logout" class="cyber-btn logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket" style="transform: scaleX(-1);"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+  </div>
+
+  <div id="overlay" class="sidebar-overlay" onclick="toggleSidebar()"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;">
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-links">
+      <a href="/" class="{{ 'active' if request.path == '/' else '' }}">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/analytics" class="{{ 'active' if request.path == '/analytics' else '' }}">
+        <i class="fas fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="/community" class="{{ 'active' if request.path == '/community' else '' }}">
+        <i class="fas fa-users"></i>
+        <span>Community</span>
+      </a>
+      <a href="/settings" id="sidebar-settings-link" class="{{ 'active' if request.path == '/settings' else '' }}">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>About Us</span>
+      </a>
+      <a href="/contact" class="{{ 'active' if request.path == '/contact' else '' }}">
+        <i class="fas fa-phone-alt"></i>
+        <span>Contact Us</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="custom-modal" id="wifiModal" style="display: none;">
+    <div class="modal-content">
+      <h3 class="modal-title">
+        <i class="fa-solid fa-wifi" style="color: #00f3ff; margin-right: 10px;"></i> NETWORK SETUP
+      </h3>
+      <p class="modal-subtitle">CONNECT DEVICE TO A NEW NETWORK</p>
+
+      <div
+        style="color: #ccc; text-align: left; margin-bottom: 30px; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; line-height: 1.8;">
+        <p><i class="fa-solid fa-1" style="color: #ec4899; margin-right: 8px;"></i> Open your device Wi-Fi settings.</p>
+        <p><i class="fa-solid fa-2" style="color: #ec4899; margin-right: 8px;"></i> Connect to the network: <strong
+            style="color: #00f3ff;">ESP Setup</strong></p>
+        <p><i class="fa-solid fa-3" style="color: #ec4899; margin-right: 8px;"></i> Click the button below to open the
+          portal.</p>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeWifiModal()">CLOSE</button>
+
+        <a href="http://192.168.4.1" target="_blank" style="text-decoration: none; flex: 1;">
+          <button class="btn-confirm" style="width: 100%;" onclick="closeWifiModal()">OPEN PORTAL</button>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div id="toast-container"></div>
+
+</body>
+
+</html>

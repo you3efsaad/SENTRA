@@ -1,0 +1,483 @@
+import os
+from flask import Blueprint, request, jsonify
+import app.globals as g
+from datetime import datetime
+import google.generativeai as genai
+from collections import defaultdict
+from datetime import datetime, timedelta, timezone
+from app.globals import supabase
+from app.nilm_ai_Engin.data_synchronizer import DataSynchronizer
+from app.nilm_ai_Engin.engine_manager import NILMEngineManager
+import threading
+from flask import request, jsonify, session
+from app.nilm_ai_Engin.data_synchronizer import DataSynchronizer
+from app.nilm_ai_Engin.engine_manager import NILMEngineManager
+from app.nilm_ai_Engin.realtime_inference import RealTimeNILM
+import app.globals as g
+from supabase import create_client
+import logging
+import threading
+import os
+import traceback
+#######################################################
+
+api_bp = Blueprint('api', __name__)
+
+#######################################################
+
+logger = logging.getLogger("SENTRA_Core")
+
+#######################################################
+
+api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=api_key)
+
+def get_working_model():
+    try:
+        return genai.GenerativeModel('gemini-2.5-flash')
+    except Exception:
+        try:
+            return genai.GenerativeModel('gemini-2.5-pro')
+        except Exception:
+            return genai.GenerativeModel('gemini-flash-latest')
+
+gemini_model = get_working_model()
+
+########################################################
+
+nilm_engine = RealTimeNILM()
+@api_bp.route('/api/nilm/dashboard-status', methods=['GET'])
+def get_dashboard_ai_status():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        main_device_res = g.supabase.table("safe_power_devices").select("espid").eq("user_id", user_id).eq("is_main", True).execute()
+        
+        if not main_device_res.data:
+            return jsonify({"error": "No main meter found for this user"}), 400
+            
+        main_espid = main_device_res.data[0]['espid']
+        
+        response = g.supabase.table("user_readings").select("power").eq("espid", main_espid).order("timestamp", desc=True).limit(480).execute()
+        
+        if not response.data:
+            return jsonify({"error": "No aggregate data available yet"}), 400
+            
+        aggregate_window = [float(item['power']) for item in reversed(response.data)]
+        
+        devices = ['fridge', 'kettle', 'washing_machine']
+        results = {}
+        
+        for dev in devices:
+            power, status = nilm_engine.predict(user_id, dev, aggregate_window)
+            results[dev] = {
+                "power": power, 
+                "status": bool(status)
+            }
+            
+        return jsonify(results), 200
+
+    except Exception as e:
+        logger.error("API Exception in dashboard-status: %s", str(e))
+        return jsonify({"error": str(e)}), 500
+# ==========================================
+# NILM AI ENGINE ENDPOINTS
+# ==========================================
+
+@api_bp.route('/api/nilm/plug-status', methods=['GET'])
+def get_plug_status():
+    user_id = request.args.get('user_id') or session.get('user_id')
+    device_name = request.args.get('device_name')
+
+    if not user_id or not device_name:
+        return jsonify({"error": "Missing user_id or device_name parameters"}), 400
+
+    try:
+        synchronizer = DataSynchronizer(g.supabase)
+        status = synchronizer.get_plug_status_and_phase(user_id, device_name)
+        return jsonify(status), 200
+    except Exception as e:
+        logger.error("Exception in get_plug_status: %s", str(e))
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/nilm/trigger-engine', methods=['POST'])
+def trigger_engine_manually():
+    try:
+        def run_training_task():
+            logger.info("Manual NILM Engine cycle triggered.")
+            try:
+                thread_supabase_url = os.getenv("SUPABASE_URL")
+                thread_supabase_key = os.getenv("SUPABASE_KEY")
+                
+                if not thread_supabase_url or not thread_supabase_key:
+                    logger.error("Supabase URL or Key is missing in background thread!")
+                    return
+                    
+                local_supabase = create_client(thread_supabase_url, thread_supabase_key)
+                logger.info("Supabase client created successfully.")
+                
+                manager = NILMEngineManager(local_supabase)
+                logger.info("Calling process_active_plugs()...")
+                manager.process_active_plugs()
+                
+                logger.info("process_active_plugs() finished completely.")
+            except Exception as inner_e:
+                logger.error("THREAD CRASH: %s", str(inner_e))
+                logger.error(traceback.format_exc())
+        
+        thread = threading.Thread(target=run_training_task)
+        thread.start()
+        
+        return jsonify({"message": "NILM Engine training started safely in the background."}), 200
+        
+    except Exception as e:
+        logger.error("Exception in trigger_engine_manually: %s", str(e))
+        return jsonify({"error": str(e)}), 500
+
+
+
+# ==========================================
+# 1. Receive Data from ESP32 (The Heartbeat)
+# ==========================================
+@api_bp.route('/data', methods=['POST'])
+def receive_data():
+    try:
+        data = request.json
+        if not data or "espid" not in data:
+            return jsonify({"status": "error", "message": "Missing espid"}), 400
+
+        espid = int(data["espid"])
+        g.init_esp_state(espid)
+        esp = g.esps[espid]
+
+        new_power = float(data.get("power", 0))
+        
+        esp["power_buffer"].append(new_power)
+        
+        g.init_esp_state(espid)
+        esp = g.esps[espid]
+
+        new_energy = float(data.get("energy", 0))
+        old_energy = float(esp["data"].get("energy", 0))
+        
+        if old_energy == 0 and new_energy > 0 and g.supabase:
+            try:
+                last_record = g.supabase.table("user_readings").select("energy_consumption").eq("espid", espid).order("timestamp", desc=True).limit(1).execute()
+                if last_record.data and len(last_record.data) > 0:
+                    old_energy = float(last_record.data[0]["energy_consumption"])
+            except Exception:
+                pass
+
+        if old_energy > 0 and new_energy >= old_energy:
+            increment = new_energy - old_energy
+            
+            current_consumed = esp["settings"].get('consumed_since_budget', 0.0)
+            esp["settings"]["consumed_since_budget"] = current_consumed + increment
+
+            user_segment = int(esp["settings"].get("user_segment", 1))
+            segment_prices = {1: 0.58, 2: 0.68, 3: 0.83, 4: 1.25, 5: 1.40, 6: 1.50, 7: 1.65}
+            current_price = segment_prices.get(user_segment, 0.58)
+
+            current_dash_cost = esp["data"].get("total_dashboard_cost", 0.0)
+
+            if current_dash_cost == 0.0 and old_energy > 0:
+                current_dash_cost = old_energy * current_price
+
+            esp["data"]["total_dashboard_cost"] = current_dash_cost + (increment * current_price)
+
+        esp["data"]["voltage"] = float(data.get("voltage", 0))
+        esp["data"]["current"] = float(data.get("current", 0))
+        esp["data"]["power"] = float(data.get("power", 0))
+        esp["data"]["energy"] = new_energy
+        esp["data"]["frequency"] = float(data.get("frequency", 0))
+        esp["data"]["pf"] = float(data.get("pf", 0))
+
+        if "device_name" in data and data["device_name"]:
+            esp["data"]["ac_device_name"] = data["device_name"]
+
+        if ("device_db_id" not in esp["data"] or esp["data"]["user_id"] is None) and g.supabase:
+            try:
+                dev_res = g.supabase.table("safe_power_devices").select("id, user_id, device_name, is_main").eq("espid", espid).execute()
+                if dev_res.data:
+                    esp["data"]["user_id"] = dev_res.data[0]['user_id']
+                    
+                    if "ac_device_name" not in esp["data"] or not esp["data"]["ac_device_name"]:
+                        esp["data"]["ac_device_name"] = dev_res.data[0]['device_name']
+                        
+                    esp["data"]["device_db_id"] = dev_res.data[0]['id']
+                    esp["is_main"] = dev_res.data[0].get('is_main', False) 
+                else:
+                    return jsonify({"status": "error", "message": "Unregistered ESP"}), 401
+            except Exception:
+                pass
+
+        if "ac_device_name" not in esp["data"] or not esp["data"]["ac_device_name"]:
+            esp["data"]["ac_device_name"] = "Unknown Device"
+
+        esp["last_update_time"] = datetime.now()
+
+        user_id = esp["data"].get("user_id")
+
+        if user_id:
+            try:
+                now = datetime.now()
+                last_insert = esp.get("last_db_insert_time")
+                
+                if not last_insert or (now - last_insert).total_seconds() >= 8:
+                    db_device_name = esp["data"].get("ac_device_name", "Unknown Device")
+                    
+                    current_tier = str(esp["settings"].get("user_segment", "1"))
+                    
+                    g.supabase.table("user_readings").insert({
+                        "user_id": user_id,
+                        "espid": espid,
+                        "voltage": esp["data"]["voltage"],
+                        "current": esp["data"]["current"],
+                        "power": esp["data"]["power"],
+                        "energy_consumption": esp["data"]["energy"],
+                        "frequency": esp["data"]["frequency"],
+                        "pf": esp["data"]["pf"], 
+                        "device_name": db_device_name,
+                        "tariff_tier": current_tier, 
+                        "timestamp": now.isoformat()
+                    }).execute()
+                    
+                    esp["last_db_insert_time"] = now
+            except Exception:
+                pass
+
+        remaining_time = 0
+        if esp["timer"]["end_time"]:
+            now = datetime.now()
+            if now < esp["timer"]["end_time"]:
+                remaining_time = int((esp["timer"]["end_time"] - now).total_seconds())
+            else:
+                remaining_time = 0
+                esp["timer"]["end_time"] = None
+                if esp["control"].get("latest_command", "off") == "on":
+                    esp["control"]["latest_command"] = "off"
+
+        response = {
+            "status": "success",
+            "command": esp["control"].get("latest_command", "off"),
+            "current_limit": esp["control"].get("current_limit", 0),
+            "timer": remaining_time
+        }
+        
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@api_bp.route('/get_device', methods=['GET'])
+def get_device():
+    espid = request.args.get('espid', type=int)
+    
+    # Return Idle if no espid is provided
+    if not espid:
+        return jsonify({"device": "Idle"})
+        
+    if g.supabase:
+        try:
+            # Fetch device name from safe_power_devices
+            res = g.supabase.table("safe_power_devices").select("device_name").eq("espid", espid).execute()
+            if res.data:
+                return jsonify({"device": res.data[0]["device_name"]})
+        except Exception as e:
+            print(f"Database error while fetching device name: {e}")
+            
+    return jsonify({"device": "Idle"}) 
+# ==========================================
+# 2. Update WiFi Config
+# ==========================================
+@api_bp.route('/api/wifi-config', methods=['POST'])
+def update_wifi_config():
+    try:
+        data = request.json
+        new_ssid = data.get('ssid')
+        new_pass = data.get('password')
+        
+        # Save to Globals for ESP32 to pick up
+        g.pending_wifi_config = {
+            "ssid": new_ssid,
+            "password": new_pass
+        }
+        
+        print(f"[📡] New WiFi Config Received: SSID={new_ssid}")
+        return jsonify({"status": "success", "message": "Config saved and waiting for ESP"})
+    
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+# ==========================================
+# 3. Emergency Trip / Control Sync
+# ==========================================
+@api_bp.route('/control', methods=['GET', 'POST'])
+@api_bp.route('/esp_command', methods=['GET', 'POST'])
+def control_device():
+    data = request.get_json(silent=True) or {}
+    
+    espid_raw = request.args.get('espid') or data.get('espid')
+    
+    if not espid_raw or espid_raw in ['0', 'null', 'undefined', 0]:
+        return jsonify({"command": "off"}), 400
+        
+    try:
+        espid = int(espid_raw)
+    except (ValueError, TypeError):
+        return jsonify({"command": "off"}), 400
+    
+    if hasattr(g, 'esps') and espid in g.esps:
+        esp_settings = g.esps[espid]["settings"]
+        
+        if request.method == 'POST' and 'command' in data:
+            cmd = data['command']
+            g.esps[espid]["control"]["latest_command"] = cmd
+            
+            if cmd == "off":
+                esp_settings["manual_locked"] = True
+                g.esps[espid]["timer"]["end_time"] = None
+            elif cmd == "on":
+                esp_settings["manual_locked"] = False
+                
+        is_locked = esp_settings.get("manual_locked", False)
+        
+        return jsonify({
+            "command": g.esps[espid]["control"].get("latest_command", "off"),
+            "locked": is_locked
+        })
+        
+    return jsonify({"command": "off", "locked": False})
+
+
+# ==========================================
+# ANALYTICS DATA ENDPOINTS (API)
+# ==========================================
+@api_bp.route('/report/<period>', methods=['GET'])
+def get_report(period):
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Missing user_id"}), 400
+        
+    try:
+        latest_record = g.supabase.table('user_readings') \
+            .select('timestamp') \
+            .eq('user_id', str(user_id)) \
+            .order('timestamp', desc=True) \
+            .limit(1) \
+            .execute()
+            
+        if latest_record.data:
+            latest_time_str = latest_record.data[0]['timestamp']
+            if latest_time_str.endswith('Z'):
+                latest_time_str = latest_time_str[:-1] + '+00:00'
+            now = datetime.fromisoformat(latest_time_str)
+        else:
+            now = datetime.now(timezone.utc)
+            
+        mode = 'standard'
+        if period == 'daily':
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            label_fmt = '%H:00'
+        elif period == 'weekly':
+            start_date = now - timedelta(days=7)
+            label_fmt = '%a'
+        elif period == 'monthly':
+            start_date = now - timedelta(days=30)
+            mode = 'monthly_weeks'
+        elif period == 'yearly':
+            start_date = now - timedelta(days=365)
+            label_fmt = '%b'
+            mode = 'yearly'
+        else:
+            start_date = now - timedelta(days=1)
+            label_fmt = '%H:00'
+            
+        start_iso = start_date.isoformat() 
+        
+        response = g.supabase.table('user_readings') \
+            .select('timestamp, power, energy_consumption, tariff_tier, device_name') \
+            .eq('user_id', str(user_id)) \
+            .gte('timestamp', start_iso) \
+            .order('timestamp') \
+            .limit(10000) \
+            .execute()
+            
+        data = response.data if response.data else []
+        
+        aggregated_energy = defaultdict(float)
+        aggregated_peak = defaultdict(float)
+        keys_order = []
+        
+        tier_prices = {
+            "1": 0.68,
+            "2": 0.78,
+            "3": 0.95,
+            "4": 1.55,
+            "5": 1.95,
+            "6": 2.10,
+            "7": 2.23
+        }
+
+        last_energy = None
+        total_historical_cost = 0.0
+        
+        for item in data:
+            device_name = item.get('device_name', '').upper()
+            
+            # Process and calculate metrics ONLY for the main meter
+            if device_name == 'TOTAL (MAIN)':
+                ts_str = item['timestamp']
+                if ts_str.endswith('Z'):
+                    ts_str = ts_str[:-1] + '+00:00'
+                dt = datetime.fromisoformat(ts_str)
+                
+                power = float(item.get('power', 0))
+                current_energy = float(item.get('energy_consumption', 0))
+                historical_tier = str(item.get('tariff_tier', '1'))
+                
+                delta = 0
+                if last_energy is not None:
+                    delta = current_energy - last_energy
+                    if delta < 0:
+                        delta = 0
+                
+                last_energy = current_energy
+                
+                rate_at_timestamp = tier_prices.get(historical_tier, 0.68)
+                total_historical_cost += (delta * rate_at_timestamp)
+                
+                if mode == 'monthly_weeks':
+                    days_diff = (dt - start_date).days
+                    week_num = min((days_diff // 7) + 1, 4)
+                    key = f"Week {week_num}"
+                else:
+                    key = dt.strftime(label_fmt)
+                    
+                if key not in aggregated_energy:
+                    keys_order.append(key)
+                    
+                aggregated_energy[key] += delta
+                if power > aggregated_peak[key]:
+                    aggregated_peak[key] = power
+                
+        labels = keys_order
+        values_total = [round(aggregated_energy[k], 4) for k in keys_order]
+        values_peak = [round(aggregated_peak[k], 2) for k in keys_order]
+        
+        total_consumption = sum(values_total)
+        
+        return jsonify({
+            "labels": labels,
+            "values_total": values_total,
+            "values_peak": values_peak,
+            "total_consumption": round(total_consumption, 3),
+            "total_cost": round(total_historical_cost, 2),
+            "peak_consumption": round(max(values_peak) if values_peak else 0, 2)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in {period} report: {str(e)}")
+        return jsonify({"error": str(e)}), 500

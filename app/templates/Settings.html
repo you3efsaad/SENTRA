@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Settings</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+</head>
+
+<body class="settings-page nav-page">
+    <div class="layout-wrapper">
+        {% include "navbar.html" %}
+
+        <div class="page">
+            <div class="card">
+
+                <div class="card-header">
+                    <h1 class="card-title neon-header">
+                        <img src="{{ url_for('static', filename='images/Settings.png') }}" alt="Reports Icon"
+                            class="icon-animated">Settings
+                    </h1>
+                </div>
+
+                <div class="card-content">
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-bolt fa-shake fa-lg" style="color: #74C0FC;"></i>
+                            <h3>Current Limits</h3>
+                        </div>
+
+                        <label for="current-limit">Enter Current Limit (A)</label>
+                        <div class="input-group">
+                            <input type="text" id="current-limit" placeholder="Enter current limit" />
+                            <button class="btn-submit" onclick="submitCurrentLimit()">Submit</button>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Current Limit:</span>
+
+                            <div class="info-value-box">
+                                <span class="digit-part" id="ww">0</span>
+                                <span class="unit-part">A</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-bolt-lightning fa-beat fa-lg" style="color: #eab308;"></i>
+                            <h3>Voltage Limits</h3>
+                        </div>
+
+                        <div class="settings-flex-row">
+                            <div class="settings-flex-col">
+                                <label for="min-voltage">Min Voltage (V)</label>
+                                <div class="input-group">
+                                    <input type="text" id="min-voltage" placeholder="e.g., 190" />
+                                </div>
+                            </div>
+
+                            <div class="settings-flex-col">
+                                <label for="max-voltage">Max Voltage (V)</label>
+                                <div class="input-group">
+                                    <input type="text" id="max-voltage" placeholder="e.g., 250" />
+                                    <button class="btn-submit" onclick="submitVoltageLimits()">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-flex-row voltage-active-row">
+                            <div class="settings-flex-col">
+                                <div class="info-row clean-info-row">
+                                    <span class="info-label">Min Limit:</span>
+                                    <div class="info-value-box clean-value-box">
+                                        <span class="digit-part" id="active-min-v">190</span>
+                                        <span class="unit-part">V</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-flex-col">
+                                <div class="info-row clean-info-row">
+                                    <span class="info-label">Max Limit:</span>
+                                    <div class="info-value-box clean-value-box">
+                                        <span class="digit-part" id="active-max-v">250</span>
+                                        <span class="unit-part">V</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-coins fa-beat fa-lg" style="color: #facc15;"></i>
+                            <h3>Energy Budget Limit</h3>
+                        </div>
+                        <input type="hidden" id="user-tariff-tier" value="{{ current_user.tariff_type }}">
+
+                        <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <label for="budget-egp" style="margin-bottom: 0.8rem; display: block;">Enter Budget
+                                    Limit (EGP)</label>
+                                <div class="input-group">
+                                    <input type="text" id="budget-egp" placeholder="Enter amount in EGP"
+                                        oninput="window.calculateKWh()" />
+                                </div>
+                            </div>
+
+                            <div style="flex: 1; min-width: 250px;">
+                                <label for="budget-duration" style="margin-bottom: 0.8rem; display: block;">Set Duration
+                                    (in days)</label>
+                                <div class="input-group">
+                                    <input type="text" id="budget-duration" placeholder="Enter duration in days" />
+                                    <button class="btn-submit" onclick="window.submitEnergyBudget()">Set Budget</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" style="margin-top: 30px;">
+                            <span class="info-label">Equivalent Energy:</span>
+
+                            <div class="info-value-box">
+                                <span class="digit-part" id="budget-kwh-display">0.0</span>
+                                <span class="unit-part">kWh</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-regular fa-clock fa-spin fa-lg" style="color: #74C0FC;"></i>
+                            <h3>Timer Durations</h3>
+                        </div>
+
+                        <label for="timer-duration">Set Timer Duration (in minutes)</label>
+                        <div class="input-group">
+                            <input type="text" id="timer-duration" placeholder="Enter duration" />
+                            <button class="btn-submit" id="set-time-btn" onclick="onSetTimeClick()">Set Time</button>
+                            <button class="btn-submit" id="pause-btn" style="display:none"
+                                onclick="onPauseClick()">Pause</button>
+                            <button class="btn-submit" id="cancel-btn" style="display:none"
+                                onclick="onCancelClick()">Cancel</button>
+                        </div>
+
+                        <div id="timer" class="time-row">
+                            <div class="time-col">
+                                <input type="text" id="hours" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Hours</p>
+                            </div>
+                            <div class="time-col">
+                                <input type="text" id="minutes" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Minutes</p>
+                            </div>
+                            <div class="time-col">
+                                <input type="text" id="seconds" maxlength="2" placeholder="00" disabled />
+                                <p class="label">Seconds</p>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <div class="separator"></div>
+
+                    <section class="section">
+                        <div class="section-header">
+                            <i class="fa-solid fa-satellite-dish" style="color: #74C0FC;"></i>
+                            <h3>Remote Control</h3>
+                        </div>
+
+                        <div class="remote-buttons">
+                            <button id="on-btn" class="state-btn" onclick="sendCommand('on')">
+                                <i class="fa-solid fa-power-off"></i> On
+                            </button>
+                            <button id="off-btn" class="state-btn" onclick="sendCommand('off')">
+                                <i class="fa-solid fa-power-off"></i> Off
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
