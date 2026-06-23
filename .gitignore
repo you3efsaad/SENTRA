@@ -16,4 +16,3 @@ test_kettle_only.py
 test.py
 app/nilm_ai_Engin/user_models/7889e6d4-9136-4d14-9a47-d29c66d8334c_fridge.pth
 app/nilm_ai_Engin/user_models/7889e6d4-9136-4d14-9a47-d29c66d8334c_kettle.pth
-user_models/
